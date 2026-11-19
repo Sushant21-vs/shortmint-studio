@@ -24,6 +24,7 @@ from pydantic import BaseModel, Field
 from PIL import Image, ImageDraw, ImageFont
 from captions import parse_srt, clip_srt, transcript_to_srt
 from accounts import user_for_request, install_auth_routes, reserve_credits, finish_credit_job
+from downloads import source_platform, install_download_routes
 
 ROOT = Path(__file__).resolve().parent
 DATA_ROOT = Path(os.environ.get('SHORTMINT_STORAGE_DIR') or str(ROOT / 'storage')).resolve()
@@ -187,13 +188,10 @@ class YoutubeImport(BaseModel):
 
 @app.post('/api/import-url')
 def import_url(body: YoutubeImport, user=Depends(user_for_request)):
-    parsed = urlparse(body.url.strip())
-    host = (parsed.hostname or '').lower()
-    if parsed.scheme not in {'http', 'https'} or host not in {
-        'youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be',
-        'www.youtu.be', 'music.youtube.com', 'youtube-nocookie.com', 'www.youtube-nocookie.com'
-    }:
-        raise HTTPException(400, 'Paste a valid YouTube video link.')
+    try:
+        platform = source_platform(body.url)
+    except ValueError as err:
+        raise HTTPException(400,str(err))
     sid = uuid.uuid4().hex
     folder = STORAGE / sid
     folder.mkdir(parents=True)
@@ -204,19 +202,19 @@ def import_url(body: YoutubeImport, user=Depends(user_for_request)):
             '--max-filesize', '1G', '--match-filter', 'duration < 86400',
             '-f', 'bv*[height<=1080]+ba/b[height<=1080]/best',
             '--merge-output-format', 'mp4', '-o', str(folder / 'source.%(ext)s'),
-            body.url.strip()
+            '--', body.url.strip()
         ]
         proc = run(cmd, timeout=900)
         if proc.returncode != 0:
-            last = (proc.stderr or proc.stdout or 'YouTube could not provide this video.').strip().splitlines()
-            raise ValueError('YouTube import failed: ' + (last[-1][:260] if last else 'Unknown error'))
+            last = (proc.stderr or proc.stdout or 'The platform could not provide this video.').strip().splitlines()
+            raise ValueError(f'{platform} import failed: ' + (last[-1][:260] if last else 'Unknown error'))
         files = [p for p in folder.glob('source.*') if p.suffix.lower() in ALLOWED_EXTS]
         if not files:
             raise ValueError('No video was downloaded. Try uploading the original video file instead.')
         source = files[0]
         if source.stat().st_size > MAX_UPLOAD_BYTES:
             raise ValueError('Video is larger than 1 GB.')
-        return new_session(source, 'YouTube video', user['id'])
+        return new_session(source, f'{platform} video', user['id'])
     except ValueError as err:
         shutil.rmtree(folder, ignore_errors=True)
         raise HTTPException(400, str(err))
@@ -755,4 +753,5 @@ def list_projects(user=Depends(user_for_request)):
 
 
 install_auth_routes(app)
+install_download_routes(app,STORAGE)
 app.mount('/', StaticFiles(directory=STATIC, html=True), name='static')

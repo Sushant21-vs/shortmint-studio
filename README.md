@@ -1,4 +1,78 @@
-# ShortMint Studio v3 — GitHub/Render YouTube Shorts Creator
+# ShortMint Studio v5 — Social Link Shorts + Free Daily Video Downloads
+
+This upgrade extends ShortMint Studio v4 (manual Buy Credits, owner approvals, and the **Made by Sushant Hero** footer). It retains the free Render Blueprint and all existing functionality.
+
+## New features in v5
+
+**Create Shorts from links:** In **Create Shorts → YouTube / TikTok / Instagram link**, paste a public HTTPS video URL that you own or have permission to edit. ShortMint imports it through yt-dlp and opens the usual trimming, captions, vertical crop and MP4 editor. Import itself does not deduct any Shorts credits; exporting Shorts still consumes the existing member balance (1 per Short). Many Instagram/TikTok links may block automated extraction, require login, or restrict quality. The website does not bypass these restrictions.
+
+**Separate Download Videos tab:** Paste a YouTube, TikTok or Instagram public video URL, select a quality, check the permission confirmation, and start the download. Files are private to the signed-in user. Video downloads are source files, **not** necessarily MP4 or already formatted as vertical Shorts. Download files expire after 6 hours on the server.
+
+**Free daily download credits (independent of the Shorts/buy credits):**
+
+| Quality selected | Free daily download credits used |
+|---|---:|
+| 720p | 1 |
+| 1080p | 1 |
+| 1440p / 2K | 2 |
+| 2160p / 4K | **3** |
+
+- Friends receive a default allowance of **5 free download credits per UTC day**, renewing at 00:00 UTC. This is a *spending limit*, not a credit balance added to their regular Shorts credits. The default allows five HD downloads, or one 4K plus two HD downloads, provided the files are available.
+- The owner has unlimited download credits. **Admin panel → New Member Settings → Free download credits per member / day** can adjust the allowance from 0 to 100. The cap is enforced transactionally by the server; users cannot edit their balances in the browser.
+- A successful download uses the selected quality's daily credits even if the source offers only a lower quality for 720p/1080p. **1440p/4K are required to be available**; otherwise the operation fails and returns the reserved credits. Failed downloads also return their credits.
+- The extractor uses yt-dlp to access public accessible media only, with **no login cookies, DRM bypass, or private-content access**. Some platform links may not work because of platform restrictions, rate limits, or extractor changes. 4K is rare on TikTok and Instagram.
+- Download size is limited to about 350 MB per file and processing time is limited to 10 minutes. Render Free may fail much earlier due to limited CPU/RAM/storage; testing at 720p with small clips first is recommended.
+- Download files are kept in an authenticated temporary folder and pruned after 6 hours as new downloads occur. Their daily allowance record remains in SQLite for the day. Requesting a saved file again does not use another credit while it is available.
+
+## Files to replace in existing GitHub repository
+
+Upload these files **preserving the indicated paths** to the root of `Sushant21-vs/shortmint-studio`:
+
+```text
+app.py                        REPLACE
+accounts.py                   REPLACE
+downloads.py                  ADD (new backend)
+static/index.html             REPLACE
+static/dashboard.js           REPLACE
+static/downloads.js           ADD (new page interactions)
+static/downloads.css          ADD (new page styling)
+README.md                     REPLACE (optional documentation)
+```
+
+No change needed to `render.yaml`, `Dockerfile`, or the existing credits/shorts files. Commit changes to `main` and Render should redeploy the site (Settings → Deploys for status). **The existing Render Free server is ephemeral**: a redeploy, restart or spin-down can delete the SQLite database of members, credits, invite codes, purchase requests and video files. No site with paid credits should take real customer money without a durable database, storage and backups. This does not become persistent merely because it is on GitHub.
+
+Run locally: extract the complete v5 archive and run `start_windows.bat` (FFmpeg + Python needed). Run automated tests with `python -m pytest -q tests/` after installing `pip install -r requirements.txt pytest httpx`. The tests verify daily quotas and download delivery with **mocked social-platform retrieval**. They do **not** prove that every live YouTube, TikTok or Instagram URL will be downloadable on Render.
+
+---
+
+## Previous v4 documentation
+
+## NEW v4: Buy Credits / Contact Owner (manual payments, free to use)
+
+- Friends can visit **Buy Credits** and choose 10, 25, 50, 100, or a custom number of credits. **No prices or payment gateways are promised or displayed.**
+- They leave an email or WhatsApp number and submit an inquiry; this appears in the **owner's Admin Panel → Purchase Inquiries**. A user can have one pending inquiry at a time.
+- Owner can optionally enter a WhatsApp number and/or contact email in **Admin Panel → How members can contact you**. Signed-in members get direct WhatsApp/email links as well as the in-app request form. Leave fields blank for in-app inquiries only.
+- **No credits are granted when someone clicks Buy or sends a request.** Only the owner can click **Mark paid & grant**, after independently verifying payment. The grant and review status are applied atomically, with a credit audit trail, and the same order cannot be fulfilled twice.
+- Credits can also be granted or removed directly in **Admin Panel → Member Accounts**. Set **Starting credits per friend** to `0` if you want every new friend to receive credits only from you. Previously registered members keep their existing balances.
+- This update uses the existing SQLite database and creates a new table. On a persistent installation, existing accounts, invitations, credit balances and projects remain intact. **Back up your database before replacing code.**
+- The included browser-tab/favicon update is preserved.
+- **Free Render limitation:** SQLite data, members and video files can be lost when the instance restarts, sleeps or is redeployed. This is not suitable for storing paid customer credit balances. Use a persistent DB/storage setup before accepting real money.
+
+### Upgrade your existing GitHub repository
+
+Replace these five files **at the same paths**, do not delete your existing repository:
+
+1. `accounts.py`
+2. `static/index.html`
+3. `static/dashboard.js`
+4. `static/dashboard.css`
+5. `README.md` (optional documentation update)
+
+Your existing `app.py`, `render.yaml`, `Dockerfile`, and all other files do not need changes. Once committed, Render should redeploy automatically. On the **free tier**, redeployment may reset the existing accounts and credits.
+
+---
+
+# ShortMint Studio v4 — Manual Buy Credits + Owner-Only Grants
 
 A real video-to-Shorts editor with private accounts, an orange-on-dark dashboard, friend invitations and a server-enforced credit system. **Ready to put in a GitHub repository**, with a Dockerfile and Render Blueprint for a running website. The ZIP contains source code — it is not an already hosted live service.
 

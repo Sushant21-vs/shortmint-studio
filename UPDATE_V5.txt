@@ -1,0 +1,3 @@
+ShortMint v5: social links + free daily video downloads.
+Replace app.py, accounts.py, add downloads.py, replace static/index.html and static/dashboard.js, add static/downloads.js and static/downloads.css. README.md optional.
+Daily free allowance default 5; 4K costs 3 free daily download credits; admin configurable. Normal Shorts credits are separate. Never treat ephemeral Render Free accounts as durable paid balances.

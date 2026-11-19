@@ -6,7 +6,7 @@
   <meta name="description" content="ShortMint Studio: share a video-to-shorts workspace with friends, credit requests and private admin controls.">
   <title>ShortMint Studio v3 · YouTube Shorts Maker</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMwYTBkMTciLz48cGF0aCBkPSJNMzIgNS4yIDQwLjYgMjMuNCA1OC44IDMyIDQwLjYgNDAuNiAzMiA1OC44IDIzLjQgNDAuNiA1LjIgMzIgMjMuNCAyMy40WiIgZmlsbD0iI2ZmNzgxZiIvPjxwYXRoIGQ9Ik0yNyAyMi41IDQzLjUgMzIgMjcgNDEuNVoiIGZpbGw9IiNmZmZmZmYiLz48Y2lyY2xlIGN4PSI0OSIgY3k9IjQ5IiByPSI0IiBmaWxsPSIjNDhkN2FjIi8+PC9zdmc+">
-  <link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/dashboard.css">
+  <link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/dashboard.css"><link rel="stylesheet" href="/downloads.css">
 </head>
 <body>
   <section id="auth-view" class="auth-screen hidden">
@@ -32,6 +32,7 @@
         <nav class="header-nav" aria-label="Main navigation">
           <button class="nav-link active" data-view="dashboard">Dashboard</button>
           <button class="nav-link" data-view="studio">Create Shorts</button>
+          <button class="nav-link" data-view="downloads">Download Videos</button>
           <button class="nav-link" data-view="credits">Credits</button>
           <button id="buy-nav" class="nav-link" data-view="buy">Buy Credits</button>
           <button id="admin-nav" class="nav-link hidden" data-view="admin">Admin panel <span id="nav-request-count" class="mini-alert hidden">0</span></button>
@@ -54,6 +55,7 @@
           <article class="dashboard-panel highlight-panel"><div><span class="card-kicker">QUICK START</span><h2>Create New Project</h2><p>Upload or import a video, pick moments, and generate vertical Shorts.</p></div><button id="dashboard-new-project" type="button" class="orange-btn wide">＋ &nbsp; New Project <span>→</span></button></article>
           <article class="dashboard-panel"><div><span class="card-kicker muted-orange">ACCOUNT & ACCESS</span><h2 id="access-heading">Manage Credits</h2><p id="access-description">Keep creating with credits approved by the owner.</p></div><div class="panel-actions"><button id="dashboard-manage-credits" class="secondary-btn wide">View Credit Balance</button><button id="dashboard-secondary-action" class="gray-btn wide">Buy Credits / Contact Owner</button></div></article>
         </div>
+        <div class="downloads-quick-link"><span>NEW · Download public videos from YouTube, TikTok and Instagram with daily free credits</span><button class="outline-btn" type="button" data-view="downloads">Open Video Downloader →</button></div>
         <div class="section-title-row"><h2>Creator Toolbox <span class="little-flare">✦</span></h2><span>Better Shorts, one video at a time</span></div>
         <div class="tips-grid"><article class="tip-card"><span>STRONGER HOOKS</span><h3>Make your first 3 seconds count</h3><p>Start with a question, surprising result, or the most interesting line.</p><button type="button" data-view="studio">Create a Short ↗</button></article><article class="tip-card"><span>VERTICAL CONTENT</span><h3>Turn landscape into 9:16</h3><p>Pick center-crop or blur to make your long video fit a vertical format.</p><button type="button" data-view="studio">Open the Studio ↗</button></article><article class="tip-card"><span>SMARTER EDITING</span><h3>Find your best moments</h3><p>Use activity-based picks, then review every clip before you publish.</p><button type="button" data-view="studio">Explore tools ↗</button></article></div>
         <div class="section-title-row project-heading"><h2>Your Projects</h2><button type="button" class="text-btn" id="refresh-projects">↻ Refresh</button></div>
@@ -63,6 +65,40 @@
         <div class="page-heading"><div><span class="overline">YOUR ACCOUNT</span><h1>Credits & Requests</h1><p>Keep track of Shorts credits and ask the owner for more.</p></div></div>
         <div class="credits-layout"><article class="dashboard-panel balance-card"><span class="card-kicker">CURRENT BALANCE</span><strong id="big-credit-count">–</strong><p id="balance-info">1 credit = 1 exported Short. Credits are returned if an export fails or is cancelled.</p></article><article id="request-credit-panel" class="dashboard-panel"><span class="card-kicker">NEED MORE?</span><h2>Request Credits</h2><p>Submit a request here. The owner can approve or reject it in their admin dashboard.</p><form id="request-credit-form" class="stack-form"><label for="request-amount">Credits needed</label><input id="request-amount" type="number" min="1" max="500" value="10" required><label for="request-message">Message to the owner (optional)</label><textarea id="request-message" maxlength="300" rows="3" placeholder="I need more credits for my upcoming videos"></textarea><button type="submit" class="orange-btn">Send Credit Request →</button></form></article><article id="owner-info-panel" class="dashboard-panel hidden"><span class="card-kicker">OWNER ACCESS</span><h2>Unlimited Shorts</h2><p>As the site owner, you never spend credits. Manage friend accounts and their requests in your private admin panel.</p><button type="button" class="orange-btn" data-view="admin">Open Admin Panel →</button></article></div>
         <div class="history-grid"><article class="dashboard-panel"><h2>Credit Activity</h2><div id="credit-history" class="history-list"></div></article><article class="dashboard-panel"><h2>Your Requests</h2><div id="my-requests" class="history-list"></div></article></div>
+      </section>
+      <section id="downloads-view" class="app-page hidden">
+        <div class="page-heading"><div><span class="overline">SHORTMINT DOWNLOAD STUDIO</span><h1>Download Videos <span class="wave">✦</span></h1><p>Save public video links you own or have permission to use. Free daily download allowance; no payment required.</p></div></div>
+        <div class="download-layout">
+          <article class="dashboard-panel download-main">
+            <div class="download-platforms"><span>▶ YouTube</span><span>♪ TikTok</span><span>◎ Instagram</span></div>
+            <h2>Paste a video link</h2>
+            <form id="video-download-form" class="stack-form">
+              <label for="download-video-url">Public video URL</label>
+              <input type="url" id="download-video-url" required placeholder="https://www.instagram.com/reel/…" autocomplete="off" maxlength="1200">
+              <label for="download-quality">Video quality</label>
+              <select id="download-quality">
+                <option value="720">720p · 1 daily credit</option>
+                <option value="1080" selected>1080p · 1 daily credit</option>
+                <option value="1440">1440p · 2 daily credits (if available)</option>
+                <option value="2160">4K / 2160p · 3 daily credits (if available)</option>
+              </select>
+              <label class="checkbox-label download-permission"><input id="download-rights" type="checkbox" required> I own this video or have permission to download it.</label>
+              <button type="submit" class="orange-btn wide" id="start-video-download">↓ Download Video</button>
+            </form>
+            <div id="download-feedback" class="download-feedback hidden" role="status"><span id="download-status-icon">◉</span><div><strong id="download-status-title">Preparing…</strong><p id="download-status-text"></p><a id="download-file-link" class="orange-btn hidden" href="#">↓ Save video to device</a></div></div>
+            <p class="mini-caption">Public accessible videos only. No private posts, login bypass, or DRM downloads. Some links may be blocked by their platforms. 4K is not available on every video, and the free server may reject large files (350 MB maximum). Files expire after 6 hours.</p>
+          </article>
+          <aside class="dashboard-panel download-balance">
+            <span class="card-kicker">DAILY FREE DOWNLOADS</span><h2 id="download-available">—</h2>
+            <p id="download-allowance-label">Download credits remaining today</p>
+            <div class="daily-meter"><span id="download-meter-fill"></span></div>
+            <p id="download-usage-text" class="muted">Checking your free allowance…</p>
+            <div class="download-price-list"><div><span>720p or 1080p</span><strong>1 credit</strong></div><div><span>1440p / 2K</span><strong>2 credits</strong></div><div><span>2160p / 4K</span><strong>3 credits</strong></div></div>
+            <p class="mini-caption">Your free allowance resets each day at 00:00 UTC. This is separate from credits used to create Shorts.</p>
+          </aside>
+        </div>
+        <div class="section-title-row"><h2>Your recent downloads</h2><button class="text-btn" type="button" id="refresh-download-list">↻ Refresh</button></div>
+        <div id="recent-downloads" class="dashboard-panel download-recent"><p class="muted">Finished downloads will appear here.</p></div>
       </section>
       <section id="buy-view" class="app-page hidden">
         <div class="page-heading"><div><span class="overline">SHORTMINT CREDIT STORE</span><h1>Buy Credits <span class="wave">✦</span></h1><p>Choose a pack, contact the owner, and get credits added manually after payment is confirmed.</p></div></div>
@@ -89,7 +125,7 @@
         <div class="page-heading"><div><span class="overline">OWNER ONLY</span><h1>Admin Dashboard <span class="wave">✦</span></h1><p>Approve requests, invite friends, and manage each member's credits.</p></div><button id="admin-refresh" class="outline-btn">↻ Refresh dashboard</button></div>
         <div class="admin-summary"><div><span>Members</span><strong id="admin-members">0</strong></div><div><span>Pending requests</span><strong id="admin-pending">0</strong></div><div><span>Active invitations</span><strong id="admin-invites">0</strong></div></div>
         <div class="admin-main-grid"><article class="dashboard-panel"><div class="admin-panel-heading"><div><span class="card-kicker">ACCESS CONTROL</span><h2>Invite a Friend</h2></div></div><p>Generate a unique one-time invite code. Share the website address and the code with your friend.</p><button id="create-invite" class="orange-btn">＋ Generate Invite Code</button><div id="invite-list" class="history-list spaced"></div></article>
-        <article class="dashboard-panel"><span class="card-kicker">DEFAULTS</span><h2>New Member Settings</h2><p>Choose how many free Shorts credits every newly invited member receives.</p><form id="starting-credit-form" class="stack-form"><label for="starting-credits">Starting credits per friend</label><input id="starting-credits" type="number" min="0" max="1000" value="5" required><button class="secondary-btn" type="submit">Save Starting Credits</button></form><p class="mini-caption">Existing balances will not be changed.</p></article></div>
+        <article class="dashboard-panel"><span class="card-kicker">DEFAULTS</span><h2>New Member Settings</h2><p>Choose how many free Shorts credits every newly invited member receives.</p><form id="starting-credit-form" class="stack-form"><label for="starting-credits">Starting credits per friend</label><input id="starting-credits" type="number" min="0" max="1000" value="5" required><button class="secondary-btn" type="submit">Save Starting Credits</button></form><p class="mini-caption">Existing balances will not be changed.</p><div class="settings-divider"></div><form id="daily-download-form" class="stack-form"><label for="daily-download-credits">Free download credits per member / day</label><input id="daily-download-credits" type="number" min="0" max="100" value="5" required><button class="secondary-btn" type="submit">Save Daily Download Limit</button></form><p class="mini-caption">Resets at midnight UTC; separate from paid Shorts credits. Your owner account remains unlimited.</p></article></div>
         <div class="section-title-row"><h2>Credit Requests <span id="request-heading-count" class="count-pill">0 pending</span></h2></div>
         <div id="admin-requests" class="admin-list"><div class="empty-list">No pending credit requests yet.</div></div>
         <div class="section-title-row"><h2>Purchase Inquiries <span id="purchase-heading-count" class="count-pill">0 pending</span></h2><span>Only confirm after verifying payment yourself</span></div>
@@ -109,15 +145,15 @@
       <div class="section-heading"><div><div class="eyebrow small">THE CREATOR STUDIO</div><h2>Create your next Short</h2><p>Cut, caption and export 9:16 MP4 videos for YouTube Shorts. Members spend 1 credit per Short.</p></div><span class="step-counter" id="step-counter">STEP 01 / 03</span></div>
       <div class="steps"><div class="step active" data-step="1"><span>01</span> Add your video</div><div class="step-line"></div><div class="step" data-step="2"><span>02</span> Customize</div><div class="step-line"></div><div class="step" data-step="3"><span>03</span> Download Shorts</div></div>
       <div class="upload-panel" id="upload-panel">
-        <div class="upload-header"><div><div class="panel-label">SOURCE VIDEO</div><h3>Bring your video to life</h3><p>Choose a video file or import a YouTube video you own or have permission to use.</p></div><div class="supported">MP4 · MOV · MKV · WEBM</div></div>
-        <div class="source-tabs" role="tablist" aria-label="Video source"><button class="source-tab active" data-source="file" type="button"><span>↑</span> Upload a video</button><button class="source-tab" data-source="youtube" type="button"><span>▷</span> YouTube link</button></div>
+        <div class="upload-header"><div><div class="panel-label">SOURCE VIDEO</div><h3>Bring your video to life</h3><p>Choose a video file or import a YouTube, TikTok or Instagram video you own or have permission to use.</p></div><div class="supported">MP4 · MOV · MKV · WEBM</div></div>
+        <div class="source-tabs" role="tablist" aria-label="Video source"><button class="source-tab active" data-source="file" type="button"><span>↑</span> Upload a video</button><button class="source-tab" data-source="youtube" type="button"><span>▷</span> YouTube / TikTok / Instagram link</button></div>
         <div class="source-content" id="file-source">
           <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Select a video file">
             <div class="upload-symbol"><svg viewBox="0 0 32 32" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21V5m-6 6 6-6 6 6"/><path d="M5 21v5h22v-5"/></svg></div>
             <h4>Drag & drop your video here</h4><p>or <span>browse files</span> from your computer</p><small>Video up to 1 GB • Processed on the computer hosting ShortMint</small>
           </div><input id="file-input" type="file" accept="video/mp4,video/quicktime,video/x-matroska,video/webm,video/x-msvideo,.m4v,.mov,.mkv,.avi" hidden>
         </div>
-        <form id="url-source" class="source-content hidden"><label for="youtube-url">YOUTUBE VIDEO URL</label><div class="youtube-input-row"><input id="youtube-url" type="url" placeholder="https://www.youtube.com/watch?v=..." required><button type="submit" class="btn-accent">Import video <span>↗</span></button></div><p>Some YouTube videos restrict importing. If a link fails, upload your original video file instead.</p></form>
+        <form id="url-source" class="source-content hidden"><label for="youtube-url">YOUTUBE VIDEO URL</label><div class="youtube-input-row"><input id="youtube-url" type="url" placeholder="Paste YouTube, TikTok, or Instagram video link" required><button type="submit" class="btn-accent">Import video <span>↗</span></button></div><p>Some platforms block importing or require login. Only public, permitted videos work. If a link fails, upload your original video file instead.</p></form>
       </div>
 
       <div class="busy-panel hidden" id="upload-busy" role="status"><div class="busy-spinner"></div><div><h3 id="upload-busy-title">Reading your video…</h3><p id="upload-busy-text">Keep this browser tab open while your file is being uploaded.</p><div class="upload-progress"><span id="upload-progress-fill"></span></div></div></div>
@@ -155,6 +191,6 @@
     <footer class="shell site-footer"><span><b>✦ Short<span class="brand-accent">Mint</span></b> Studio</span><span>9:16 Shorts · Captions · MP4 export · Owner-managed credits</span><span>© 2026 ShortMint · Made by <strong style="color:#ff9d65;font-weight:800">Sushant Hero</strong></span></footer>
   </div>
   <div class="toast hidden" id="toast" role="alert"><span id="toast-icon">!</span><div id="toast-text"></div><button id="toast-dismiss" type="button" aria-label="Dismiss">×</button></div>
-  <script src="/app.js" defer></script><script src="/dashboard.js" defer></script>
+  <script src="/app.js" defer></script><script src="/dashboard.js" defer></script><script src="/downloads.js" defer></script>
 </body>
 </html>

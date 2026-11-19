@@ -11,7 +11,7 @@ const nodes = selector => Array.from(document.querySelectorAll(selector));
 function showView(view) {
   if (!currentUser) return;
   if ((view === 'admin' && currentUser.role !== 'owner') || (view === 'buy' && currentUser.role === 'owner')) {toast('Admin access is for the site owner only.');return;}
-  for (const name of ['dashboard','credits','buy','admin','studio']) {
+  for (const name of ['dashboard','credits','buy','admin','studio','downloads']) {
     const id = name === 'studio' ? 'editor-view' : name+'-view';
     document.getElementById(id).classList.toggle('hidden',view!==name);
   }
@@ -21,6 +21,7 @@ function showView(view) {
   if (view==='credits') loadCreditActivity();
   if (view==='buy') loadBuyCredits();
   if (view==='dashboard') refreshData();
+  if (view==='downloads') loadDownloads();
 }
 function updateUser() {
   if (!currentUser) return;
@@ -205,6 +206,7 @@ async function loadAdmin(){
     $('#nav-request-count').classList.toggle('hidden',pending.length+pendingPurchases.length===0);
     $('#request-heading-count').textContent=plural(pending.length,'pending request');
     $('#starting-credits').value=adminState.starting_credits;
+    $('#daily-download-credits').value=adminState.daily_download_credits ?? 5;
     $('#owner-whatsapp').value=adminState.contact_whatsapp||'';
     $('#owner-email').value=adminState.contact_email||'';
     $('#invite-list').innerHTML=adminState.invites.length?adminState.invites.map(i=>`<div class="history-row"><div><b class="invite-code">${safe(i.code)}</b><small>${i.used_by?'Used by '+safe(i.used_by):'Unused · Share with a friend'}</small></div><div class="admin-control-group">${!i.used_by?`<button class="copy-btn" data-copy-invite="${safe(i.code)}">Copy</button><button class="copy-btn" data-revoke-invite="${safe(i.code)}">Revoke</button>`:'<span class="status-tag approved">Used</span>'}</div></div>`).join(''):'<div class="empty-list">No invitation codes yet.</div>';
@@ -254,6 +256,13 @@ $('#admin-users').addEventListener('click',async event=>{
     if(!confirm('Change account access for this member?'))return;
     try{await api(`/api/admin/users/${toggle.dataset.toggleUser}/toggle`,{method:'POST'});toast('Account access updated.',true);loadAdmin();}catch(err){toast(errorMessage(err));}
   }
+});
+$('#daily-download-form').addEventListener('submit',async event=>{
+  event.preventDefault();
+  const value=Number($('#daily-download-credits').value);
+  if(!Number.isInteger(value)||value<0||value>100){toast('Enter a daily download credit limit between 0 and 100.');return;}
+  try{await api('/api/admin/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({daily_download_credits:value})});toast('Daily free download limit saved.',true);loadAdmin();}
+  catch(err){toast(errorMessage(err));}
 });
 $('#starting-credit-form').addEventListener('submit',async event=>{
   event.preventDefault();

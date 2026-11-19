@@ -75,12 +75,23 @@ def init_db():
         CREATE TABLE IF NOT EXISTS settings (
             name TEXT PRIMARY KEY, value TEXT NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS daily_downloads (
+            job_id TEXT PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id),
+            utc_date TEXT NOT NULL,
+            cost INTEGER NOT NULL CHECK(cost BETWEEN 1 AND 3),
+            status TEXT NOT NULL CHECK(status IN ('active','used','refunded')),
+            created_at INTEGER NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_daily_downloads ON daily_downloads(user_id,utc_date,status);
         INSERT OR IGNORE INTO settings(name,value) VALUES ('starting_credits','5');
         INSERT OR IGNORE INTO settings(name,value) VALUES ('contact_email','');
         INSERT OR IGNORE INTO settings(name,value) VALUES ('contact_whatsapp','');
+        INSERT OR IGNORE INTO settings(name,value) VALUES ('daily_download_credits','5');
         ''')
         # If the app was closed during export, return reserved credits on restart.
         con.execute('BEGIN IMMEDIATE')
+        con.execute("UPDATE daily_downloads SET status='refunded' WHERE status='active'")
         stranded = con.execute("SELECT job_id,user_id,amount FROM credit_jobs WHERE status='active'").fetchall()
         for entry in stranded:
             if entry['amount']:
@@ -341,7 +352,8 @@ def install_auth_routes(app):
                 'purchase_requests':[dict(r) for r in purchases],
                 'invites':[dict(i) for i in invites], 'starting_credits':welcome,
                 'contact_email':settings.get('contact_email',''),
-                'contact_whatsapp':settings.get('contact_whatsapp','')}
+                'contact_whatsapp':settings.get('contact_whatsapp',''),
+                'daily_download_credits':int(settings.get('daily_download_credits','5'))}
 
     @app.post('/api/admin/invites')
     def admin_invites(user=Depends(require_owner)):
@@ -449,9 +461,13 @@ def install_auth_routes(app):
 
     @app.post('/api/admin/settings')
     def save_settings(body:dict,user=Depends(require_owner)):
-        valid={'starting_credits','contact_email','contact_whatsapp'}
+        valid={'starting_credits','contact_email','contact_whatsapp','daily_download_credits'}
         if not body or set(body)-valid:
             raise HTTPException(400,'Invalid settings update.')
+        if 'daily_download_credits' in body:
+            val = body['daily_download_credits']
+            if type(val) is not int or not (0 <= val <= 100):
+                raise HTTPException(400,'Daily free download credits must be a whole number from 0 to 100.')
         if 'starting_credits' in body:
             val=body['starting_credits']
             if not isinstance(val,int) or isinstance(val,bool) or not 0 <= val <= 1000:
@@ -523,3 +539,67 @@ def finish_credit_job(job_id, success, actual_count=None):
 
 
 init_db()
+
+
+# Downloading uses a distinct *free* daily allowance. It does NOT deduct paid
+# Shorts credits; limits are enforced atomically in SQLite and reset at 00:00 UTC.
+def download_credit_cost(quality):
+    costs = {'720': 1, '1080': 1, '1440': 2, '2160': 3}
+    if quality not in costs:
+        raise HTTPException(400,'Choose 720p, 1080p, 1440p or 4K.')
+    return costs[quality]
+
+
+def utc_day():
+    return time.strftime('%Y-%m-%d', time.gmtime())
+
+
+def download_quota(user):
+    with db() as con:
+        limit = int(con.execute("SELECT value FROM settings WHERE name='daily_download_credits'").fetchone()['value'])
+        spent = con.execute("""SELECT COALESCE(SUM(cost),0) AS used FROM daily_downloads
+                               WHERE user_id=? AND utc_date=? AND status IN ('active','used')""",
+                            (user['id'],utc_day())).fetchone()['used']
+    owner = user['role'] == 'owner'
+    return {'unlimited': owner, 'limit': None if owner else limit,
+            'used': 0 if owner else spent,
+            'remaining': None if owner else max(0,limit-spent),
+            'resets_at': '00:00 UTC', 'costs': {'720':1,'1080':1,'1440':2,'2160':3}}
+
+
+def reserve_download_quota(user, job_id, quality):
+    cost = download_credit_cost(quality)
+    con = db()
+    try:
+        con.execute('BEGIN IMMEDIATE')
+        day = utc_day()
+        if user['role'] != 'owner':
+            limit = int(con.execute("SELECT value FROM settings WHERE name='daily_download_credits'").fetchone()['value'])
+            used = int(con.execute("""SELECT COALESCE(SUM(cost),0) AS total FROM daily_downloads
+                                    WHERE user_id=? AND utc_date=? AND status IN ('active','used')""",
+                                    (user['id'],day)).fetchone()['total'])
+            if used + cost > limit:
+                raise HTTPException(429,f'Daily download limit reached. You have {max(0,limit-used)} free download credits left today. Resets at 00:00 UTC.')
+        con.execute("INSERT INTO daily_downloads(job_id,user_id,utc_date,cost,status,created_at) VALUES (?,?,?,?,'active',?)",
+                    (job_id,user['id'],day,cost,int(time.time())))
+        con.commit()
+    except Exception:
+        con.rollback()
+        raise
+    finally:
+        con.close()
+    return cost
+
+
+def finish_download_quota(job_id, success):
+    con = db()
+    try:
+        con.execute('BEGIN IMMEDIATE')
+        con.execute("UPDATE daily_downloads SET status=? WHERE job_id=? AND status='active'",
+                    ('used' if success else 'refunded',job_id))
+        con.commit()
+    except Exception:
+        con.rollback()
+        raise
+    finally:
+        con.close()
