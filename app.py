@@ -1,0 +1,758 @@
+"""ShortMint Studio: a local-first video-to-shorts editor.
+
+Uses FFmpeg for editing. 'Smart picks' are audio-activity heuristics, not generative AI.
+Runs only on 127.0.0.1 by default via launch.py.
+"""
+import json
+import math
+import os
+import re
+import shutil
+import subprocess
+import sys
+import threading
+import time
+import uuid
+import zipfile
+from pathlib import Path
+from urllib.parse import urlparse
+
+from fastapi import FastAPI, File, HTTPException, UploadFile, Depends, Request
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
+from PIL import Image, ImageDraw, ImageFont
+from captions import parse_srt, clip_srt, transcript_to_srt
+from accounts import user_for_request, install_auth_routes, reserve_credits, finish_credit_job
+
+ROOT = Path(__file__).resolve().parent
+DATA_ROOT = Path(os.environ.get('SHORTMINT_STORAGE_DIR') or str(ROOT / 'storage')).resolve()
+STORAGE = DATA_ROOT / 'jobs'
+STATIC = ROOT / 'static'
+STORAGE.mkdir(parents=True, exist_ok=True)
+MAX_UPLOAD_BYTES = 1024 * 1024 * 1024  # 1 GiB, locally stored
+ALLOWED_EXTS = {'.mp4', '.mov', '.mkv', '.webm', '.avi', '.m4v'}
+SESSIONS = {}
+TASKS = {}
+ACTIVE_SESSIONS = set()
+LOCK = threading.RLock()
+
+app = FastAPI(title='ShortMint Studio v3', docs_url=None, redoc_url=None)
+
+@app.middleware('http')
+async def guard_api_actions(request: Request, call_next):
+    # Extra, non-simple header prevents cross-origin forms from spending credits or uploading files.
+    if request.url.path.startswith('/api/') and request.method not in ('GET','HEAD','OPTIONS'):
+        if request.headers.get('X-ShortMint-Request') != '1':
+            from fastapi.responses import JSONResponse
+            return JSONResponse({'detail':'App request header missing.'}, status_code=403)
+    response = await call_next(request)
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['Referrer-Policy'] = 'same-origin'
+    return response
+
+
+def checked_project(sid, user):
+    data = load_manifest(sid)
+    owner_id = data.get('owner_user_id')
+    if owner_id is None:
+        # Legacy local projects belong exclusively to the owner after upgrading.
+        if user['role'] != 'owner':
+            raise HTTPException(404, 'Project not found')
+    elif owner_id != user['id']:
+        raise HTTPException(404,'Project not found')
+    return data
+
+
+
+
+def run(cmd, timeout=120, **kwargs):
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, **kwargs)
+    except subprocess.TimeoutExpired:
+        raise ValueError('The video operation timed out. Try a shorter or smaller video.')
+    except FileNotFoundError:
+        raise ValueError('FFmpeg/FFprobe was not found. Install FFmpeg and restart the app.')
+
+
+def session_folder(session_id):
+    if not re.fullmatch(r'[a-f0-9]{32}', session_id or ''):
+        raise HTTPException(400, 'Invalid project ID')
+    folder = STORAGE / session_id
+    if not folder.exists():
+        raise HTTPException(404, 'Project not found')
+    return folder
+
+
+def save_manifest(session_id, data):
+    folder = STORAGE / session_id
+    temp = folder / 'manifest.tmp'
+    temp.write_text(json.dumps(data, indent=2), encoding='utf-8')
+    temp.replace(folder / 'manifest.json')
+    with LOCK:
+        SESSIONS[session_id] = data
+
+
+def load_manifest(session_id):
+    folder = session_folder(session_id)
+    path = folder / 'manifest.json'
+    if not path.exists():
+        raise HTTPException(404, 'Project data missing')
+    return json.loads(path.read_text(encoding='utf-8'))
+
+
+def probe_video(path):
+    result = run([
+        'ffprobe', '-v', 'error', '-show_entries',
+        'format=duration:stream=codec_type,width,height', '-of', 'json', str(path)
+    ], timeout=45)
+    if result.returncode != 0:
+        raise ValueError('This file is not a readable video.')
+    data = json.loads(result.stdout)
+    stream = next((s for s in data.get('streams', []) if s.get('codec_type') == 'video'), None)
+    if not stream:
+        raise ValueError('No video track was found in this file.')
+    duration = float(data.get('format', {}).get('duration') or 0)
+    if not 0.3 < duration < 86400:
+        raise ValueError('Video duration must be between 1 second and 24 hours.')
+    return {
+        'duration': round(duration, 2),
+        'width': int(stream.get('width') or 0),
+        'height': int(stream.get('height') or 0),
+        'has_audio': any(s.get('codec_type') == 'audio' for s in data.get('streams', [])),
+    }
+
+
+def new_session(source_path, filename, owner_user_id):
+    sid = source_path.parent.name
+    info = probe_video(source_path)
+    data = {
+        'id': sid, 'filename': filename[:140], 'source': source_path.name,
+        'owner_user_id': owner_user_id,
+        **info, 'clips': [], 'created_at': int(time.time()),
+    }
+    save_manifest(sid, data)
+    return public_manifest(data)
+
+
+def public_manifest(data):
+    result = dict(data)
+    result.pop('source', None)
+    result['source_url'] = '/api/media/' + data['id'] + '/source'
+    return result
+
+
+@app.get('/api/health')
+def health():
+    return {'ok': True, 'ffmpeg': bool(shutil.which('ffmpeg')), 'ffprobe': bool(shutil.which('ffprobe')), 'auto_captions': __import__('importlib').util.find_spec('faster_whisper') is not None, 'version': '3.0'}
+
+
+@app.post('/api/upload')
+async def upload(file: UploadFile = File(...), user=Depends(user_for_request)):
+    filename = (file.filename or 'video.mp4')
+    ext = Path(filename).suffix.lower()
+    if ext not in ALLOWED_EXTS:
+        raise HTTPException(400, 'Upload MP4, MOV, MKV, WebM, AVI or M4V video files.')
+    sid = uuid.uuid4().hex
+    folder = STORAGE / sid
+    folder.mkdir(parents=True)
+    source_path = folder / ('source' + ext)
+    total = 0
+    try:
+        with source_path.open('wb') as out:
+            while True:
+                chunk = await file.read(1024 * 1024)
+                if not chunk:
+                    break
+                total += len(chunk)
+                if total > MAX_UPLOAD_BYTES:
+                    raise ValueError('File is larger than 1 GB. Please use a smaller video.')
+                out.write(chunk)
+        if total < 1024:
+            raise ValueError('The uploaded file is empty or too small.')
+        return new_session(source_path, filename, user['id'])
+    except ValueError as err:
+        shutil.rmtree(folder, ignore_errors=True)
+        raise HTTPException(400, str(err))
+    except Exception:
+        shutil.rmtree(folder, ignore_errors=True)
+        raise
+    finally:
+        await file.close()
+
+
+class YoutubeImport(BaseModel):
+    url: str = Field(min_length=10, max_length=1000)
+
+
+@app.post('/api/import-url')
+def import_url(body: YoutubeImport, user=Depends(user_for_request)):
+    parsed = urlparse(body.url.strip())
+    host = (parsed.hostname or '').lower()
+    if parsed.scheme not in {'http', 'https'} or host not in {
+        'youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be',
+        'www.youtu.be', 'music.youtube.com', 'youtube-nocookie.com', 'www.youtube-nocookie.com'
+    }:
+        raise HTTPException(400, 'Paste a valid YouTube video link.')
+    sid = uuid.uuid4().hex
+    folder = STORAGE / sid
+    folder.mkdir(parents=True)
+    try:
+        cmd = [
+            sys.executable, '-m', 'yt_dlp', '--ignore-config', '--no-playlist',
+            '--no-progress', '--no-warnings', '--no-write-info-json',
+            '--max-filesize', '1G', '--match-filter', 'duration < 86400',
+            '-f', 'bv*[height<=1080]+ba/b[height<=1080]/best',
+            '--merge-output-format', 'mp4', '-o', str(folder / 'source.%(ext)s'),
+            body.url.strip()
+        ]
+        proc = run(cmd, timeout=900)
+        if proc.returncode != 0:
+            last = (proc.stderr or proc.stdout or 'YouTube could not provide this video.').strip().splitlines()
+            raise ValueError('YouTube import failed: ' + (last[-1][:260] if last else 'Unknown error'))
+        files = [p for p in folder.glob('source.*') if p.suffix.lower() in ALLOWED_EXTS]
+        if not files:
+            raise ValueError('No video was downloaded. Try uploading the original video file instead.')
+        source = files[0]
+        if source.stat().st_size > MAX_UPLOAD_BYTES:
+            raise ValueError('Video is larger than 1 GB.')
+        return new_session(source, 'YouTube video', user['id'])
+    except ValueError as err:
+        shutil.rmtree(folder, ignore_errors=True)
+        raise HTTPException(400, str(err))
+    except Exception:
+        shutil.rmtree(folder, ignore_errors=True)
+        raise
+
+
+@app.get('/api/project/{session_id}')
+def get_project(session_id: str, user=Depends(user_for_request)):
+    return public_manifest(checked_project(session_id, user))
+
+
+def source_for(data):
+    return STORAGE / data['id'] / data['source']
+
+
+@app.get('/api/media/{session_id}/source')
+def get_source(session_id: str, user=Depends(user_for_request)):
+    data = checked_project(session_id, user)
+    source = source_for(data)
+    if not source.is_file():
+        raise HTTPException(404, 'Source video missing')
+    return FileResponse(source, media_type='video/mp4')
+
+
+@app.get('/api/media/{session_id}/{filename}')
+def get_media(session_id: str, filename: str, user=Depends(user_for_request)):
+    data = checked_project(session_id, user)
+    if not re.fullmatch(r'[a-z0-9_]+\.mp4', filename):
+        raise HTTPException(400, 'Invalid clip name')
+    if filename not in [v['file'] for v in data['clips']]:
+        raise HTTPException(404, 'Clip not found')
+    path = session_folder(session_id) / 'exports' / filename
+    if not path.is_file():
+        raise HTTPException(404, 'Clip file missing')
+    return FileResponse(path, media_type='video/mp4')
+
+
+@app.get('/api/download/{session_id}/{filename}')
+def download_clip(session_id: str, filename: str, user=Depends(user_for_request)):
+    data = checked_project(session_id, user)
+    if filename not in [v['file'] for v in data['clips']]:
+        raise HTTPException(404, 'Clip not found')
+    path = session_folder(session_id) / 'exports' / filename
+    if not path.is_file():
+        raise HTTPException(404, 'Clip file missing')
+    return FileResponse(path, media_type='video/mp4', filename=filename)
+
+
+@app.get('/api/download-all/{session_id}')
+def download_all(session_id: str, user=Depends(user_for_request)):
+    data = checked_project(session_id, user)
+    if not data['clips']:
+        raise HTTPException(404, 'Generate a short first')
+    folder = session_folder(session_id)
+    dest = folder / 'shortmint_shorts.zip'
+    with zipfile.ZipFile(dest, 'w', compression=zipfile.ZIP_STORED) as out:
+        for clip in data['clips']:
+            path = folder / 'exports' / clip['file']
+            if path.exists():
+                out.write(path, arcname=clip['file'])
+    return FileResponse(dest, media_type='application/zip', filename='ShortMint_Shorts.zip')
+
+
+def detect_silence(path, duration):
+    """Return quiet intervals using FFmpeg; used for heuristic editing, not transcription."""
+    proc = run([
+        'ffmpeg', '-hide_banner', '-nostdin', '-i', str(path), '-vn',
+        '-af', 'silencedetect=noise=-32dB:d=0.35', '-f', 'null', '-'
+    ], timeout=max(180, min(1500, duration * 0.7)))
+    log = proc.stderr or ''
+    if proc.returncode != 0:
+        return []
+    starts = re.findall(r'silence_start:\s*([\d.]+)', log)
+    ends = re.findall(r'silence_end:\s*([\d.]+)', log)
+    # Parse in time order, including one unfinished silence at the end.
+    events = re.findall(r'silence_(start|end):\s*([\d.]+)', log)
+    silences = []
+    start = None
+    for kind, value in events:
+        when = float(value)
+        if kind == 'start':
+            start = when
+        elif start is not None:
+            silences.append((start, when))
+            start = None
+    if start is not None:
+        silences.append((start, duration))
+    return silences
+
+
+def suggested_clips(path, duration, clip_length, count, has_audio):
+    span = min(clip_length, duration)
+    if duration <= span + 0.5:
+        return [{'start': 0, 'duration': round(duration, 2), 'reason': 'Full video'}]
+    quiet = detect_silence(path, duration) if has_audio else []
+    maximum = duration - span
+    spacing = max(4.0, span / 3)
+    candidates = [0.0, maximum]
+    x = 0.0
+    while x < maximum:
+        candidates.append(x)
+        x += spacing
+    # Prefer clean boundaries following short pauses.
+    for a, b in quiet:
+        if b < maximum and b >= 0:
+            candidates.append(b)
+
+    scored = []
+    for start in sorted(set(round(min(max(c, 0), maximum), 1) for c in candidates)):
+        end = start + span
+        quiet_sec = sum(max(0, min(end, b) - max(start, a)) for a, b in quiet)
+        active_ratio = max(0.0, 1 - quiet_sec / span)
+        # Varied speaking beats are helpful; still only an approximate activity measure.
+        pauses = sum(1 for a, b in quiet if start < b < end and b - a < 2.5)
+        pace_bonus = min(pauses, 7) * 0.024
+        first_seconds_penalty = 0.12 if start < 3 else 0
+        score = active_ratio * 0.72 + pace_bonus - first_seconds_penalty
+        if not has_audio:
+            score = 0.5
+        # Gentle preference for the middle over silent intros/outros.
+        score += 0.015 * math.sin(math.pi * (start + span/2)/duration)
+        scored.append((score, start))
+
+    scored.sort(key=lambda item: (-item[0], item[1]))
+    selected = []
+    min_gap = min(span * .75, max(6, (duration - span) / max(count, 1) / 2))
+    for score, start in scored:
+        if all(abs(start - old) >= min_gap for old in selected):
+            selected.append(start)
+            if len(selected) >= count:
+                break
+    if len(selected) < count:
+        for start in [i * maximum / max(count - 1, 1) for i in range(count)]:
+            if all(abs(start - old) >= min_gap * 0.6 for old in selected):
+                selected.append(round(start, 1))
+                if len(selected) >= count:
+                    break
+    return [{
+        'start': round(start, 2), 'duration': round(span, 2),
+        'reason': 'Audio-aware pick' if has_audio else 'Evenly spaced pick'
+    } for start in sorted(selected)]
+
+
+def text_overlay(path, size, title, position, watermark=''):
+    w, h = size
+    image = Image.new('RGBA', (w, h), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    fonts = [
+        'C:/Windows/Fonts/arialbd.ttf',
+        'C:/Windows/Fonts/segoeuib.ttf',
+        '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+        '/System/Library/Fonts/Supplemental/Arial Bold.ttf',
+    ]
+    font = None
+    for font_file in fonts:
+        if Path(font_file).exists():
+            font = ImageFont.truetype(font_file, int(w * 0.064))
+            break
+    if font is None:
+        font = ImageFont.load_default(size=int(w * 0.055))
+
+    words = title.strip().split()
+    lines, current = [], ''
+    for word in words:
+        trial = (current + ' ' + word).strip()
+        if draw.textlength(trial, font=font) > w * .83 and current:
+            lines.append(current)
+            current = word
+        else:
+            current = trial
+    if current:
+        lines.append(current)
+    lines = lines[:4]
+    if not lines and not watermark:
+        return None
+    line_height = int(w * 0.084)
+    block_h = line_height * len(lines) + int(w * .09)
+    block_w = min(int(w * .9), int(max((draw.textlength(line, font=font) for line in lines), default=0) + w * .11))
+    if position == 'middle':
+        cy = h * .5
+    elif position == 'bottom':
+        cy = h * .78
+    else:
+        cy = h * .2
+    x0, y0 = (w - block_w)/2, cy - block_h/2
+    if lines:
+        draw.rounded_rectangle((x0, y0, x0+block_w, y0+block_h), radius=int(w * .025), fill=(5, 9, 22, 176))
+    for i, line in enumerate(lines):
+        tw = draw.textlength(line, font=font)
+        tx = (w - tw)/2
+        ty = y0 + int(w * .034) + i * line_height
+        draw.text((tx, ty), line, font=font, fill='white', stroke_width=max(1,int(w*.002)), stroke_fill=(5,10,25))
+    if watermark:
+        wm_font = font
+        for font_file in fonts:
+            if Path(font_file).exists():
+                wm_font = ImageFont.truetype(font_file, int(w * .038))
+                break
+        mark = watermark.strip()[:36]
+        text_w = draw.textlength(mark, font=wm_font)
+        bx = int(w * .075)
+        by = int(h * .80)
+        draw.rounded_rectangle((bx-int(w*.02),by-int(w*.008),bx+text_w+int(w*.02),by+int(w*.065)), radius=10, fill=(5,9,22,180))
+        draw.text((bx,by), mark, font=wm_font, fill=(255,255,255,240))
+    image.save(path)
+    return path
+
+
+# Speech recognition is an OPTIONAL add-on. On small hosts, handwritten SRT
+# subtitles are reliable without extra model downloads or paid APIs.
+def background_transcribe(task_id, sid):
+    task = TASKS[task_id]
+    try:
+        from faster_whisper import WhisperModel
+        task['state'] = 'analyzing'
+        task['message'] = 'Loading on-device caption model (first use may download it)…'
+        model = WhisperModel(os.environ.get('WHISPER_MODEL', 'tiny'), device='cpu', compute_type='int8', cpu_threads=2)
+        data = load_manifest(sid)
+        if not data['has_audio']:
+            raise ValueError('The video has no audio to transcribe.')
+        task['message'] = 'Transcribing spoken words…'
+        raw_segments, info = model.transcribe(str(source_for(data)), beam_size=1, vad_filter=True)
+        segments = list(raw_segments)
+        result = transcript_to_srt(segments)
+        if len(result) > 150000:
+            raise ValueError('Speech transcript too long to use as subtitles; please supply a shorter SRT.')
+        if task.get('cancel'):
+            task['state'] = 'cancelled'
+            task['message'] = 'Caption transcription cancelled.'
+            return
+        if not result.strip():
+            raise ValueError('No speech was detected. You can paste your own SRT captions instead.')
+        # Store private transcription under the same checked project.
+        (STORAGE / sid / 'captions.srt').write_text(result, encoding='utf-8')
+        task['caption_srt'] = result[:150000]
+        task['progress'] = 100
+        task['state'] = 'completed'
+        task['message'] = 'Captions ready. Review the text before exporting.'
+    except Exception as err:
+        task['state'] = 'failed'
+        task['message'] = str(err)[:500]
+
+
+@app.post('/api/captions/{session_id}/auto')
+def create_auto_captions(session_id: str, user=Depends(user_for_request)):
+    data = checked_project(session_id, user)
+    if not data.get('has_audio'):
+        raise HTTPException(400, 'This video has no audio to transcribe.')
+    import importlib.util
+    if importlib.util.find_spec('faster_whisper') is None:
+        raise HTTPException(503, 'Automatic captions are optional. Install requirements-auto-captions.txt on the server. You can paste SRT captions now.')
+    with LOCK:
+        if session_id in ACTIVE_SESSIONS:
+            raise HTTPException(409, 'This video is already being processed.')
+        if len(ACTIVE_SESSIONS) >= 2:
+            raise HTTPException(429, 'Video server is busy. Try captions again after an export finishes.')
+        task_id = uuid.uuid4().hex
+        ACTIVE_SESSIONS.add(session_id)
+        TASKS[task_id] = {'state': 'queued', 'progress': 3, 'message': 'Starting captions…',
+                          'caption_srt': '', 'process': None, 'cancel': False, 'user_id': user['id'], 'session_id': session_id}
+    def do_work():
+        try:
+            background_transcribe(task_id, session_id)
+        finally:
+            with LOCK: ACTIVE_SESSIONS.discard(session_id)
+    threading.Thread(target=do_work, daemon=True).start()
+    return {'task_id': task_id}
+
+
+class GenerateRequest(BaseModel):
+    session_id: str
+    mode: str = 'auto'
+    clip_length: int = Field(default=30, ge=5, le=180)
+    count: int = Field(default=3, ge=1, le=8)
+    start: float = Field(default=0, ge=0)
+    crop_mode: str = 'center'
+    resolution: str = '720'
+    title: str = Field(default='', max_length=120)
+    title_position: str = 'top'
+    caption_srt: str = Field(default='', max_length=150000)
+    watermark: str = Field(default='', max_length=36)
+    focus_x: int = Field(default=50, ge=0, le=100)
+    normalize_audio: bool = True
+
+
+def validate_generation(data, body):
+    if body.mode not in {'auto', 'manual'}:
+        raise ValueError('Invalid generation mode')
+    if body.crop_mode not in {'center', 'left', 'right', 'blur'}:
+        raise ValueError('Invalid crop preference')
+    if body.resolution not in {'540', '720', '1080'}:
+        raise ValueError('Invalid quality')
+    if body.title_position not in {'top', 'middle', 'bottom'}:
+        raise ValueError('Invalid title position')
+    if body.mode == 'manual' and body.start >= data['duration']:
+        raise ValueError('Start point is beyond the end of the video')
+    # Validate untrusted subtitle text before reserving any member credits.
+    parse_srt(body.caption_srt)
+
+
+def output_filter(w, h, mode, use_title, focus_x=50, caption_file=None):
+    if mode == 'blur':
+        filt = (f'[0:v]split=2[bg][fg];'
+                f'[bg]scale={w}:{h}:force_original_aspect_ratio=increase,'
+                f'crop={w}:{h},boxblur=16:1[blurred];'
+                f'[fg]scale={w}:{h}:force_original_aspect_ratio=decrease[foreground];'
+                f'[blurred][foreground]overlay=(W-w)/2:(H-h)/2,setsar=1[base]')
+    else:
+        xpos = {'center':f'(in_w-out_w)*{focus_x/100:.4f}', 'left':'0', 'right':'in_w-out_w'}[mode]
+        filt = (f'[0:v]scale={w}:{h}:force_original_aspect_ratio=increase,'
+                f'crop={w}:{h}:{xpos}:0,setsar=1[base]')
+    if use_title:
+        filt += ';[base][1:v]overlay=0:0:format=auto[composed]'
+    else:
+        filt += ';[base]null[composed]'
+    if caption_file:
+        # Escaping twice (filter option + filtergraph) is needed for Windows drive colons.
+        video_path = caption_file.name
+        # SRT force_style is supported by FFmpeg builds with libass (standard Docker image).
+        return filt + ";[composed]subtitles=filename='" + video_path + "':force_style='FontName=DejaVu Sans,FontSize=18,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,Outline=2,Shadow=1,Bold=1,Alignment=2,MarginV=65',format=yuv420p[out]"
+    return filt + ';[composed]format=yuv420p[out]'
+
+
+def render_clip(source, output, start, length, body, task, total_progress_base, count, title_img, caption_file, has_audio):
+    w = int(body.resolution)
+    h = int(round(w * 16 / 9 / 2) * 2)
+    command = [
+        'ffmpeg', '-y', '-hide_banner', '-loglevel', 'error', '-nostdin',
+        '-ss', f'{start:.3f}', '-i', str(source),
+    ]
+    if title_img:
+        command.extend(['-loop', '1', '-i', str(title_img)])
+    command.extend([
+        '-filter_complex', output_filter(w, h, body.crop_mode, bool(title_img), body.focus_x, caption_file),
+        '-map', '[out]', '-map', '0:a?',
+        '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '22', '-threads', '2',
+        '-r', '30',
+        '-pix_fmt', 'yuv420p', '-movflags', '+faststart',
+        '-c:a', 'aac', '-b:a', '160k',
+        *(['-af', 'loudnorm=I=-16:TP=-1.5:LRA=11'] if body.normalize_audio and has_audio else []),
+        '-t', f'{length:.3f}', '-progress', 'pipe:1', '-nostats', str(output)
+    ])
+    log_path = output.with_suffix('.log')
+    try:
+        with log_path.open('w+', encoding='utf-8') as errlog:
+            p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=errlog, text=True, bufsize=1, cwd=str(output.parent))
+            task['process'] = p
+            for line in p.stdout:
+                if task.get('cancel'):
+                    p.terminate()
+                    break
+                if line.startswith('out_time='):
+                    raw = line.split('=', 1)[1].strip()
+                    try:
+                        hh, mm, ss = raw.split(':')
+                        seconds = int(hh)*3600 + int(mm)*60 + float(ss)
+                        share = min(0.99, max(0, seconds/length))
+                        task['progress'] = min(99, int((total_progress_base + share) / count * 100))
+                    except (ValueError, ZeroDivisionError):
+                        pass
+            p.wait()
+            task['process'] = None
+            if task.get('cancel'):
+                raise RuntimeError('Export cancelled')
+            if p.returncode != 0:
+                errlog.seek(0)
+                error = errlog.read().strip()
+                raise RuntimeError('FFmpeg export failed: ' + (error[-450:] if error else 'Unknown error'))
+            if not output.is_file() or output.stat().st_size < 1000:
+                raise RuntimeError('Export did not create a valid video')
+    finally:
+        log_path.unlink(missing_ok=True)
+
+
+def background_generate(task_id, body):
+    task = TASKS[task_id]
+    sid = body.session_id
+    try:
+        data = load_manifest(sid)
+        source = source_for(data)
+        folder = source.parent / 'exports'
+        folder.mkdir(parents=True, exist_ok=True)
+        task['state'] = 'analyzing'
+        task['message'] = 'Finding good moments based on audio activity…'
+        if body.mode == 'manual':
+            segments = [{
+                'start': round(body.start, 2),
+                'duration': round(min(body.clip_length, data['duration'] - body.start), 2),
+                'reason': 'Custom selection'
+            }]
+        else:
+            segments = suggested_clips(source, data['duration'], body.clip_length, body.count, data['has_audio'])
+        if not segments:
+            raise RuntimeError('Unable to find a suitable section')
+        task['segments'] = segments
+        cues = parse_srt(body.caption_srt)
+        title = body.title.strip()
+        w = int(body.resolution)
+        h = int(round(w * 16 / 9 / 2) * 2)
+        title_img = None
+        if title or body.watermark.strip():
+            title_img = folder / ('title_' + task_id[:8] + '.png')
+            text_overlay(title_img, (w, h), title, body.title_position, body.watermark.strip())
+        created = []
+        for i, segment in enumerate(segments):
+            if task.get('cancel'):
+                raise RuntimeError('Export cancelled')
+            task['state'] = 'rendering'
+            task['message'] = f'Exporting short {i+1} of {len(segments)}…'
+            filename = 'short_' + task_id[:8] + '_' + str(i+1).zfill(2) + '.mp4'
+            output = folder / filename
+            captions_path = folder / ('captions_' + task_id[:8] + '_' + str(i) + '.srt')
+            has_captions = clip_srt(cues, segment['start'], segment['duration'], captions_path) if cues else False
+            try:
+                render_clip(source, output, segment['start'], segment['duration'], body,
+                            task, i, len(segments), title_img, captions_path if has_captions else None, data['has_audio'])
+            finally:
+                captions_path.unlink(missing_ok=True)
+            clip = {
+                'file': filename, 'start': segment['start'],
+                'duration': segment['duration'], 'reason': segment['reason'],
+                'resolution': f'{w}x{h}', 'captions': bool(has_captions), 'label': f'Short {len(data["clips"]) + len(created) + 1}',
+            }
+            created.append(clip)
+            task['results'] = created[:]
+        if title_img:
+            title_img.unlink(missing_ok=True)
+        data = load_manifest(sid)
+        data['clips'].extend(created)
+        save_manifest(sid, data)
+        task['progress'] = 100
+        finish_credit_job(task_id, True, len(created))
+        task['state'] = 'completed'
+        task['message'] = f'{len(created)} short(s) ready to download.'
+    except Exception as err:
+        for clip in task.get('results', []):
+            (STORAGE / sid / 'exports' / clip['file']).unlink(missing_ok=True)
+        finish_credit_job(task_id, False)
+        task['state'] = 'cancelled' if task.get('cancel') else 'failed'
+        task['message'] = str(err)[:600]
+    finally:
+        task['process'] = None
+        with LOCK:
+            ACTIVE_SESSIONS.discard(sid)
+
+
+@app.post('/api/generate')
+def generate(body: GenerateRequest, user=Depends(user_for_request)):
+    data = checked_project(body.session_id, user)
+    try:
+        validate_generation(data, body)
+    except ValueError as err:
+        raise HTTPException(400, str(err))
+    with LOCK:
+        if body.session_id in ACTIVE_SESSIONS:
+            raise HTTPException(409, 'An export is already running for this video.')
+        if len(ACTIVE_SESSIONS) >= 2:
+            raise HTTPException(429,'Two exports are already running. Try again when one finishes.')
+        task_id = uuid.uuid4().hex
+        count = 1 if body.mode == 'manual' or data['duration'] <= body.clip_length + 0.5 else body.count
+        reserve_credits(user, task_id, count)
+        ACTIVE_SESSIONS.add(body.session_id)
+        TASKS[task_id] = {
+            'state': 'queued', 'progress': 0, 'message': 'Starting export…',
+            'results': [], 'segments': [], 'process': None, 'cancel': False,
+            'session_id': body.session_id, 'user_id': user['id'],
+        }
+    threading.Thread(target=background_generate, args=(task_id, body), daemon=True).start()
+    return {'task_id': task_id}
+
+
+@app.get('/api/status/{task_id}')
+def status(task_id: str, user=Depends(user_for_request)):
+    task = TASKS.get(task_id)
+    if not task or task['user_id'] != user['id']:
+        raise HTTPException(404, 'Export not found')
+    return {k:v for k,v in task.items() if k not in {'process','user_id'}}
+
+
+@app.post('/api/cancel/{task_id}')
+def cancel(task_id: str, user=Depends(user_for_request)):
+    task = TASKS.get(task_id)
+    if not task or task['user_id'] != user['id']:
+        raise HTTPException(404, 'Export not found')
+    if task['state'] in ('completed', 'failed', 'cancelled'):
+        return {'ok': True}
+    task['cancel'] = True
+    proc = task.get('process')
+    if proc:
+        try:
+            proc.terminate()
+        except OSError:
+            pass
+    return {'ok': True}
+
+
+@app.delete('/api/project/{session_id}')
+def delete_project(session_id: str, user=Depends(user_for_request)):
+    checked_project(session_id, user)
+    folder = session_folder(session_id)
+    with LOCK:
+        if session_id in ACTIVE_SESSIONS:
+            raise HTTPException(409, 'Cancel the export before deleting the project.')
+        SESSIONS.pop(session_id, None)
+    shutil.rmtree(folder, ignore_errors=True)
+    return {'ok': True}
+
+
+@app.get('/api/projects')
+def list_projects(user=Depends(user_for_request)):
+    from datetime import datetime, timezone
+    now = datetime.now(timezone.utc)
+    start_week = now.timestamp() - 7*86400
+    items = []
+    for manifest_path in STORAGE.glob('*/manifest.json'):
+        try:
+            item = json.loads(manifest_path.read_text(encoding='utf-8'))
+            if item.get('owner_user_id') is None:
+                if user['role'] != 'owner':
+                    continue
+            elif item['owner_user_id'] != user['id']:
+                continue
+            items.append({'id':item['id'],'filename':item.get('filename','Untitled'),
+                          'created_at':item.get('created_at',0),'duration':item.get('duration',0),
+                          'width':item.get('width',0),'height':item.get('height',0),
+                          'shorts':len(item.get('clips',[]))})
+        except (OSError, ValueError, KeyError, TypeError):
+            continue
+    items.sort(key=lambda x:x['created_at'],reverse=True)
+    month_count=sum(1 for x in items if datetime.fromtimestamp(x['created_at'],timezone.utc).year==now.year
+                    and datetime.fromtimestamp(x['created_at'],timezone.utc).month==now.month)
+    return {'projects':items,'stats':{'total_projects':len(items),'this_week':sum(1 for x in items if x['created_at']>=start_week),
+           'this_month':month_count,'total_shorts':sum(x['shorts'] for x in items)}}
+
+
+install_auth_routes(app)
+app.mount('/', StaticFiles(directory=STATIC, html=True), name='static')

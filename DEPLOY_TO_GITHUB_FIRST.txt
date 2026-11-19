@@ -1,0 +1,14 @@
+ShortMint Studio v3 — beginner steps
+==================================
+1. Extract the ZIP.
+2. On GitHub.com click + → New repository (Private recommended), name it shortmint-studio.
+3. Upload ALL files and folders INSIDE ShortMint_Studio_v3 into the repository root.
+4. Do NOT enable GitHub Pages; Python/FFmpeg will not run there.
+5. Visit Render.com → New → Blueprint → connect your repository.
+6. Use render.yaml and enter OWNER_USERNAME and OWNER_PASSWORD as secret environment variables.
+7. Check hosting/storage costs before deploying. This Blueprint uses a paid server + persistent disk.
+8. When deployed, open your Render public URL, log in, invite friends from Admin.
+9. Upload a video, make a 9:16 Short, download the MP4.
+10. Open https://studio.youtube.com/ → Create → Upload videos, choose your downloaded MP4.
+
+See README.md for detailed instructions, Windows instructions and limitations.

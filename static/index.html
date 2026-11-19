@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0d17">
+  <meta name="description" content="ShortMint Studio: share a video-to-shorts workspace with friends, credit requests and private admin controls.">
+  <title>ShortMint Studio v3 · YouTube Shorts Maker</title>
+  <link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/dashboard.css">
+</head>
+<body>
+  <section id="auth-view" class="auth-screen hidden">
+    <div class="auth-orbit orbit-a"></div><div class="auth-orbit orbit-b"></div>
+    <div class="auth-card">
+      <div class="auth-heading"><div class="auth-brand-mark">✦</div><span>Short<span>Mint</span><small>STUDIO</small></span></div>
+      <h1>Creators start here.</h1><p class="muted">A smarter workspace for turning long-form videos into Shorts.</p>
+      <div class="auth-switch"><button id="auth-login-tab" type="button" class="active">Sign in</button><button id="auth-register-tab" type="button">Join with invite</button></div>
+      <form id="auth-form" class="stack-form">
+        <label for="auth-username">Username</label><input id="auth-username" autocomplete="username" required minlength="3" maxlength="24" placeholder="Your username">
+        <label for="auth-password">Password</label><input id="auth-password" type="password" autocomplete="current-password" required minlength="10" placeholder="Your password">
+        <div id="auth-invite-wrap" class="hidden"><label for="auth-invite">Invitation code</label><input id="auth-invite" maxlength="60" placeholder="SM-XXXXXXXXXX"><p class="helper">Ask the website owner for a one-time invite code.</p></div>
+        <button id="auth-submit" type="submit" class="orange-btn wide">Sign in to your dashboard →</button>
+      </form>
+      <p id="auth-message" class="auth-message" aria-live="polite"></p>
+      <p class="auth-foot">Private creator access · Your projects are visible only to your account.</p>
+    </div>
+  </section>
+  <div id="app-view" class="hidden">
+    <header class="site-header">
+      <div class="shell header-inner">
+        <button class="brand dashboard-brand" type="button" data-view="dashboard" aria-label="ShortMint dashboard"><span class="fire-mark">✦</span><span>Short<span class="brand-accent">Mint</span><small>STUDIO</small></span></button>
+        <nav class="header-nav" aria-label="Main navigation">
+          <button class="nav-link active" data-view="dashboard">Dashboard</button>
+          <button class="nav-link" data-view="studio">Create Shorts</button>
+          <button class="nav-link" data-view="credits">Credits</button>
+          <button id="admin-nav" class="nav-link hidden" data-view="admin">Admin panel <span id="nav-request-count" class="mini-alert hidden">0</span></button>
+        </nav>
+        <div class="header-actions"><span id="header-credit-chip" class="credit-chip">✦ ... credits</span><button id="theme-toggle" title="Toggle theme" aria-label="Toggle theme" class="icon-button">☾</button><button id="logout-button" type="button" class="logout-btn">↪ <span>Logout</span></button><span id="header-avatar" class="avatar">S</span></div>
+      </div>
+    </header>
+    <main class="shell main-shell">
+      <section id="dashboard-view" class="app-page">
+        <div class="page-heading"><div><span class="overline">WORKSPACE OVERVIEW</span><h1>Dashboard <span class="wave">✦</span></h1><p id="welcome-copy">Welcome back. Your next great Short starts here.</p></div><div class="header-person"><span class="avatar large" id="welcome-avatar">S</span><div><b id="welcome-user">Creator</b><small id="welcome-role">Creator account</small></div></div></div>
+        <div id="metric-grid" class="metric-grid" aria-label="Account statistics">
+          <div class="metric-card"><div class="metric-label">Credits <span class="metric-glyph">▣</span></div><strong id="metric-credits">–</strong><small id="metric-credits-desc">available</small></div>
+          <div class="metric-card"><div class="metric-label">Total projects <span class="metric-glyph">▣</span></div><strong id="metric-projects">0</strong><small>video projects</small></div>
+          <div class="metric-card"><div class="metric-label">This week <span class="metric-glyph mint">↗</span></div><strong id="metric-week">0</strong><small>projects created</small></div>
+          <div class="metric-card"><div class="metric-label">This month <span class="metric-glyph sky">▢</span></div><strong id="metric-month">0</strong><small>projects created</small></div>
+          <div class="metric-card"><div class="metric-label">Total Shorts <span class="metric-glyph purple">▥</span></div><strong id="metric-shorts">0</strong><small>clips generated</small></div>
+          <div class="metric-card"><div class="metric-label">Your plan <span class="metric-glyph orange">✦</span></div><strong id="metric-plan">Creator</strong><small id="metric-plan-desc">Credit-based account</small></div>
+        </div>
+        <div class="primary-grid">
+          <article class="dashboard-panel highlight-panel"><div><span class="card-kicker">QUICK START</span><h2>Create New Project</h2><p>Upload or import a video, pick moments, and generate vertical Shorts.</p></div><button id="dashboard-new-project" type="button" class="orange-btn wide">＋ &nbsp; New Project <span>→</span></button></article>
+          <article class="dashboard-panel"><div><span class="card-kicker muted-orange">ACCOUNT & ACCESS</span><h2 id="access-heading">Manage Credits</h2><p id="access-description">Keep creating with credits approved by the owner.</p></div><div class="panel-actions"><button id="dashboard-manage-credits" class="secondary-btn wide">View Credit Balance</button><button id="dashboard-secondary-action" class="gray-btn wide">Request More Credits</button></div></article>
+        </div>
+        <div class="section-title-row"><h2>Creator Toolbox <span class="little-flare">✦</span></h2><span>Better Shorts, one video at a time</span></div>
+        <div class="tips-grid"><article class="tip-card"><span>STRONGER HOOKS</span><h3>Make your first 3 seconds count</h3><p>Start with a question, surprising result, or the most interesting line.</p><button type="button" data-view="studio">Create a Short ↗</button></article><article class="tip-card"><span>VERTICAL CONTENT</span><h3>Turn landscape into 9:16</h3><p>Pick center-crop or blur to make your long video fit a vertical format.</p><button type="button" data-view="studio">Open the Studio ↗</button></article><article class="tip-card"><span>SMARTER EDITING</span><h3>Find your best moments</h3><p>Use activity-based picks, then review every clip before you publish.</p><button type="button" data-view="studio">Explore tools ↗</button></article></div>
+        <div class="section-title-row project-heading"><h2>Your Projects</h2><button type="button" class="text-btn" id="refresh-projects">↻ Refresh</button></div>
+        <div id="project-list" class="project-list"><div class="empty-list">Your videos will appear here after you upload them.</div></div>
+      </section>
+      <section id="credits-view" class="app-page hidden">
+        <div class="page-heading"><div><span class="overline">YOUR ACCOUNT</span><h1>Credits & Requests</h1><p>Keep track of Shorts credits and ask the owner for more.</p></div></div>
+        <div class="credits-layout"><article class="dashboard-panel balance-card"><span class="card-kicker">CURRENT BALANCE</span><strong id="big-credit-count">–</strong><p id="balance-info">1 credit = 1 exported Short. Credits are returned if an export fails or is cancelled.</p></article><article id="request-credit-panel" class="dashboard-panel"><span class="card-kicker">NEED MORE?</span><h2>Request Credits</h2><p>Submit a request here. The owner can approve or reject it in their admin dashboard.</p><form id="request-credit-form" class="stack-form"><label for="request-amount">Credits needed</label><input id="request-amount" type="number" min="1" max="500" value="10" required><label for="request-message">Message to the owner (optional)</label><textarea id="request-message" maxlength="300" rows="3" placeholder="I need more credits for my upcoming videos"></textarea><button type="submit" class="orange-btn">Send Credit Request →</button></form></article><article id="owner-info-panel" class="dashboard-panel hidden"><span class="card-kicker">OWNER ACCESS</span><h2>Unlimited Shorts</h2><p>As the site owner, you never spend credits. Manage friend accounts and their requests in your private admin panel.</p><button type="button" class="orange-btn" data-view="admin">Open Admin Panel →</button></article></div>
+        <div class="history-grid"><article class="dashboard-panel"><h2>Credit Activity</h2><div id="credit-history" class="history-list"></div></article><article class="dashboard-panel"><h2>Your Requests</h2><div id="my-requests" class="history-list"></div></article></div>
+      </section>
+      <section id="admin-view" class="app-page hidden">
+        <div class="page-heading"><div><span class="overline">OWNER ONLY</span><h1>Admin Dashboard <span class="wave">✦</span></h1><p>Approve requests, invite friends, and manage each member's credits.</p></div><button id="admin-refresh" class="outline-btn">↻ Refresh dashboard</button></div>
+        <div class="admin-summary"><div><span>Members</span><strong id="admin-members">0</strong></div><div><span>Pending requests</span><strong id="admin-pending">0</strong></div><div><span>Active invitations</span><strong id="admin-invites">0</strong></div></div>
+        <div class="admin-main-grid"><article class="dashboard-panel"><div class="admin-panel-heading"><div><span class="card-kicker">ACCESS CONTROL</span><h2>Invite a Friend</h2></div></div><p>Generate a unique one-time invite code. Share the website address and the code with your friend.</p><button id="create-invite" class="orange-btn">＋ Generate Invite Code</button><div id="invite-list" class="history-list spaced"></div></article>
+        <article class="dashboard-panel"><span class="card-kicker">DEFAULTS</span><h2>New Member Settings</h2><p>Choose how many free Shorts credits every newly invited member receives.</p><form id="starting-credit-form" class="stack-form"><label for="starting-credits">Starting credits per friend</label><input id="starting-credits" type="number" min="0" max="1000" value="5" required><button class="secondary-btn" type="submit">Save Starting Credits</button></form><p class="mini-caption">Existing balances will not be changed.</p></article></div>
+        <div class="section-title-row"><h2>Credit Requests <span id="request-heading-count" class="count-pill">0 pending</span></h2></div>
+        <div id="admin-requests" class="admin-list"><div class="empty-list">No pending credit requests yet.</div></div>
+        <div class="section-title-row"><h2>Member Accounts</h2><span>Grant / remove credits or disable accounts</span></div>
+        <div class="dashboard-panel table-wrap"><table class="members-table"><thead><tr><th>Member</th><th>Credits</th><th>Status</th><th>Adjust balance</th><th>Account</th></tr></thead><tbody id="admin-users"></tbody></table></div>
+      </section>
+      <div id="editor-view" class="app-page hidden"><div class="editor-back"><button type="button" class="outline-btn" data-view="dashboard">← Back to Dashboard</button><span id="editor-credit-note">1 credit per generated Short</span></div>
+    <section class="studio" id="workspace">
+      <div class="section-heading"><div><div class="eyebrow small">THE CREATOR STUDIO</div><h2>Create your next Short</h2><p>Cut, caption and export 9:16 MP4 videos for YouTube Shorts. Members spend 1 credit per Short.</p></div><span class="step-counter" id="step-counter">STEP 01 / 03</span></div>
+      <div class="steps"><div class="step active" data-step="1"><span>01</span> Add your video</div><div class="step-line"></div><div class="step" data-step="2"><span>02</span> Customize</div><div class="step-line"></div><div class="step" data-step="3"><span>03</span> Download Shorts</div></div>
+      <div class="upload-panel" id="upload-panel">
+        <div class="upload-header"><div><div class="panel-label">SOURCE VIDEO</div><h3>Bring your video to life</h3><p>Choose a video file or import a YouTube video you own or have permission to use.</p></div><div class="supported">MP4 · MOV · MKV · WEBM</div></div>
+        <div class="source-tabs" role="tablist" aria-label="Video source"><button class="source-tab active" data-source="file" type="button"><span>↑</span> Upload a video</button><button class="source-tab" data-source="youtube" type="button"><span>▷</span> YouTube link</button></div>
+        <div class="source-content" id="file-source">
+          <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Select a video file">
+            <div class="upload-symbol"><svg viewBox="0 0 32 32" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21V5m-6 6 6-6 6 6"/><path d="M5 21v5h22v-5"/></svg></div>
+            <h4>Drag & drop your video here</h4><p>or <span>browse files</span> from your computer</p><small>Video up to 1 GB • Processed on the computer hosting ShortMint</small>
+          </div><input id="file-input" type="file" accept="video/mp4,video/quicktime,video/x-matroska,video/webm,video/x-msvideo,.m4v,.mov,.mkv,.avi" hidden>
+        </div>
+        <form id="url-source" class="source-content hidden"><label for="youtube-url">YOUTUBE VIDEO URL</label><div class="youtube-input-row"><input id="youtube-url" type="url" placeholder="https://www.youtube.com/watch?v=..." required><button type="submit" class="btn-accent">Import video <span>↗</span></button></div><p>Some YouTube videos restrict importing. If a link fails, upload your original video file instead.</p></form>
+      </div>
+
+      <div class="busy-panel hidden" id="upload-busy" role="status"><div class="busy-spinner"></div><div><h3 id="upload-busy-title">Reading your video…</h3><p id="upload-busy-text">Keep this browser tab open while your file is being uploaded.</p><div class="upload-progress"><span id="upload-progress-fill"></span></div></div></div>
+
+      <div id="editing-area" class="hidden">
+        <div class="project-bar"><div class="project-icon">▣</div><div class="project-info"><span>YOUR PROJECT</span><strong id="project-filename">Untitled video</strong><small id="project-metadata">Ready to edit</small></div><button id="new-project" class="subtle-button" type="button">↻ New video</button></div>
+        <div class="editor-grid">
+          <article class="panel preview-panel"><div class="panel-head"><div><div class="panel-label">01 · PREVIEW</div><h3>Your original video</h3></div><span class="feature-pill">SOURCE</span></div><div class="source-preview"><video id="source-video" controls playsinline preload="metadata"></video></div><div class="timeline-heading"><strong>Choose your moment</strong><span id="time-display">00:00 / 00:00</span></div><input id="start-range" class="time-range" type="range" min="0" max="1" step="0.1" value="0"><div class="timeline-actions"><div class="time-value"><span>CLIP START</span><strong id="start-value">00:00</strong></div><button id="playhead-button" class="use-playhead" type="button">◉ Use current playhead</button><div class="time-value" style="text-align:right"><span>CLIP ENDS</span><strong id="end-value">00:30</strong></div></div><p class="hint-text">For custom clips, move the slider or press “Use current playhead” while watching your video.</p></article>
+          <article class="panel settings-panel"><div class="panel-head"><div><div class="panel-label">02 · CUSTOMIZE</div><h3>Shorts settings</h3></div><span class="feature-pill secondary">9:16</span></div>
+            <div class="setting-group"><label>CREATE MODE <span class="info-dot" title="Smart mode finds active-audio moments; it does not understand speech meaning.">ⓘ</span></label><div class="choice-row" id="mode-choices"><button type="button" class="choice active" data-value="auto">✦ Smart picks</button><button type="button" class="choice" data-value="manual">✂ Custom clip</button></div><p class="field-note" id="mode-note">Suggest sections using audio activity and pauses.</p></div>
+            <div class="settings-divider"></div>
+            <div class="two-settings"><div class="setting-group"><label for="clip-length">SHORT LENGTH</label><select id="clip-length"><option value="15">15 seconds</option><option value="30" selected>30 seconds</option><option value="45">45 seconds</option><option value="60">60 seconds</option><option value="90">90 seconds</option><option value="120">120 seconds</option><option value="180">180 seconds</option></select></div><div class="setting-group" id="count-group"><label for="clip-count">NUMBER OF SHORTS</label><select id="clip-count"><option value="1">1 short</option><option value="2">2 shorts</option><option value="3" selected>3 shorts</option><option value="4">4 shorts</option><option value="5">5 shorts</option><option value="6">6 shorts</option><option value="8">8 shorts</option></select></div></div>
+            <div class="settings-divider"></div>
+            <div class="setting-group"><label>HOW SHOULD IT FILL THE SCREEN?</label><div class="crop-grid" id="crop-choices"><button type="button" class="crop-choice active" data-value="center"><span class="crop-illustration crop-center"><i></i></span>Center crop</button><button type="button" class="crop-choice" data-value="blur"><span class="crop-illustration crop-blur"><i></i></span>Blur background</button><button type="button" class="crop-choice" data-value="left"><span class="crop-illustration crop-left"><i></i></span>Focus left</button><button type="button" class="crop-choice" data-value="right"><span class="crop-illustration crop-right"><i></i></span>Focus right</button></div></div>
+            <div class="settings-divider"></div>
+            <div class="two-settings"><div class="setting-group"><label for="resolution">EXPORT QUALITY</label><select id="resolution"><option value="540">540p · Faster</option><option value="720">720p · Faster</option><option value="1080" selected>1080p · YouTube-ready</option></select></div><div class="setting-group"><label for="title-position">TITLE POSITION</label><select id="title-position"><option value="top" selected>Top</option><option value="middle">Middle</option><option value="bottom">Bottom</option></select></div></div>
+            <div class="setting-group title-group"><label for="overlay-title">OPTIONAL TEXT ON SHORTS</label><input id="overlay-title" type="text" placeholder="e.g. You won't believe this!" maxlength="120"><p class="field-note">Optional hook text displayed on your Short. Captions can be added below.</p></div>
+            <div class="settings-divider"></div>
+            <div class="setting-group"><label for="focus-x">CAMERA FOCUS · <span id="focus-percent">50%</span></label><input id="focus-x" class="time-range" type="range" min="0" max="100" step="5" value="50"><p class="field-note">For center crop, slide toward the person or subject you want to keep visible. Other crop modes ignore this slider.</p></div>
+            <div class="two-settings"><div class="setting-group"><label for="watermark">YOUR CHANNEL TAG</label><input id="watermark" type="text" maxlength="36" placeholder="@YourChannel"></div><div class="setting-group"><label>IMPROVE SOUND</label><label class="checkbox-label"><input id="normalize-audio" type="checkbox" checked> Normalize speech volume</label></div></div>
+            <div class="settings-divider"></div>
+            <div class="setting-group"><label for="caption-srt">SUBTITLES · SOURCE VIDEO TIMESTAMPS</label><textarea id="caption-srt" rows="5" maxlength="150000" spellcheck="false" placeholder="1&#10;00:00:02,000 --> 00:00:04,500&#10;Here's the first spoken sentence.&#10;&#10;2&#10;00:00:04,500 --> 00:00:06,800&#10;Here's the next sentence."></textarea>
+              <div class="subtitle-actions"><label class="small-btn subtitle-file-label" for="subtitle-file">↑ Load .srt file</label><input id="subtitle-file" type="file" accept=".srt,text/plain" hidden><button id="auto-caption-btn" class="small-btn" type="button">✦ Auto-transcribe video</button><button id="clear-captions" class="small-btn" type="button">Clear</button></div>
+              <p class="field-note" id="caption-note">Paste or upload SRT using timestamps from the original long video. Captions will be trimmed to each exported Short. Auto-transcription is available only when the optional speech-to-text engine is installed.</p>
+            </div>
+            <button id="generate-button" type="button" class="generate-button"><span class="button-spark">✦</span><span id="generate-text">Generate 3 Shorts</span><span class="button-arrow">↗</span></button><p class="generation-footnote">Export: 9:16 • H.264 MP4 • AAC audio • 30 fps • up to 3 minutes. Processing runs on the host server; higher quality takes longer.</p>
+          </article>
+        </div>
+        <section class="export-panel hidden" id="export-panel"><div class="export-heading"><div class="export-spinner"></div><div><h3 id="export-title">Creating your Shorts</h3><p id="export-message">Selecting moments…</p></div><strong id="export-percent">0%</strong></div><div class="export-progress"><span id="export-progress-fill"></span></div><button id="cancel-button" class="cancel-button" type="button">Cancel export</button></section>
+        <section class="results-area hidden" id="results-area"><div class="results-top"><div><div class="eyebrow small">YOUR CREATIONS</div><h2>Fresh Shorts, ready to go <span>✦</span></h2><p>Preview and download YouTube-ready vertical MP4 files. Upload them manually in YouTube Studio.</p></div><div class="result-top-actions"><a class="download-all youtube-outline" href="https://studio.youtube.com/" target="_blank" rel="noopener noreferrer">↗ Open YouTube Studio</a><a id="download-all" class="download-all" href="#">↓ Download all ZIP</a></div></div><div id="results-grid" class="results-grid"></div></section>
+      </div>
+    </section>
+</div>
+    </main>
+    <footer class="shell site-footer"><span><b>✦ Short<span class="brand-accent">Mint</span></b> Studio</span><span>9:16 Shorts · Captions · MP4 export · Owner-managed credits</span><span>© 2026 ShortMint</span></footer>
+  </div>
+  <div class="toast hidden" id="toast" role="alert"><span id="toast-icon">!</span><div id="toast-text"></div><button id="toast-dismiss" type="button" aria-label="Dismiss">×</button></div>
+  <script src="/app.js" defer></script><script src="/dashboard.js" defer></script>
+</body>
+</html>
