@@ -4,12 +4,23 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0a0d17">
   <meta name="description" content="ShortMint Studio: share a video-to-shorts workspace with friends, credit requests and private admin controls.">
-  <title>ShortMint Studio v3 · YouTube Shorts Maker</title>
+  <title>ShortMint Studio — Create beyond ordinary</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMwYTBkMTciLz48cGF0aCBkPSJNMzIgNS4yIDQwLjYgMjMuNCA1OC44IDMyIDQwLjYgNDAuNiAzMiA1OC44IDIzLjQgNDAuNiA1LjIgMzIgMjMuNCAyMy40WiIgZmlsbD0iI2ZmNzgxZiIvPjxwYXRoIGQ9Ik0yNyAyMi41IDQzLjUgMzIgMjcgNDEuNVoiIGZpbGw9IiNmZmZmZmYiLz48Y2lyY2xlIGN4PSI0OSIgY3k9IjQ5IiByPSI0IiBmaWxsPSIjNDhkN2FjIi8+PC9zdmc+">
   <link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/dashboard.css"><link rel="stylesheet" href="/downloads.css">
+  <link rel="stylesheet" href="/premium.css">
 </head>
 <body>
   <section id="auth-view" class="auth-screen hidden">
+    <div class="auth-experience" aria-hidden="true">
+      <div class="auth-experience-top"><span class="auth-eyeline"><i></i> SHORTMINT / CREATOR OS</span><span>EST. 2026</span></div>
+      <div class="auth-experience-main"><span class="auth-mini-label">YOUR CREATIVE ADVANTAGE</span>
+        <h2>Make every<br>second <em>count.</em></h2>
+        <p>One workspace for turning ideas, long videos, and social content into bold vertical stories.</p>
+        <div class="auth-experience-stats"><span><b>9:16</b><small>Vertical-first</small></span><span><b>4K</b><small>Download option*</small></span><span><b>∞</b><small>Create ideas</small></span></div>
+      </div>
+      <div class="auth-experience-art"><div class="auth-art-glow"></div><div class="auth-art-ring"></div><div class="auth-art-film">SHORT<span>MINT</span><small>CREATE / CUT / CAPTURE</small></div><div class="auth-art-bottom"><span>THE CREATIVE PROCESS / REIMAGINED</span><span>01 — 03</span></div></div>
+      <div class="auth-experience-note">* Source quality and platform availability determine downloadable resolution.</div>
+    </div>
     <div class="auth-orbit orbit-a"></div><div class="auth-orbit orbit-b"></div>
     <div class="auth-card">
       <div class="auth-heading"><div class="auth-brand-mark">✦</div><span>Short<span>Mint</span><small>STUDIO</small></span></div>
@@ -34,23 +45,55 @@
     </div>
   </section>
   <div id="app-view" class="hidden">
+    <aside id="sm-sidebar" class="sm-sidebar" aria-label="Workspace navigation">
+      <div class="sm-side-top">
+        <button class="brand dashboard-brand" type="button" data-view="dashboard" aria-label="Go to ShortMint dashboard"><svg class="sm-logo" viewBox="0 0 54 54" aria-hidden="true" fill="none"><rect x="1" y="1" width="52" height="52" rx="16" fill="url(#mint-plate)" stroke="#ffb07c" stroke-opacity=".30"/><path d="M27 8 32.5 21.5 46 27 32.5 32.5 27 46 21.5 32.5 8 27 21.5 21.5 27 8Z" fill="#fff8f2"/><path d="m27 18 3.5 9L27 36l-3.5-9L27 18Z" fill="#fe752f"/><defs><linearGradient id="mint-plate" x1="0" x2="54" y1="0" y2="54"><stop stop-color="#FF9850"/><stop offset="1" stop-color="#DA3F1E"/></linearGradient></defs></svg><span class="sm-brand-type">Short<span class="brand-accent">Mint</span><small>STUDIO / CREATOR OS</small></span></button>
+        <div class="sm-side-edition"><span class="sm-edition-dot"></span> THE CREATOR WORKSPACE <b>V7</b></div>
+      </div>
+      <div class="sm-side-label">WORKSPACE <span>01 / 06</span></div>
+      <nav class="header-nav" aria-label="Primary navigation">
+          <button class="nav-link active"  data-view="dashboard"><svg class="sm-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg><span>Dashboard</span></button>
+          <button class="nav-link"  data-view="studio"><svg class="sm-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3V9Z"/></svg><span>Create Shorts</span></button>
+          <button class="nav-link"  data-view="downloads"><svg class="sm-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5"/><path d="M5 17v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3"/></svg><span>Download Videos</span></button>
+          <button class="nav-link"  data-view="credits"><svg class="sm-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="15" rx="3"/><path d="M3 10h18M16 16h2M7 3h12"/></svg><span>My Credits</span></button>
+          <button class="nav-link" id="buy-nav" data-view="buy"><svg class="sm-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h18l-2 12H5L3 8Z"/><path d="M8 9V6a4 4 0 0 1 8 0v3"/></svg><span>Buy Credits</span></button>
+          <button class="nav-link hidden" id="admin-nav" data-view="admin"><svg class="sm-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 20 6v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4Z"/><path d="m9 12 2 2 4-4"/></svg><span>Admin Panel</span><span id="nav-request-count" class="mini-alert hidden">0</span></button>
+      </nav>
+      <div class="sm-side-bottom">
+        <div class="sm-side-spotlight"><span>⚡ CREATIVE MODE</span><strong>Turn videos into<br>what's next.</strong><p>Smart clips, downloads, and the tools to keep creating.</p><button type="button" data-view="studio">Start creating <span>↗</span></button></div>
+        <div id="sm-engine-status" class="sm-engine-status" role="status"><i class="sm-engine-light"></i><span>Checking video engine</span><b>STATUS</b></div>
+        <div class="sm-side-credit">BUILT WITH INTENT <span>·</span> SUSHANT HERO</div>
+      </div>
+    </aside>
+    <div class="sm-mobile-scrim" id="sm-mobile-scrim" hidden></div>
     <header class="site-header">
       <div class="shell header-inner">
-        <button class="brand dashboard-brand" type="button" data-view="dashboard" aria-label="ShortMint dashboard"><span class="fire-mark">✦</span><span>Short<span class="brand-accent">Mint</span><small>STUDIO</small></span></button>
-        <nav class="header-nav" aria-label="Main navigation">
-          <button class="nav-link active" data-view="dashboard">Dashboard</button>
-          <button class="nav-link" data-view="studio">Create Shorts</button>
-          <button class="nav-link" data-view="downloads">Download Videos</button>
-          <button class="nav-link" data-view="credits">Credits</button>
-          <button id="buy-nav" class="nav-link" data-view="buy">Buy Credits</button>
-          <button id="admin-nav" class="nav-link hidden" data-view="admin">Admin panel <span id="nav-request-count" class="mini-alert hidden">0</span></button>
-        </nav>
-        <div class="header-actions"><span id="header-credit-chip" class="credit-chip">✦ ... credits</span><button id="theme-toggle" title="Toggle theme" aria-label="Toggle theme" class="icon-button">☾</button><button id="logout-button" type="button" class="logout-btn">↪ <span>Logout</span></button><span id="header-avatar" class="avatar">S</span></div>
+        <button id="sm-menu-toggle" class="sm-icon-control sm-menu-toggle" type="button" aria-label="Open navigation" aria-controls="sm-sidebar" aria-expanded="false"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+        <div class="sm-location"><span>SHORTMINT / WORKSPACE</span><strong id="sm-current-page">Overview</strong></div>
+        <button class="sm-command-launch" id="sm-command-open" type="button" aria-haspopup="dialog" aria-controls="sm-command-dialog"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><span>Quick actions...</span><kbd>Ctrl K</kbd></button>
+        <div class="header-actions"><span id="header-credit-chip" class="credit-chip">✦ ... credits</span><button id="theme-toggle" title="Toggle theme" aria-label="Toggle theme" class="icon-button">☾</button><button id="logout-button" type="button" class="logout-btn" title="Sign out">↪ <span>Logout</span></button><span id="header-avatar" class="avatar">S</span></div>
       </div>
     </header>
     <main class="shell main-shell">
       <section id="dashboard-view" class="app-page">
-        <div class="page-heading"><div><span class="overline">WORKSPACE OVERVIEW</span><h1>Dashboard <span class="wave">✦</span></h1><p id="welcome-copy">Welcome back. Your next great Short starts here.</p></div><div class="header-person"><span class="avatar large" id="welcome-avatar">S</span><div><b id="welcome-user">Creator</b><small id="welcome-role">Creator account</small></div></div></div>
+      <div class="sm-hero" aria-label="ShortMint creative workspace">
+        <div class="sm-hero-copy"><span class="sm-hero-eyebrow"><i></i> THE NEXT GENERATION CREATOR STUDIO <b>● 02 / VERTICAL-FIRST</b></span>
+          <h2>Create beyond<br><em>ordinary<span class="sm-period">.</span></em></h2>
+          <p>Long video in. Scroll-stopping stories out. Cut the noise, find your moment, and publish work that deserves the spotlight.</p>
+          <div class="sm-hero-actions"><button type="button" class="sm-primary-action" data-view="studio">Open Creator Studio <span aria-hidden="true">↗</span></button><button class="sm-ghost-action" type="button" data-view="downloads">Download a video <span aria-hidden="true">↘</span></button></div>
+          <div class="sm-hero-features"><span><i></i> PROFESSIONAL 9:16</span><span><i></i> SOCIAL VIDEO IMPORT</span><span><i></i> CREATOR-CONTROLLED</span></div>
+        </div>
+        <div class="sm-hero-art" aria-hidden="true"><div class="sm-art-ambient"></div>
+          <div class="sm-art-topline"><span><i></i> SHORTMINT / LIVE STUDIO</span><span>FRAME 01 · 02</span></div>
+          <div class="sm-art-stage"><div class="sm-art-orbit orbit-1"></div><div class="sm-art-orbit orbit-2"></div><div class="sm-art-film"><div class="sm-art-film-top"><span>9:16</span><span>REC ◉</span></div><div class="sm-art-light"></div><div class="sm-art-bloom"></div><div class="sm-art-text">MAKE<br><em>IT</em> COUNT.</div><div class="sm-art-caption">Your story. Your spotlight.</div><div class="sm-art-progress"><span></span></div></div>
+          <div class="sm-art-float sm-art-float-top"><span>↗</span><b>A new perspective</b><small>Format · Vertical</small></div>
+          <div class="sm-art-float sm-art-float-bottom"><div class="sm-waveform"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span><b>MAKE EVERY FRAME MATTER</b><small>CREATIVE ENGINE / READY</small></span></div>
+          </div>
+          <div class="sm-art-footer"><span>AN IDEA INTO A VIDEO</span><span>◉</span><span>ALL IN ONE WORKSPACE</span></div>
+        </div>
+      </div>
+
+        <div class="page-heading"><div><span class="overline">WORKSPACE OVERVIEW</span><h1>Your workspace <span class="wave">✦</span></h1><p id="welcome-copy">Welcome back. Your next great Short starts here.</p></div><div class="header-person"><span class="avatar large" id="welcome-avatar">S</span><div><b id="welcome-user">Creator</b><small id="welcome-role">Creator account</small></div></div></div>
         <div id="metric-grid" class="metric-grid" aria-label="Account statistics">
           <div class="metric-card"><div class="metric-label">Credits <span class="metric-glyph">▣</span></div><strong id="metric-credits">–</strong><small id="metric-credits-desc">available</small></div>
           <div class="metric-card"><div class="metric-label">Total projects <span class="metric-glyph">▣</span></div><strong id="metric-projects">0</strong><small>video projects</small></div>
@@ -64,7 +107,7 @@
           <article class="dashboard-panel"><div><span class="card-kicker muted-orange">ACCOUNT & ACCESS</span><h2 id="access-heading">Manage Credits</h2><p id="access-description">Keep creating with credits approved by the owner.</p></div><div class="panel-actions"><button id="dashboard-manage-credits" class="secondary-btn wide">View Credit Balance</button><button id="dashboard-secondary-action" class="gray-btn wide">Buy Credits / Contact Owner</button></div></article>
         </div>
         <div class="downloads-quick-link"><span>NEW · Download public videos from YouTube, TikTok and Instagram with daily free credits</span><button class="outline-btn" type="button" data-view="downloads">Open Video Downloader →</button></div>
-        <div class="section-title-row"><h2>Creator Toolbox <span class="little-flare">✦</span></h2><span>Better Shorts, one video at a time</span></div>
+        <div class="section-title-row"><h2>Creative playbook <span class="little-flare">✦</span></h2><span>Better Shorts, one video at a time</span></div>
         <div class="tips-grid"><article class="tip-card"><span>STRONGER HOOKS</span><h3>Make your first 3 seconds count</h3><p>Start with a question, surprising result, or the most interesting line.</p><button type="button" data-view="studio">Create a Short ↗</button></article><article class="tip-card"><span>VERTICAL CONTENT</span><h3>Turn landscape into 9:16</h3><p>Pick center-crop or blur to make your long video fit a vertical format.</p><button type="button" data-view="studio">Open the Studio ↗</button></article><article class="tip-card"><span>SMARTER EDITING</span><h3>Find your best moments</h3><p>Use activity-based picks, then review every clip before you publish.</p><button type="button" data-view="studio">Explore tools ↗</button></article></div>
         <div class="section-title-row project-heading"><h2>Your Projects</h2><button type="button" class="text-btn" id="refresh-projects">↻ Refresh</button></div>
         <div id="project-list" class="project-list"><div class="empty-list">Your videos will appear here after you upload them.</div></div>
@@ -209,7 +252,15 @@
     </main>
     <footer class="shell site-footer"><span><b>✦ Short<span class="brand-accent">Mint</span></b> Studio</span><span>9:16 Shorts · Captions · MP4 export · Owner-managed credits</span><span>© 2026 ShortMint · Made by <strong style="color:#ff9d65;font-weight:800">Sushant Hero</strong></span></footer>
   </div>
+  <div id="sm-command-dialog" class="sm-command-dialog hidden" role="dialog" aria-modal="true" aria-labelledby="sm-command-title">
+    <div class="sm-command-shade" data-command-close="1"></div>
+    <div class="sm-command-panel"><div class="sm-command-input"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="sm-command-search" type="search" placeholder="Search your workspace..." autocomplete="off" aria-label="Search quick actions"><kbd>ESC</kbd></div>
+      <div class="sm-command-label" id="sm-command-title">QUICK NAVIGATION</div>
+      <div class="sm-command-items"><button type="button" data-view="dashboard" data-command-name="dashboard overview">Dashboard <span>↗</span></button><button type="button" data-view="studio" data-command-name="new project create shorts editor video">Create Shorts <span>↗</span></button><button type="button" data-view="downloads" data-command-name="download videos youtube tiktok instagram">Download Videos <span>↗</span></button><button type="button" data-view="credits" data-command-name="credits request balance">Credits & Requests <span>↗</span></button><button type="button" data-view="buy" data-command-name="buy credits contact owner">Buy Credits <span>↗</span></button><button type="button" data-view="admin" data-command-name="admin manage users">Admin Panel <span>↗</span></button></div>
+      <div class="sm-command-foot">Navigate with keyboard · <kbd>Ctrl</kbd> + <kbd>K</kbd> to open</div>
+    </div>
+  </div>
   <div class="toast hidden" id="toast" role="alert"><span id="toast-icon">!</span><div id="toast-text"></div><button id="toast-dismiss" type="button" aria-label="Dismiss">×</button></div>
-  <script src="/app.js" defer></script><script src="/dashboard.js" defer></script><script src="/downloads.js" defer></script>
+  <script src="/app.js" defer></script><script src="/dashboard.js" defer></script><script src="/downloads.js" defer></script><script src="/premium.js" defer></script>
 </body>
 </html>

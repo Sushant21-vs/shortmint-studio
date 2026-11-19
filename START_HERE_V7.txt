@@ -1,0 +1,63 @@
+SHORTMINT STUDIO V7 — PREMIUM CREATOR UI
+=======================================
+Made by Sushant Hero
+
+THIS IS THE PREMIUM DESIGN UPGRADE, NOT A NEW BACKEND.
+All v6 actions remain wired to the existing video converter, video downloader,
+login/invite contact, credits and owner administration.
+
+REPLACE ONLY 3 FILES ON YOUR EXISTING GITHUB REPOSITORY:
+  static/index.html   (replace)
+  static/premium.css  (add new)
+  static/premium.js   (add new)
+
+Your other files (app.py, accounts.py, downloads.py, app.js,
+dashboard.js, dashboard.css, downloads.js, styles.css, render.yaml)
+SHOULD REMAIN UNCHANGED. Keep the paths/folder structure exactly.
+
+1) Download the ShortMint_v7_Premium_Replace_Only.zip package.
+2) Extract the ZIP on your computer.
+3) Open https://github.com/Sushant21-vs/shortmint-studio/tree/main/static
+4) Replace index.html with the index.html inside the extracted static/ folder.
+5) Upload premium.css and premium.js into the same static/ folder.
+6) Commit your changes.
+7) Render's auto-deploy (if enabled) should redeploy your website.
+8) Open the live .onrender.com address, then hard-refresh (Ctrl+Shift+R).
+
+BEFORE STEP 4: IMPORTANT DATA WARNING
+=====================================
+Render FREE's local filesystem is temporary. A new deploy or container
+restart can erase the SQLite account database, member credits, invite codes,
+settings, and videos, even though you changed only front-end files.
+Back up your data or arrange persistent storage before using this with paying
+customers. UI improvements DO NOT fix this persistence problem.
+
+NEW DESIGN FEATURES
+===================
+- Custom creator-OS sidebar with role-aware navigation
+- Distinctive premium dashboard hero with original abstract animated visual
+- Two-column login/login-invite layout on desktop
+- Mobile slide-out navigation with accessible overlay
+- Ctrl+K / Cmd+K quick navigation and page search
+- Real server/FFmpeg health badge (no fabricated status)
+- Redesigned cards, typography, editor, downloads, admin and credits pages
+- Reduced-motion support and mobile-responsive layout
+- Original logo illustration, favicon retained
+- "Made by Sushant Hero" footer and sidebar credit
+- No stock photo files, frameworks, or remote JS libraries added
+
+IMPORTANT INFORMATION FOR SELLING
+=================================
+This is a visually premium design; it cannot prevent someone from copying the
+appearance or viewing public HTML/CSS/JavaScript. Consider maintaining a
+private source repository and appropriate legal/branding protection.
+To sell this as reliable software, use persistent storage, tested backups,
+proper hosting, realistic processing limits, security audits, accurate
+subscription/payment management, terms and customer support.
+Do not advertise it as a fully automatic AI editor or guarantee that downloads
+from TikTok, Instagram or YouTube will work for every link. Video extraction
+and 4K depend on platform access, source quality and hosting capacity.
+
+All 13 existing Python tests passed when this package was built.
+The JavaScript sources passed syntax checks and checked DOM references.
+An actual live-browser end-to-end preview was not available in this environment.
