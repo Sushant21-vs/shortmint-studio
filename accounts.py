@@ -53,6 +53,17 @@ def init_db():
             status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','approved','rejected')),
             granted INTEGER, reviewed_at INTEGER, created_at INTEGER NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS purchase_requests (
+            id INTEGER PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id),
+            amount INTEGER NOT NULL CHECK(amount BETWEEN 1 AND 1000),
+            contact TEXT NOT NULL,
+            message TEXT NOT NULL DEFAULT '',
+            status TEXT NOT NULL DEFAULT 'pending'
+              CHECK(status IN ('pending','fulfilled','rejected')),
+            reviewed_at INTEGER,
+            created_at INTEGER NOT NULL
+        );
         CREATE TABLE IF NOT EXISTS credit_log (
             id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id),
             amount INTEGER NOT NULL, reason TEXT NOT NULL, created_at INTEGER NOT NULL
@@ -65,6 +76,8 @@ def init_db():
             name TEXT PRIMARY KEY, value TEXT NOT NULL
         );
         INSERT OR IGNORE INTO settings(name,value) VALUES ('starting_credits','5');
+        INSERT OR IGNORE INTO settings(name,value) VALUES ('contact_email','');
+        INSERT OR IGNORE INTO settings(name,value) VALUES ('contact_whatsapp','');
         ''')
         # If the app was closed during export, return reserved credits on restart.
         con.execute('BEGIN IMMEDIATE')
@@ -169,6 +182,16 @@ class CreditRequestBody(BaseModel):
 class ReviewBody(BaseModel):
     action: str
     amount: int = Field(default=0, ge=0, le=10000)
+
+
+class PurchaseBody(BaseModel):
+    amount: int = Field(ge=1, le=1000)
+    contact: str = Field(min_length=5, max_length=120)
+    message: str = Field(default='', max_length=300)
+
+
+class PurchaseReviewBody(BaseModel):
+    action: str
 
 
 class AdjustBody(BaseModel):
@@ -276,6 +299,32 @@ def install_auth_routes(app):
                         (user['id'],body.amount,body.message.strip(),int(time.time())))
         return {'ok':True,'message':'Credit request sent to the owner.'}
 
+    @app.get('/api/credits/shop')
+    def shop_info(user=Depends(user_for_request)):
+        with db() as con:
+            settings = {r['name']: r['value'] for r in con.execute(
+                "SELECT name,value FROM settings WHERE name IN ('contact_email','contact_whatsapp')")}
+            purchases = [dict(r) for r in con.execute(
+                '''SELECT id,amount,contact,message,status,created_at,reviewed_at
+                   FROM purchase_requests WHERE user_id=? ORDER BY id DESC LIMIT 30''',(user['id'],)).fetchall()]
+        return {'packages':[10,25,50,100], 'email':settings.get('contact_email',''),
+                'whatsapp':settings.get('contact_whatsapp',''), 'purchases':purchases}
+
+    @app.post('/api/credits/purchase-request')
+    def request_purchase(body:PurchaseBody,user=Depends(user_for_request)):
+        if user['role'] == 'owner':
+            raise HTTPException(400,'Owner account already has unlimited credits.')
+        contact=body.contact.strip()
+        if len(contact)<5:
+            raise HTTPException(400,'Enter a WhatsApp number or email where the owner can reply.')
+        with db() as con:
+            if con.execute("SELECT 1 FROM purchase_requests WHERE user_id=? AND status='pending'",(user['id'],)).fetchone():
+                raise HTTPException(409,'You already have a pending purchase inquiry. Contact the owner or wait for a response.')
+            cur=con.execute('''INSERT INTO purchase_requests(user_id,amount,contact,message,created_at) VALUES (?,?,?,?,?)''',
+                            (user['id'],body.amount,contact,body.message.strip(),int(time.time())))
+        return {'ok':True,'request_id':cur.lastrowid,
+                'message':'Request sent to the owner. Credits are added only after the owner confirms payment.'}
+
     @app.get('/api/admin/overview')
     def admin_overview(user=Depends(require_owner)):
         with db() as con:
@@ -284,9 +333,15 @@ def install_auth_routes(app):
                                       ORDER BY CASE WHEN cr.status='pending' THEN 0 ELSE 1 END,cr.id DESC LIMIT 75''').fetchall()
             invites = con.execute('''SELECT i.code,i.created_at,i.used_at,u.username AS used_by
                                      FROM invites i LEFT JOIN users u ON u.id=i.used_by ORDER BY i.created_at DESC LIMIT 75''').fetchall()
-            welcome = int(con.execute("SELECT value FROM settings WHERE name='starting_credits'").fetchone()['value'])
+            purchases = con.execute('''SELECT pr.*,u.username FROM purchase_requests pr JOIN users u ON u.id=pr.user_id
+                            ORDER BY CASE WHEN pr.status='pending' THEN 0 ELSE 1 END,pr.id DESC LIMIT 100''').fetchall()
+            settings = {r['name']:r['value'] for r in con.execute('SELECT name,value FROM settings')}
+            welcome = int(settings.get('starting_credits','5'))
         return {'users':[public_user(u) for u in users], 'requests':[dict(r) for r in requests],
-                'invites':[dict(i) for i in invites], 'starting_credits':welcome}
+                'purchase_requests':[dict(r) for r in purchases],
+                'invites':[dict(i) for i in invites], 'starting_credits':welcome,
+                'contact_email':settings.get('contact_email',''),
+                'contact_whatsapp':settings.get('contact_whatsapp','')}
 
     @app.post('/api/admin/invites')
     def admin_invites(user=Depends(require_owner)):
@@ -331,6 +386,34 @@ def install_auth_routes(app):
             con.close()
         return {'ok':True}
 
+    @app.post('/api/admin/purchases/{rid}/review')
+    def review_purchase(rid:int,body:PurchaseReviewBody,user=Depends(require_owner)):
+        if body.action not in ('confirm_paid','reject'):
+            raise HTTPException(400,'Choose confirm_paid or reject.')
+        con=db()
+        try:
+            con.execute('BEGIN IMMEDIATE')
+            row=con.execute("SELECT * FROM purchase_requests WHERE id=? AND status='pending'",(rid,)).fetchone()
+            if not row:
+                raise HTTPException(404,'Purchase request not found or already reviewed.')
+            status = 'fulfilled' if body.action=='confirm_paid' else 'rejected'
+            con.execute('UPDATE purchase_requests SET status=?,reviewed_at=? WHERE id=?',
+                        (status,int(time.time()),rid))
+            if status=='fulfilled':
+                result=con.execute("UPDATE users SET credits=credits+? WHERE id=? AND role='member'",
+                                   (row['amount'],row['user_id']))
+                if result.rowcount!=1:
+                    raise HTTPException(404,'Member account missing.')
+                con.execute('INSERT INTO credit_log(user_id,amount,reason,created_at) VALUES (?,?,?,?)',
+                            (row['user_id'],row['amount'],f'Purchase request #{rid} (owner confirmed payment)',int(time.time())))
+            con.commit()
+        except Exception:
+            con.rollback()
+            raise
+        finally:
+            con.close()
+        return {'ok':True,'status':status}
+
     @app.post('/api/admin/users/{uid}/credits')
     def adjust_credits(uid:int,body:AdjustBody,user=Depends(require_owner)):
         if body.delta==0:
@@ -366,11 +449,27 @@ def install_auth_routes(app):
 
     @app.post('/api/admin/settings')
     def save_settings(body:dict,user=Depends(require_owner)):
-        val=body.get('starting_credits')
-        if not isinstance(val,int) or isinstance(val,bool) or not 0 <= val <= 1000:
-            raise HTTPException(400,'Starting credits must be a whole number from 0 to 1000.')
+        valid={'starting_credits','contact_email','contact_whatsapp'}
+        if not body or set(body)-valid:
+            raise HTTPException(400,'Invalid settings update.')
+        if 'starting_credits' in body:
+            val=body['starting_credits']
+            if not isinstance(val,int) or isinstance(val,bool) or not 0 <= val <= 1000:
+                raise HTTPException(400,'Starting credits must be a whole number from 0 to 1000.')
+        if 'contact_email' in body:
+            val=body['contact_email']
+            if not isinstance(val,str) or len(val)>120 or (val and not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+',val)):
+                raise HTTPException(400,'Enter a valid email address or leave blank.')
+        if 'contact_whatsapp' in body:
+            val=body['contact_whatsapp']
+            if not isinstance(val,str) or (val and not re.fullmatch(r'\+?[0-9\s-]{7,25}',val)):
+                raise HTTPException(400,'Enter a WhatsApp number with country code, or leave blank.')
+            if val and not (7 <= len(re.sub(r'\D','',val)) <= 15):
+                raise HTTPException(400,'WhatsApp number should contain 7–15 digits.')
         with db() as con:
-            con.execute("UPDATE settings SET value=? WHERE name='starting_credits'",(str(val),))
+            for name, value in body.items():
+                con.execute('INSERT INTO settings(name,value) VALUES (?,?) ON CONFLICT(name) DO UPDATE SET value=excluded.value',
+                            (name,str(value).strip()))
         return {'ok':True}
 
 

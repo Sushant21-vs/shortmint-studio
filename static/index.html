@@ -33,6 +33,7 @@
           <button class="nav-link active" data-view="dashboard">Dashboard</button>
           <button class="nav-link" data-view="studio">Create Shorts</button>
           <button class="nav-link" data-view="credits">Credits</button>
+          <button id="buy-nav" class="nav-link" data-view="buy">Buy Credits</button>
           <button id="admin-nav" class="nav-link hidden" data-view="admin">Admin panel <span id="nav-request-count" class="mini-alert hidden">0</span></button>
         </nav>
         <div class="header-actions"><span id="header-credit-chip" class="credit-chip">✦ ... credits</span><button id="theme-toggle" title="Toggle theme" aria-label="Toggle theme" class="icon-button">☾</button><button id="logout-button" type="button" class="logout-btn">↪ <span>Logout</span></button><span id="header-avatar" class="avatar">S</span></div>
@@ -51,7 +52,7 @@
         </div>
         <div class="primary-grid">
           <article class="dashboard-panel highlight-panel"><div><span class="card-kicker">QUICK START</span><h2>Create New Project</h2><p>Upload or import a video, pick moments, and generate vertical Shorts.</p></div><button id="dashboard-new-project" type="button" class="orange-btn wide">＋ &nbsp; New Project <span>→</span></button></article>
-          <article class="dashboard-panel"><div><span class="card-kicker muted-orange">ACCOUNT & ACCESS</span><h2 id="access-heading">Manage Credits</h2><p id="access-description">Keep creating with credits approved by the owner.</p></div><div class="panel-actions"><button id="dashboard-manage-credits" class="secondary-btn wide">View Credit Balance</button><button id="dashboard-secondary-action" class="gray-btn wide">Request More Credits</button></div></article>
+          <article class="dashboard-panel"><div><span class="card-kicker muted-orange">ACCOUNT & ACCESS</span><h2 id="access-heading">Manage Credits</h2><p id="access-description">Keep creating with credits approved by the owner.</p></div><div class="panel-actions"><button id="dashboard-manage-credits" class="secondary-btn wide">View Credit Balance</button><button id="dashboard-secondary-action" class="gray-btn wide">Buy Credits / Contact Owner</button></div></article>
         </div>
         <div class="section-title-row"><h2>Creator Toolbox <span class="little-flare">✦</span></h2><span>Better Shorts, one video at a time</span></div>
         <div class="tips-grid"><article class="tip-card"><span>STRONGER HOOKS</span><h3>Make your first 3 seconds count</h3><p>Start with a question, surprising result, or the most interesting line.</p><button type="button" data-view="studio">Create a Short ↗</button></article><article class="tip-card"><span>VERTICAL CONTENT</span><h3>Turn landscape into 9:16</h3><p>Pick center-crop or blur to make your long video fit a vertical format.</p><button type="button" data-view="studio">Open the Studio ↗</button></article><article class="tip-card"><span>SMARTER EDITING</span><h3>Find your best moments</h3><p>Use activity-based picks, then review every clip before you publish.</p><button type="button" data-view="studio">Explore tools ↗</button></article></div>
@@ -63,6 +64,27 @@
         <div class="credits-layout"><article class="dashboard-panel balance-card"><span class="card-kicker">CURRENT BALANCE</span><strong id="big-credit-count">–</strong><p id="balance-info">1 credit = 1 exported Short. Credits are returned if an export fails or is cancelled.</p></article><article id="request-credit-panel" class="dashboard-panel"><span class="card-kicker">NEED MORE?</span><h2>Request Credits</h2><p>Submit a request here. The owner can approve or reject it in their admin dashboard.</p><form id="request-credit-form" class="stack-form"><label for="request-amount">Credits needed</label><input id="request-amount" type="number" min="1" max="500" value="10" required><label for="request-message">Message to the owner (optional)</label><textarea id="request-message" maxlength="300" rows="3" placeholder="I need more credits for my upcoming videos"></textarea><button type="submit" class="orange-btn">Send Credit Request →</button></form></article><article id="owner-info-panel" class="dashboard-panel hidden"><span class="card-kicker">OWNER ACCESS</span><h2>Unlimited Shorts</h2><p>As the site owner, you never spend credits. Manage friend accounts and their requests in your private admin panel.</p><button type="button" class="orange-btn" data-view="admin">Open Admin Panel →</button></article></div>
         <div class="history-grid"><article class="dashboard-panel"><h2>Credit Activity</h2><div id="credit-history" class="history-list"></div></article><article class="dashboard-panel"><h2>Your Requests</h2><div id="my-requests" class="history-list"></div></article></div>
       </section>
+      <section id="buy-view" class="app-page hidden">
+        <div class="page-heading"><div><span class="overline">SHORTMINT CREDIT STORE</span><h1>Buy Credits <span class="wave">✦</span></h1><p>Choose a pack, contact the owner, and get credits added manually after payment is confirmed.</p></div></div>
+        <div class="shop-hero dashboard-panel"><div><span class="card-kicker">HOW IT WORKS</span><h2>More Shorts. Your choice.</h2><p>Each credit exports one Short. Select a pack and send an inquiry. You and the owner arrange the price and payment directly. <strong>No online payments are collected on this website.</strong></p></div><div class="shop-hero-icon">✦</div></div>
+        <div class="section-title-row"><h2>Choose a credit pack</h2><span>Prices confirmed by owner</span></div>
+        <div class="shop-packs" id="shop-packs">
+          <button type="button" class="shop-pack" data-buy-pack="10"><span>STARTER</span><strong>10</strong><small>10 Shorts credits</small><b>Request quote →</b></button>
+          <button type="button" class="shop-pack" data-buy-pack="25"><span>CREATOR</span><strong>25</strong><small>25 Shorts credits</small><b>Request quote →</b></button>
+          <button type="button" class="shop-pack" data-buy-pack="50"><span>GROWTH</span><strong>50</strong><small>50 Shorts credits</small><b>Request quote →</b></button>
+          <button type="button" class="shop-pack" data-buy-pack="100"><span>PRO</span><strong>100</strong><small>100 Shorts credits</small><b>Request quote →</b></button>
+        </div>
+        <div class="shop-bottom-grid">
+          <article class="dashboard-panel"><span class="card-kicker">CONTACT THE OWNER</span><h2>Request credits</h2><p>Tell the owner how to reach you. After agreeing on payment, the owner can mark your request as paid and grant the credits.</p>
+            <form id="purchase-form" class="stack-form"><label for="buy-amount">Credits wanted (1–1,000)</label><input type="number" id="buy-amount" min="1" max="1000" value="25" required>
+              <label for="buy-contact">Your WhatsApp number or email</label><input id="buy-contact" type="text" minlength="5" maxlength="120" placeholder="e.g. +97798... or your@email.com" required>
+              <label for="buy-note">Message (optional)</label><textarea id="buy-note" maxlength="300" rows="3" placeholder="Hi! I'd like to know the price and how to pay."></textarea>
+              <button type="submit" class="orange-btn">Contact Owner — Send Request →</button>
+            </form><p class="mini-caption">Submitting a request does not charge you or add credits.</p><div id="owner-contact-links" class="shop-direct-links hidden"></div>
+          </article>
+          <article class="dashboard-panel"><span class="card-kicker">YOUR PURCHASE INQUIRIES</span><h2>Request Status</h2><div id="purchase-history" class="history-list"></div></article>
+        </div>
+      </section>
       <section id="admin-view" class="app-page hidden">
         <div class="page-heading"><div><span class="overline">OWNER ONLY</span><h1>Admin Dashboard <span class="wave">✦</span></h1><p>Approve requests, invite friends, and manage each member's credits.</p></div><button id="admin-refresh" class="outline-btn">↻ Refresh dashboard</button></div>
         <div class="admin-summary"><div><span>Members</span><strong id="admin-members">0</strong></div><div><span>Pending requests</span><strong id="admin-pending">0</strong></div><div><span>Active invitations</span><strong id="admin-invites">0</strong></div></div>
@@ -70,6 +92,15 @@
         <article class="dashboard-panel"><span class="card-kicker">DEFAULTS</span><h2>New Member Settings</h2><p>Choose how many free Shorts credits every newly invited member receives.</p><form id="starting-credit-form" class="stack-form"><label for="starting-credits">Starting credits per friend</label><input id="starting-credits" type="number" min="0" max="1000" value="5" required><button class="secondary-btn" type="submit">Save Starting Credits</button></form><p class="mini-caption">Existing balances will not be changed.</p></article></div>
         <div class="section-title-row"><h2>Credit Requests <span id="request-heading-count" class="count-pill">0 pending</span></h2></div>
         <div id="admin-requests" class="admin-list"><div class="empty-list">No pending credit requests yet.</div></div>
+        <div class="section-title-row"><h2>Purchase Inquiries <span id="purchase-heading-count" class="count-pill">0 pending</span></h2><span>Only confirm after verifying payment yourself</span></div>
+        <div id="admin-purchases" class="admin-list"><div class="empty-list">No purchase inquiries yet.</div></div>
+        <div class="admin-main-grid shop-admin-grid">
+          <article class="dashboard-panel"><span class="card-kicker">DIRECT CONTACT</span><h2>How members can contact you</h2><p>Optional WhatsApp number and email shown to signed-in members on the Buy Credits page. Keep them blank to use in-app requests only.</p>
+            <form id="owner-contact-form" class="stack-form"><label for="owner-whatsapp">WhatsApp number (with country code)</label><input type="tel" id="owner-whatsapp" placeholder="+97798XXXXXXXX" maxlength="25">
+              <label for="owner-email">Contact email</label><input type="email" id="owner-email" maxlength="120" placeholder="contact@example.com"><button type="submit" class="secondary-btn">Save Contact Details</button></form>
+          </article>
+          <article class="dashboard-panel"><span class="card-kicker">MANUAL PAYMENTS</span><h2>You stay in control</h2><p>Members send purchase inquiries, but ShortMint never charges them. After you receive and verify payment outside the website, click <strong>Mark paid & grant</strong>. The credits are then added to their account.</p><p class="mini-caption">Never mark a request paid based only on a screenshot. Verify funds through your own payment account.</p></article>
+        </div>
         <div class="section-title-row"><h2>Member Accounts</h2><span>Grant / remove credits or disable accounts</span></div>
         <div class="dashboard-panel table-wrap"><table class="members-table"><thead><tr><th>Member</th><th>Credits</th><th>Status</th><th>Adjust balance</th><th>Account</th></tr></thead><tbody id="admin-users"></tbody></table></div>
       </section>
