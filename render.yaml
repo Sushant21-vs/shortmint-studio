@@ -1,8 +1,9 @@
+
 services:
   - type: web
     name: shortmint-studio
     runtime: docker
-    plan: 1c-2g
+    plan: free
     healthCheckPath: /api/health
     envVars:
       - key: SHORTMINT_STORAGE_DIR
@@ -11,7 +12,3 @@ services:
         sync: false
       - key: OWNER_PASSWORD
         sync: false
-    disk:
-      name: shortmint-data
-      mountPath: /app/storage-data
-      sizeGB: 10
