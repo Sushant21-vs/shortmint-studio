@@ -1,0 +1,15 @@
+ShortMint v6 — Free Invite Code Contact Number
+
+REPLACE THESE FOUR FILES IN YOUR EXISTING GITHUB REPOSITORY:
+  accounts.py
+  static/index.html
+  static/dashboard.js
+  static/dashboard.css
+
+Then commit to the main branch and let Render redeploy.
+Admin Panel -> Free Invite Code — Contact Number -> type +977 98XXXXXXXX -> Save Login Page Number.
+Log out or open an incognito window to see the public login message.
+Leaving the phone field blank removes the public telephone link.
+
+Do not upload storage/ files or your .env or login credentials.
+IMPORTANT: Render Free has ephemeral storage. Phone settings and accounts may reset when the service restarts or redeploys. Persistent data requires an appropriate external database or persistent hosting.

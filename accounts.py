@@ -87,6 +87,7 @@ def init_db():
         INSERT OR IGNORE INTO settings(name,value) VALUES ('starting_credits','5');
         INSERT OR IGNORE INTO settings(name,value) VALUES ('contact_email','');
         INSERT OR IGNORE INTO settings(name,value) VALUES ('contact_whatsapp','');
+        INSERT OR IGNORE INTO settings(name,value) VALUES ('invite_phone','');
         INSERT OR IGNORE INTO settings(name,value) VALUES ('daily_download_credits','5');
         ''')
         # If the app was closed during export, return reserved credits on restart.
@@ -213,8 +214,13 @@ def install_auth_routes(app):
     from fastapi import Response
 
     @app.get('/api/setup-state')
-    def setup_state():
-        return {'owner_configured':owner_exists()}
+    def setup_state(response: Response):
+        # This is public by design: visitors need the contact number before login.
+        # Expose ONLY the explicitly configured invitation number.
+        response.headers['Cache-Control'] = 'no-store'
+        with db() as con:
+            row = con.execute("SELECT value FROM settings WHERE name='invite_phone'").fetchone()
+        return {'owner_configured':owner_exists(), 'invite_phone':row['value'] if row else ''}
 
     @app.post('/api/auth/login')
     def login(body: Credentials, response: Response, request: Request):
@@ -353,6 +359,7 @@ def install_auth_routes(app):
                 'invites':[dict(i) for i in invites], 'starting_credits':welcome,
                 'contact_email':settings.get('contact_email',''),
                 'contact_whatsapp':settings.get('contact_whatsapp',''),
+                'invite_phone':settings.get('invite_phone',''),
                 'daily_download_credits':int(settings.get('daily_download_credits','5'))}
 
     @app.post('/api/admin/invites')
@@ -461,7 +468,7 @@ def install_auth_routes(app):
 
     @app.post('/api/admin/settings')
     def save_settings(body:dict,user=Depends(require_owner)):
-        valid={'starting_credits','contact_email','contact_whatsapp','daily_download_credits'}
+        valid={'starting_credits','contact_email','contact_whatsapp','daily_download_credits','invite_phone'}
         if not body or set(body)-valid:
             raise HTTPException(400,'Invalid settings update.')
         if 'daily_download_credits' in body:
@@ -482,6 +489,10 @@ def install_auth_routes(app):
                 raise HTTPException(400,'Enter a WhatsApp number with country code, or leave blank.')
             if val and not (7 <= len(re.sub(r'\D','',val)) <= 15):
                 raise HTTPException(400,'WhatsApp number should contain 7–15 digits.')
+        if 'invite_phone' in body:
+            val=body['invite_phone']
+            if not isinstance(val,str) or len(val)>28 or (val.strip() and not re.fullmatch(r'\+977(?:[ -]?\d){8,10}',val.strip())):
+                raise HTTPException(400,'Enter a Nepal phone number starting +977 followed by 8–10 digits, or leave blank.')
         with db() as con:
             for name, value in body.items():
                 con.execute('INSERT INTO settings(name,value) VALUES (?,?) ON CONFLICT(name) DO UPDATE SET value=excluded.value',

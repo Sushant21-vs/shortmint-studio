@@ -22,6 +22,14 @@
         <button id="auth-submit" type="submit" class="orange-btn wide">Sign in to your dashboard →</button>
       </form>
       <p id="auth-message" class="auth-message" aria-live="polite"></p>
+      <div id="invite-contact-box" class="invite-contact-box" aria-label="Free invite code contact">
+        <span class="invite-contact-spark" aria-hidden="true">✦</span>
+        <div class="invite-contact-content">
+          <strong>Get your invite code for FREE</strong>
+          <p id="invite-contact-copy">Contact the owner for a free one-time registration code.</p>
+          <a id="invite-contact-number" class="invite-contact-number hidden" href="#">+977</a>
+        </div>
+      </div>
       <p class="auth-foot">Private creator access · Your projects are visible only to your account.</p>
     </div>
   </section>
@@ -137,6 +145,17 @@
           </article>
           <article class="dashboard-panel"><span class="card-kicker">MANUAL PAYMENTS</span><h2>You stay in control</h2><p>Members send purchase inquiries, but ShortMint never charges them. After you receive and verify payment outside the website, click <strong>Mark paid & grant</strong>. The credits are then added to their account.</p><p class="mini-caption">Never mark a request paid based only on a screenshot. Verify funds through your own payment account.</p></article>
         </div>
+        <article class="dashboard-panel invite-phone-admin-panel">
+          <span class="card-kicker">PUBLIC LOGIN PAGE</span>
+          <h2>Free Invite Code — Contact Number</h2>
+          <p>This phone number appears publicly on the ShortMint login and registration page so visitors can ask you for a free invitation code. It is separate from your Buy Credits contact number.</p>
+          <form id="invite-phone-form" class="stack-form">
+            <label for="invite-phone">Public contact number (+977)</label>
+            <input id="invite-phone" type="tel" inputmode="tel" maxlength="28" autocomplete="tel" placeholder="+977 98XXXXXXXX">
+            <button class="secondary-btn" type="submit">Save Login Page Number</button>
+          </form>
+          <p class="mini-caption">Leave blank to hide the number. Only share a phone number you want everyone to see. You still generate invite codes manually from Admin.</p>
+        </article>
         <div class="section-title-row"><h2>Member Accounts</h2><span>Grant / remove credits or disable accounts</span></div>
         <div class="dashboard-panel table-wrap"><table class="members-table"><thead><tr><th>Member</th><th>Credits</th><th>Status</th><th>Adjust balance</th><th>Account</th></tr></thead><tbody id="admin-users"></tbody></table></div>
       </section>

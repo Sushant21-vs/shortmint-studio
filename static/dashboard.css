@@ -64,3 +64,15 @@ body.light-theme .shop-pack{background:#fff;color:#181c2c;border-color:#e0e1ea}b
 body.light-theme .shop-hero{color:white}body.light-theme .shop-hero p{color:#e0c9bf}
 @media(max-width:950px){.shop-packs{grid-template-columns:repeat(2,minmax(0,1fr))}.shop-bottom-grid{grid-template-columns:1fr}}
 @media(max-width:470px){.shop-packs{gap:9px}.shop-pack{padding:14px}.shop-pack strong{font-size:35px}.shop-hero-icon{display:none}}
+
+/* Free invite-code contact — separate public phone controlled from Admin. */
+.invite-contact-box{display:flex;gap:12px;align-items:flex-start;margin:20px 0 0;padding:15px;background:linear-gradient(120deg,#251a18,#171923);border:1px solid #77432e;border-radius:13px}
+.invite-contact-spark{font-size:23px;line-height:1;color:#ff823b;flex:none;margin-top:1px}
+.invite-contact-content{min-width:0}
+.invite-contact-content strong{font-size:13px;color:#fff;font-family:Outfit,sans-serif;display:block}
+.invite-contact-content p{font-size:11px;line-height:1.55;color:#c5b7b6;margin:5px 0}
+.invite-contact-number{display:inline-flex;margin-top:6px;font-weight:800;font-size:15px;color:#ff9d65;text-decoration:none;word-break:break-word;border-bottom:1px solid #aa5936;padding-bottom:2px}
+.invite-contact-number:hover,.invite-contact-number:focus-visible{color:#ffb587;border-color:#ffb587}
+.invite-phone-admin-panel{margin:0 0 32px;max-width:100%}
+.invite-phone-admin-panel .stack-form{max-width:440px;margin-top:14px}
+.invite-phone-admin-panel p{max-width:760px}
