@@ -52,9 +52,7 @@ function showBusy(visible, title = 'Reading your video…', message = 'Keep this
   $('#upload-progress-fill').style.width = visible ? '6%' : '0%';
 }
 const socialSources = {
-  youtube: {name:'YouTube',placeholder:'https://www.youtube.com/watch?v=...',note:'Paste a public YouTube video or Shorts link.'},
-  tiktok: {name:'TikTok',placeholder:'https://www.tiktok.com/@creator/video/123...',note:'Paste a public TikTok video link. Private videos or links needing login may not be accessible.'},
-  instagram: {name:'Instagram',placeholder:'https://www.instagram.com/reel/ABC123/',note:'Paste a public Instagram Reel or video post. Instagram may restrict automated imports.'}
+  youtube: {name:'YouTube', placeholder:'https://www.youtube.com/watch?v=...', note:'Paste a public YouTube link. If the cloud server blocks access, upload the original video file.'}
 };
 let selectedVideoSource = 'file';
 function chooseSource(source) {
@@ -101,7 +99,7 @@ drop.addEventListener('keydown', event => { if (event.key === 'Enter' || event.k
 ['dragleave','dragend','drop'].forEach(name => drop.addEventListener(name, event => { event.preventDefault(); drop.classList.remove('dragging'); }));
 // Multiple uploads use the existing authenticated /api/upload endpoint.
 // Processing files sequentially is intentional: free hosting may be resource constrained.
-const SM_BATCH_LIMIT = 6;
+const SM_BATCH_LIMIT = 20;
 const SM_MAX_FILE_BYTES = 1024 * 1024 * 1024;
 const smAllowedExts = new Set(['.mp4','.mov','.mkv','.webm','.avi','.m4v']);
 let smBatch = [];
@@ -113,15 +111,18 @@ const smQueuePanel = $('#sm-upload-queue');
 const smQueueList = $('#sm-queue-list');
 const smQueueSummary = $('#sm-queue-summary');
 const smQueueClear = $('#sm-queue-clear');
+const smQueueRetry = $('#sm-queue-retry');
 function smHumanSize(value) {
   const n = Number(value) || 0;
   return n >= 1024 ** 3 ? `${(n / (1024 ** 3)).toFixed(2)} GB` : `${(n / (1024 ** 2)).toFixed(1)} MB`;
 }
 function smUpdateQueue() {
-  if (!smBatch.length) {smQueuePanel.classList.add('hidden');return;}
+  if (!smBatch.length) {smQueuePanel.classList.add('hidden');smQueueRetry.classList.add('hidden');return;}
   smQueuePanel.classList.remove('hidden');
   const finished = smBatch.filter(i => i.state === 'done').length;
   const errors = smBatch.filter(i => i.state === 'failed').length;
+  smQueueRetry.classList.toggle('hidden', !errors);
+  smQueueRetry.disabled = smBatchRunning;
   const pending = smBatch.filter(i => i.state === 'pending' || i.state === 'uploading').length;
   $('#sm-queue-counter').textContent = `${smBatch.length} / ${SM_BATCH_LIMIT}`;
   const active = smBatch.find(i => i.state === 'uploading');
@@ -212,7 +213,7 @@ function smQueueFiles(fileList) {
   if(activeTask){toast('Finish or cancel the current Shorts export before uploading another batch.');return;}
   const files=Array.from(fileList || []);
   if(!files.length) return;
-  if(files.length > SM_BATCH_LIMIT) toast('Only 6 videos can be uploaded in one batch. The first 6 were selected.');
+  if(files.length > SM_BATCH_LIMIT) toast(`You selected ${files.length} videos. Only the first ${SM_BATCH_LIMIT} will upload in this batch.`);
   smBatch=[];
   for(const file of files.slice(0,SM_BATCH_LIMIT)) {
     const ext='.'+(file.name.split('.').pop()||'').toLowerCase();
@@ -225,6 +226,19 @@ function smQueueFiles(fileList) {
 }
 drop.addEventListener('drop', event => {if (event.dataTransfer?.files?.length) smQueueFiles(event.dataTransfer.files);});
 $('#file-input').addEventListener('change', event => {smQueueFiles(event.target.files);event.target.value='';});
+smQueueRetry.addEventListener('click', () => {
+  if(smBatchRunning) return;
+  let retried=0;
+  smBatch.forEach(item => {
+    if(item.state !== 'failed') return;
+    const ext='.'+(item.name.split('.').pop()||'').toLowerCase();
+    if(!smAllowedExts.has(ext) || item.size>SM_MAX_FILE_BYTES || item.size<1024) return;
+    item.state='pending';item.progress=0;item.message='Retry queued';retried++;
+  });
+  smUpdateQueue();
+  if(retried) smRunBatch();
+  else toast('These files need a supported format and must be smaller than 1 GB.');
+});
 smQueueClear.addEventListener('click',()=>{
   if(smBatchRunning){smStopRequested=true;if(smBatchXHR)smBatchXHR.abort();smQueueClear.disabled=true;return;}
   smBatch=[];smUpdateQueue();

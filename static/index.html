@@ -7,8 +7,8 @@
   <title>ShortMint Studio — Create beyond ordinary</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMwYTBkMTciLz48cGF0aCBkPSJNMzIgNS4yIDQwLjYgMjMuNCA1OC44IDMyIDQwLjYgNDAuNiAzMiA1OC44IDIzLjQgNDAuNiA1LjIgMzIgMjMuNCAyMy40WiIgZmlsbD0iI2ZmNzgxZiIvPjxwYXRoIGQ9Ik0yNyAyMi41IDQzLjUgMzIgMjcgNDEuNVoiIGZpbGw9IiNmZmZmZmYiLz48Y2lyY2xlIGN4PSI0OSIgY3k9IjQ5IiByPSI0IiBmaWxsPSIjNDhkN2FjIi8+PC9zdmc+">
   <link rel="stylesheet" href="/styles.css?v=9.0.1"><link rel="stylesheet" href="/dashboard.css?v=9.0.1"><link rel="stylesheet" href="/downloads.css?v=9.0.1">
-  <link rel="stylesheet" href="/premium.css?v=9.0.1"><link rel="stylesheet" href="/source-studio.css?v=9.0.1">
-  <link rel="stylesheet" href="/import-fixes.css?v=9.0.1"><link rel="stylesheet" href="/multi-upload.css?v=11.0.0">
+  <link rel="stylesheet" href="/premium.css?v=9.0.1"><link rel="stylesheet" href="/source-studio.css?v=12.0.0">
+  <link rel="stylesheet" href="/import-fixes.css?v=9.0.1"><link rel="stylesheet" href="/multi-upload.css?v=12.0.0">
 </head>
 <body>
   <section id="auth-view" class="auth-screen hidden">
@@ -211,31 +211,30 @@
       <div class="section-heading"><div><div class="eyebrow small">THE CREATOR STUDIO</div><h2>Create your next Short</h2><p>Cut, caption and export 9:16 MP4 videos for YouTube Shorts. Members spend 1 credit per Short.</p></div><span class="step-counter" id="step-counter">STEP 01 / 03</span></div>
       <div class="steps"><div class="step active" data-step="1"><span>01</span> Add your video</div><div class="step-line"></div><div class="step" data-step="2"><span>02</span> Customize</div><div class="step-line"></div><div class="step" data-step="3"><span>03</span> Download Shorts</div></div>
       <div class="upload-panel" id="upload-panel">
-        <div class="upload-header"><div><div class="panel-label">SOURCE VIDEO</div><h3>Bring your video to life</h3><p>Upload up to 6 videos together, or import a public YouTube, TikTok or Instagram link.</p></div><div class="supported">MP4 · MOV · MKV · WEBM</div></div>
+        <div class="upload-header"><div><div class="panel-label">SOURCE VIDEO</div><h3>Bring your video to life</h3><p>Upload up to 20 videos in one batch, or try importing a public YouTube link.</p></div><div class="supported">MP4 · MOV · MKV · WEBM</div></div>
         <div class="source-tabs sm-source-switcher" role="group" aria-label="Select a video source">
           <button class="source-tab active" data-source="file" type="button" aria-pressed="true"><span class="source-glyph">↑</span><span>Upload file<small>MP4 / MOV</small></span></button>
           <button class="source-tab" data-source="youtube" type="button" aria-pressed="false"><span class="source-glyph youtube-glyph">▶</span><span>YouTube<small>Video / Shorts</small></span></button>
-          <button class="source-tab" data-source="tiktok" type="button" aria-pressed="false"><span class="source-glyph tiktok-glyph">♪</span><span>TikTok<small>Public videos</small></span></button>
-          <button class="source-tab" data-source="instagram" type="button" aria-pressed="false"><span class="source-glyph instagram-glyph">◎</span><span>Instagram<small>Reels / posts</small></span></button>
         </div>
+        <p class="sm-import-advice"><span class="sm-advice-spot">✓</span> <strong>TikTok &amp; Instagram clips:</strong> Upload the MP4/MOV file directly. Their link imports are hidden here because cloud-server downloads are often blocked.</p>
         <div class="source-content" id="file-source">
           <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Select a video file">
             <div class="upload-symbol"><svg viewBox="0 0 32 32" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21V5m-6 6 6-6 6 6"/><path d="M5 21v5h22v-5"/></svg></div>
-            <h4>Upload up to 6 videos</h4><p>Drag & drop MP4/MOV files or <span>choose multiple videos</span></p><small>Up to 6 files per batch · 1 GB maximum per video · Uploaded one at a time</small>
+            <h4>Upload up to 20 videos</h4><p>Drag & drop MP4/MOV files or <span>choose multiple videos</span></p><small>Up to 20 files per batch · 1 GB server limit per file · Uploaded sequentially</small>
           </div><input id="file-input" type="file" multiple accept="video/mp4,video/quicktime,video/x-matroska,video/webm,video/x-msvideo,.m4v,.mov,.mkv,.avi" hidden>
         </div>
         <form id="url-source" class="source-content hidden">
-          <div class="source-service-top"><div><span class="source-overline">DIRECT SOCIAL IMPORT</span><h4 id="source-service-title">Import from YouTube</h4></div><span id="source-service-pill" class="source-service-pill">YouTube</span></div>
+          <div class="source-service-top"><div><span class="source-overline">YOUTUBE LINK IMPORT</span><h4 id="source-service-title">Import from YouTube</h4></div><span id="source-service-pill" class="source-service-pill">YouTube</span></div>
           <label id="source-link-label" for="youtube-url">YOUTUBE VIDEO LINK</label>
           <div class="youtube-input-row"><input id="youtube-url" type="url" placeholder="https://www.youtube.com/watch?v=..." required autocomplete="off" maxlength="1200"><button id="paste-social-link" type="button" class="sm-paste-btn">Paste link</button><button id="social-import-button" type="submit" class="btn-accent">Import to editor <span>↗</span></button></div>
           <p id="source-link-note" class="source-link-note">Paste a publicly accessible YouTube video or Shorts link.</p>
-          <div class="sm-link-help" id="sm-link-help" aria-live="polite">Choose YouTube, TikTok, or Instagram above, then paste the public video link into this box. If the platform blocks server imports, use Upload file instead.</div>
+          <div class="sm-link-help" id="sm-link-help" aria-live="polite">Paste an accessible YouTube link. YouTube may restrict automated access from cloud servers; uploading an original file is more reliable.</div>
           <p class="sm-source-caution">Only public accessible videos are supported. Login-protected or restricted links may fail. If unavailable, upload the original video file. Use media you have the right to reuse.</p>
         </form>
       </div>
 
       <section class="sm-upload-queue hidden" id="sm-upload-queue" aria-label="Multiple video uploads" aria-live="polite">
-        <div class="sm-queue-head"><div><span class="sm-queue-eyebrow">BATCH UPLOAD · MAX 6 VIDEOS</span><h3>Upload workspace <span id="sm-queue-counter">0 / 6</span></h3><p id="sm-queue-summary">Your files will upload individually, then be ready to edit.</p></div><button id="sm-queue-clear" type="button" class="sm-queue-action">Clear list</button></div>
+        <div class="sm-queue-head"><div><span class="sm-queue-eyebrow">BATCH UPLOAD · UP TO 20 VIDEOS</span><h3>Upload workspace <span id="sm-queue-counter">0 / 20</span></h3><p id="sm-queue-summary">Your files will upload individually, then be ready to edit.</p></div><div class="sm-queue-buttons"><button id="sm-queue-retry" type="button" class="sm-queue-action sm-queue-retry hidden">↻ Retry failed</button><button id="sm-queue-clear" type="button" class="sm-queue-action">Clear list</button></div></div>
         <div class="sm-queue-meter"><span id="sm-queue-meter-fill" style="width:0%"></span></div>
         <div id="sm-queue-list" class="sm-queue-list"></div>
         <p class="sm-queue-warning">Uploads create separate projects. On Render Free, large videos may fail because of temporary storage, network timeouts, or server limits. Upload small files first.</p>
@@ -291,6 +290,6 @@
     </div>
   </div>
   <div class="toast hidden" id="toast" role="alert"><span id="toast-icon">!</span><div id="toast-text"></div><button id="toast-dismiss" type="button" aria-label="Dismiss">×</button></div>
-  <script src="/source-studio.js?v=9.0.1" defer></script><script src="/app.js?v=11.0.0" defer></script><script src="/dashboard.js?v=11.0.0" defer></script><script src="/downloads.js?v=9.0.1" defer></script><script src="/premium.js?v=9.0.1" defer></script>
+  <script src="/source-studio.js?v=9.0.1" defer></script><script src="/app.js?v=12.0.0" defer></script><script src="/dashboard.js?v=11.0.0" defer></script><script src="/downloads.js?v=9.0.1" defer></script><script src="/premium.js?v=9.0.1" defer></script>
 </body>
 </html>

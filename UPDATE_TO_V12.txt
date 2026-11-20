@@ -1,0 +1,1 @@
+SHORTMINT V12: Replace static/index.html, static/app.js, static/source-studio.css and static/multi-upload.css. Commit files and let Render deploy. Twenty files per batch, one-by-one, Retry failed; TikTok/Instagram direct imports hidden in Create Shorts. See README_MULTI_UPLOAD.md.

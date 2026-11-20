@@ -1,4 +1,4 @@
-/* ShortMint v11 — 6-video sequential upload queue */
+/* ShortMint v12 — 20-video sequential upload queue */
 #app-view .sm-upload-queue{margin:18px 0 26px;border:1px solid #354458;border-radius:19px;padding:22px;background:linear-gradient(135deg,#182230 0%,#111820 100%);box-shadow:0 14px 40px #0002;color:#eef5ff}
 #app-view .sm-queue-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
 #app-view .sm-queue-eyebrow{font-size:10px;color:#ffac7a;font-weight:800;letter-spacing:2px}
@@ -31,3 +31,10 @@ body.light-theme #app-view .sm-queue-item{background:#f8fafc;border-color:#e0e6e
 body.light-theme #app-view .sm-queue-name{color:#243244}
 body.light-theme #app-view .sm-queue-head p,body.light-theme #app-view .sm-queue-details small,body.light-theme #app-view .sm-queue-warning{color:#5d6e84}
 @media(max-width:700px){#app-view .sm-upload-queue{padding:16px}#app-view .sm-queue-head h3{font-size:18px}#app-view .sm-queue-item{flex-wrap:wrap;padding:11px;gap:9px}#app-view .sm-queue-status{width:100%;justify-content:space-between;padding-left:42px}#app-view .sm-queue-edit{flex:1}#app-view .sm-queue-head{gap:8px}#app-view .sm-queue-action{padding:8px 11px}}
+
+/* v12: compact scroll for twenty items and accessible retry control. */
+#app-view .sm-queue-buttons{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+#app-view #sm-queue-retry{background:#2e403e;color:#9af0cd;border-color:#46786b}
+#app-view #sm-queue-retry:hover{background:#375950}
+#app-view #sm-queue-list{max-height:570px;overflow-y:auto;overscroll-behavior:contain;scrollbar-color:#5c6a80 transparent;padding-right:3px}
+@media(max-width:620px){#app-view .sm-queue-buttons{width:100%;justify-content:flex-start}#app-view #sm-queue-list{max-height:460px}}

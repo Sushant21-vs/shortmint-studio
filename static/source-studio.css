@@ -35,3 +35,11 @@ body.light-theme .sm-campaign-kit label,body.light-theme #app-view .sm-rights-ch
 body.light-theme .sm-campaign-kit input[type=text],body.light-theme .sm-campaign-kit textarea{background:#f6f5f5;color:#1e2634}
 @media(max-width:850px){#app-view .sm-source-switcher{grid-template-columns:repeat(2,minmax(0,1fr))}.sm-source-switcher .source-tab>span:last-child{font-size:12px}}
 @media(max-width:560px){#app-view .sm-source-switcher{gap:6px}.sm-kit-grid{grid-template-columns:1fr}.sm-kit-header{flex-direction:column;gap:12px}.sm-campaign-kit{padding:18px}.sm-kit-actions button{width:100%}#app-view .sm-source-switcher .source-tab{padding:11px 6px;gap:8px}#app-view .sm-source-switcher .source-tab .source-glyph{width:28px;height:28px;font-size:15px}.sm-source-switcher .source-tab small{font-size:9px}#app-view #url-source{padding:17px}}
+
+/* v12: only reliable upload + optional YouTube source in Shorts Maker. */
+#app-view .sm-source-switcher{grid-template-columns:repeat(2,minmax(0,1fr));max-width:730px}
+#app-view .sm-import-advice{margin:0 0 20px;padding:12px 17px;border:1px solid #304151;border-radius:12px;color:#c4d1e0;background:#111e2b;font-size:12px;line-height:1.7}
+#app-view .sm-import-advice strong{color:#ffd5ba}
+#app-view .sm-advice-spot{color:#70dfb0;font-weight:900;margin-right:7px}
+body.light-theme #app-view .sm-import-advice{background:#fff;border-color:#d3dce7;color:#44556b}
+@media(max-width:480px){#app-view .sm-source-switcher{grid-template-columns:repeat(2,minmax(0,1fr))}}
