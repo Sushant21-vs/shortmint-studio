@@ -1,0 +1,33 @@
+/* ShortMint v11 — 6-video sequential upload queue */
+#app-view .sm-upload-queue{margin:18px 0 26px;border:1px solid #354458;border-radius:19px;padding:22px;background:linear-gradient(135deg,#182230 0%,#111820 100%);box-shadow:0 14px 40px #0002;color:#eef5ff}
+#app-view .sm-queue-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+#app-view .sm-queue-eyebrow{font-size:10px;color:#ffac7a;font-weight:800;letter-spacing:2px}
+#app-view .sm-queue-head h3{font-size:22px;letter-spacing:-.5px;margin:6px 0 5px}
+#app-view #sm-queue-counter{font-size:13px;color:#fda976;margin-left:10px;font-weight:700}
+#app-view .sm-queue-head p{font-size:12px;color:#b4c2d5;margin:0;line-height:1.6}
+#app-view .sm-queue-action{border:1px solid #485467;background:#242d3a;border-radius:10px;padding:11px 14px;font-weight:700;font-size:12px;color:#f8d4c0;cursor:pointer;white-space:nowrap}
+#app-view .sm-queue-action:hover{border-color:#f9a474;background:#362931}
+#app-view .sm-queue-action:disabled{opacity:.55;cursor:wait}
+#app-view .sm-queue-meter{height:6px;background:#263544;border-radius:99px;margin:17px 0 12px;overflow:hidden}
+#app-view .sm-queue-meter span{display:block;height:100%;background:linear-gradient(90deg,#fc8a46,#ffb681);transition:width .2s}
+#app-view .sm-queue-list{display:flex;flex-direction:column;gap:8px}
+#app-view .sm-queue-item{display:flex;gap:13px;align-items:center;border:1px solid #2f3b4a;border-radius:12px;padding:13px 15px;background:#101925}
+#app-view .sm-queue-index{display:grid;place-items:center;height:34px;width:34px;flex:none;border-radius:9px;background:#2f2830;color:#fba979;font-weight:900;font-size:12px}
+#app-view .sm-queue-details{flex:1;min-width:0}
+#app-view .sm-queue-name{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;color:#f0f5fc}
+#app-view .sm-queue-details small{display:block;color:#9dacc2;margin-top:3px;font-size:11px;white-space:normal;overflow-wrap:anywhere}
+#app-view .sm-row-meter{height:4px;background:#2c3a49;border-radius:99px;margin-top:9px;overflow:hidden}
+#app-view .sm-row-meter span{display:block;height:100%;background:linear-gradient(90deg,#f9733f,#ffb17d);transition:width .16s}
+#app-view .sm-queue-status{display:flex;align-items:center;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+#app-view .sm-queue-state{font-size:11px;font-weight:800;white-space:nowrap;color:#e4b88f}
+#app-view [data-queue-state="done"] .sm-queue-state{color:#73d4ac}
+#app-view [data-queue-state="failed"] .sm-queue-state{color:#ff989d}
+#app-view .sm-queue-edit{font-size:11px;font-weight:800;color:#13171c;background:#ffac7a;border:0;border-radius:8px;padding:10px 12px;white-space:nowrap;cursor:pointer}
+#app-view .sm-queue-edit:hover{background:#ffc49e}
+#app-view .sm-queue-warning{color:#9faec0;font-size:11px;margin:15px 0 0;line-height:1.6}
+#app-view #dropzone h4{font-weight:900}
+body.light-theme #app-view .sm-upload-queue{background:#fff;color:#1a293b;border-color:#d7dee8}
+body.light-theme #app-view .sm-queue-item{background:#f8fafc;border-color:#e0e6ef}
+body.light-theme #app-view .sm-queue-name{color:#243244}
+body.light-theme #app-view .sm-queue-head p,body.light-theme #app-view .sm-queue-details small,body.light-theme #app-view .sm-queue-warning{color:#5d6e84}
+@media(max-width:700px){#app-view .sm-upload-queue{padding:16px}#app-view .sm-queue-head h3{font-size:18px}#app-view .sm-queue-item{flex-wrap:wrap;padding:11px;gap:9px}#app-view .sm-queue-status{width:100%;justify-content:space-between;padding-left:42px}#app-view .sm-queue-edit{flex:1}#app-view .sm-queue-head{gap:8px}#app-view .sm-queue-action{padding:8px 11px}}

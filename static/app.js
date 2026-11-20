@@ -99,33 +99,136 @@ drop.addEventListener('click', () => $('#file-input').click());
 drop.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); $('#file-input').click(); } });
 ['dragenter','dragover'].forEach(name => drop.addEventListener(name, event => { event.preventDefault(); drop.classList.add('dragging'); }));
 ['dragleave','dragend','drop'].forEach(name => drop.addEventListener(name, event => { event.preventDefault(); drop.classList.remove('dragging'); }));
-drop.addEventListener('drop', event => { if (event.dataTransfer?.files?.length) uploadFile(event.dataTransfer.files[0]); });
-$('#file-input').addEventListener('change', event => { if (event.target.files?.[0]) uploadFile(event.target.files[0]); event.target.value = ''; });
-
-function uploadFile(file) {
-  if (!file) return;
-  if (file.size > 1024**3) { toast('Choose a video smaller than 1 GB.'); return; }
-  const ext = '.' + (file.name.split('.').pop() || '').toLowerCase();
-  if (!['.mp4','.mov','.mkv','.webm','.avi','.m4v'].includes(ext)) { toast('Please select an MP4, MOV, MKV, WebM, AVI or M4V video.'); return; }
-  showBusy(true, 'Uploading your video…', 'Your video is uploaded to the ShortMint host computer.');
-  const xhr = new XMLHttpRequest();
-  xhr.open('POST','/api/upload');
-  xhr.setRequestHeader('X-ShortMint-Request', '1');
-  xhr.upload.onprogress = event => {
-    if (event.lengthComputable) $('#upload-progress-fill').style.width = `${Math.round(event.loaded / event.total * 100)}%`;
-  };
-  xhr.onload = () => {
-    if (xhr.status >= 200 && xhr.status < 300) {
-      try { loadProject(JSON.parse(xhr.responseText)); } catch { showBusy(false); toast('Could not open the uploaded video.'); }
-    } else {
-      showBusy(false);
-      let detail; try { detail = JSON.parse(xhr.responseText)?.detail; } catch {}
-      toast(typeof detail === 'string' ? detail : `Upload failed (${xhr.status})`);
-    }
-  };
-  xhr.onerror = () => { showBusy(false); toast('Upload could not complete. Is the local ShortMint server running?'); };
-  const form = new FormData(); form.append('file', file, file.name); xhr.send(form);
+// Multiple uploads use the existing authenticated /api/upload endpoint.
+// Processing files sequentially is intentional: free hosting may be resource constrained.
+const SM_BATCH_LIMIT = 6;
+const SM_MAX_FILE_BYTES = 1024 * 1024 * 1024;
+const smAllowedExts = new Set(['.mp4','.mov','.mkv','.webm','.avi','.m4v']);
+let smBatch = [];
+let smBatchRunning = false;
+let smBatchXHR = null;
+let smStopRequested = false;
+let smBatchGeneration = 0;
+const smQueuePanel = $('#sm-upload-queue');
+const smQueueList = $('#sm-queue-list');
+const smQueueSummary = $('#sm-queue-summary');
+const smQueueClear = $('#sm-queue-clear');
+function smHumanSize(value) {
+  const n = Number(value) || 0;
+  return n >= 1024 ** 3 ? `${(n / (1024 ** 3)).toFixed(2)} GB` : `${(n / (1024 ** 2)).toFixed(1)} MB`;
 }
+function smUpdateQueue() {
+  if (!smBatch.length) {smQueuePanel.classList.add('hidden');return;}
+  smQueuePanel.classList.remove('hidden');
+  const finished = smBatch.filter(i => i.state === 'done').length;
+  const errors = smBatch.filter(i => i.state === 'failed').length;
+  const pending = smBatch.filter(i => i.state === 'pending' || i.state === 'uploading').length;
+  $('#sm-queue-counter').textContent = `${smBatch.length} / ${SM_BATCH_LIMIT}`;
+  const active = smBatch.find(i => i.state === 'uploading');
+  smQueueSummary.textContent = smBatchRunning
+    ? `Uploading ${active ? active.name : 'videos'} · ${finished} ready · ${pending} remaining`
+    : `${finished} ready to edit${errors ? ` · ${errors} failed` : ''} · ${smBatch.length} selected`;
+  smQueueClear.textContent = smBatchRunning ? 'Stop remaining' : 'Clear list';
+  smQueueClear.disabled = false;
+  const overall = smBatch.length ? smBatch.reduce((sum, i) => sum + (i.state === 'done' || i.state === 'failed' || i.state === 'cancelled' ? 100 : i.progress), 0) / smBatch.length : 0;
+  $('#sm-queue-meter-fill').style.width = `${Math.round(overall)}%`;
+  smQueueList.replaceChildren();
+  smBatch.forEach((item, index) => {
+    const row = document.createElement('div');row.className = 'sm-queue-item';
+    row.dataset.queueState = item.state;
+    const indexTag = document.createElement('span');indexTag.className='sm-queue-index';indexTag.textContent = String(index+1).padStart(2,'0');
+    const details = document.createElement('div'); details.className='sm-queue-details';
+    const name = document.createElement('strong');name.className='sm-queue-name';name.textContent=item.name;name.title=item.name;
+    const desc = document.createElement('small'); desc.textContent = `${smHumanSize(item.size)} · ${item.message || 'Waiting to upload'}`;
+    const meter=document.createElement('div');meter.className='sm-row-meter';
+    const fill=document.createElement('span');fill.style.width=`${item.progress}%`;meter.append(fill);
+    details.append(name,desc,meter);
+    const status=document.createElement('div');status.className='sm-queue-status';
+    const statusLabel=document.createElement('span');statusLabel.className='sm-queue-state';
+    statusLabel.textContent = item.state === 'done' ? '✓ Ready' : item.state === 'uploading' ? `${item.progress}%` : item.state === 'failed' ? 'Failed' : item.state === 'cancelled' ? 'Stopped' : 'Queued';
+    status.append(statusLabel);
+    if (item.state === 'done' && item.data) {
+      const edit=document.createElement('button');edit.type='button';edit.className='sm-queue-edit';edit.textContent='Edit Short ↗';
+      edit.addEventListener('click', () => {
+        if(activeTask){toast('Finish or cancel the current Shorts export first.');return;}
+        loadProject(item.data);
+      });
+      status.append(edit);
+    }
+    row.append(indexTag,details,status);smQueueList.append(row);
+  });
+}
+function smUploadSingle(item) {
+  return new Promise(resolve => {
+    const xhr=new XMLHttpRequest();smBatchXHR=xhr;
+    xhr.open('POST','/api/upload');
+    xhr.setRequestHeader('X-ShortMint-Request','1');
+    xhr.upload.onprogress = e => {
+      if (e.lengthComputable) {
+        const percent = Math.round(e.loaded / e.total * 100);
+        if (percent !== item.progress) {item.progress=percent;smUpdateQueue();}
+      }
+    };
+    xhr.onload = () => {
+      smBatchXHR=null;
+      try {
+        const response=JSON.parse(xhr.responseText);
+        if(xhr.status < 200 || xhr.status >= 300) throw new Error(response.detail || `Upload failed (${xhr.status})`);
+        if (!response.id || !response.filename) throw new Error('Server did not return a valid video project.');
+        item.state='done';item.data=response;item.progress=100;item.message='Saved as a project';
+      }catch(error){item.state='failed';item.message=String(error.message || 'Upload failed').slice(0,240);item.progress=100;}
+      resolve();
+    };
+    xhr.onerror = () => {smBatchXHR=null;item.state='failed';item.message='Connection failed. Try a smaller file or retry later.';item.progress=100;resolve();};
+    xhr.onabort = () => {smBatchXHR=null;item.state='cancelled';item.message='Upload stopped';item.progress=100;resolve();};
+    const form=new FormData();form.append('file',item.file,item.name);xhr.send(form);
+  });
+}
+async function smRunBatch() {
+  if(smBatchRunning) return;
+  smBatchRunning=true;smStopRequested=false;
+  const generation=++smBatchGeneration;
+  const hasProject=!!project;
+  smUpdateQueue();
+  for(const item of smBatch) {
+    if(smStopRequested || generation !== smBatchGeneration) break;
+    if(item.state!=='pending') continue;
+    item.state='uploading';item.progress=0;item.message='Uploading securely';smUpdateQueue();
+    await smUploadSingle(item);
+    smUpdateQueue();
+  }
+  if(smStopRequested) smBatch.filter(i => i.state === 'pending').forEach(i=>{i.state='cancelled';i.progress=100;i.message='Not uploaded';});
+  smBatchRunning=false;smUpdateQueue();
+  const done=smBatch.filter(i=>i.state==='done');
+  if(done.length) {
+    if(!hasProject && !project && !activeTask) loadProject(done[0].data);
+    toast(`${done.length} of ${smBatch.length} videos uploaded. Choose “Edit Short” beside any video.`,true);
+  } else {
+    toast('No videos uploaded. Check each error and try smaller MP4 files.');
+  }
+}
+function smQueueFiles(fileList) {
+  if(smBatchRunning){toast('Your current videos are uploading. Finish or stop this batch first.');return;}
+  if(activeTask){toast('Finish or cancel the current Shorts export before uploading another batch.');return;}
+  const files=Array.from(fileList || []);
+  if(!files.length) return;
+  if(files.length > SM_BATCH_LIMIT) toast('Only 6 videos can be uploaded in one batch. The first 6 were selected.');
+  smBatch=[];
+  for(const file of files.slice(0,SM_BATCH_LIMIT)) {
+    const ext='.'+(file.name.split('.').pop()||'').toLowerCase();
+    const error = !smAllowedExts.has(ext) ? 'Unsupported file format. Use MP4, MOV, MKV, WebM, AVI, or M4V.' : file.size > SM_MAX_FILE_BYTES ? 'File exceeds the 1 GB limit.' : file.size < 1024 ? 'Video file is empty or too small.' : '';
+    smBatch.push({file,name:file.name,size:file.size,progress:error?100:0,state:error?'failed':'pending',message:error,data:null});
+  }
+  smUpdateQueue();
+  if(smBatch.some(i=>i.state==='pending')) smRunBatch();
+  else toast('None of the selected files can be uploaded. Review the errors below.');
+}
+drop.addEventListener('drop', event => {if (event.dataTransfer?.files?.length) smQueueFiles(event.dataTransfer.files);});
+$('#file-input').addEventListener('change', event => {smQueueFiles(event.target.files);event.target.value='';});
+smQueueClear.addEventListener('click',()=>{
+  if(smBatchRunning){smStopRequested=true;if(smBatchXHR)smBatchXHR.abort();smQueueClear.disabled=true;return;}
+  smBatch=[];smUpdateQueue();
+});
 $('#url-source').addEventListener('submit', async event => {
   event.preventDefault();
   const url = $('#youtube-url').value.trim();
