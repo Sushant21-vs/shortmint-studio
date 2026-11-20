@@ -56,21 +56,30 @@ async function refreshMe() {
   updateUser();
 }
 function renderPublicInvitePhone(phone) {
-  const number = $('#invite-contact-number');
+  const call = $('#invite-contact-number');
+  const whatsapp = $('#invite-contact-whatsapp');
+  const phoneText = $('#invite-contact-phone');
+  const actions = $('#invite-contact-actions');
+  const empty = $('#invite-contact-unset');
   const copy = $('#invite-contact-copy');
   const raw = String(phone ?? '').trim();
   const normalized = raw.replace(/[\s-]/g,'');
-  // Never put untrusted settings directly into HTML or into a non-tel URL.
+  // Public API settings are untrusted: only Nepal-format phone numbers may become links.
   if (/^\+977\d{8,10}$/.test(normalized)) {
-    number.href = 'tel:' + normalized;
-    number.textContent = raw;
-    number.classList.remove('hidden');
-    copy.textContent = 'Contact this number to request a free, one-time registration code:';
+    call.href = 'tel:' + normalized;
+    phoneText.textContent = raw;
+    const message = 'Hello Sushant Hero, I would like a free ShortMint Studio invitation code.';
+    whatsapp.href = 'https://wa.me/' + normalized.slice(1) + '?text=' + encodeURIComponent(message);
+    actions.classList.remove('hidden');
+    empty.classList.add('hidden');
+    copy.textContent = 'Need access? Contact Sushant Hero directly to get your free invitation code.';
   } else {
-    number.removeAttribute('href');
-    number.textContent = '';
-    number.classList.add('hidden');
-    copy.textContent = 'Contact the website owner to request a free, one-time registration code.';
+    call.removeAttribute('href');
+    whatsapp.removeAttribute('href');
+    phoneText.textContent = '';
+    actions.classList.add('hidden');
+    empty.classList.remove('hidden');
+    copy.textContent = 'Contact Sushant Hero to request your free one-time registration code.';
   }
 }
 async function loadPublicInvitePhone() {
