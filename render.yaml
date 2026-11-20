@@ -1,4 +1,5 @@
-
+# Render Free — testing only. No paid disk.
+# WARNING: SQLite users/credits and uploaded videos disappear on server recycle.
 services:
   - type: web
     name: shortmint-studio

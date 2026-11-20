@@ -1,0 +1,13 @@
+SHORTMINT V8 — REPLACE ONLY
+
+Replace:
+  app.py
+  static/index.html
+  static/app.js
+
+Add:
+  static/source-studio.css
+  static/source-studio.js
+
+Keep all the other files in your existing v7 repository. Commit to GitHub main; Render should redeploy.
+IMPORTANT: Your Render Free database and videos may be wiped on redeployment. Do not use real-payment credits without persistent storage/backups.

@@ -1,3 +1,64 @@
+# ShortMint Studio v8 — Creator / Whop Clipping Toolkit
+
+**Full Python + FFmpeg website**, based on the v7 premium design. Version 8 keeps Shorts exports, owner/member accounts, credits, the free download tab, Buy Credits, the admin invite-code contact number, and the “Made by Sushant Hero” footer.
+
+## New in v8
+
+- **Four source modes** in Create Shorts: **Upload file**, **YouTube**, **TikTok**, and **Instagram**. Each mode has its own tab, link placeholder, and guidance.
+- **Real server import pathway**: choose a tab, paste a supported public video URL, confirm your rights, then ShortMint uses `yt-dlp` to retrieve the source and `ffprobe` to validate it. The resulting video opens in the existing preview, timeline, caption, crop, and FFmpeg MP4 export editor. The server checks that the selected source matches the URL's host.
+- **Creator campaign toolkit** for permitted Whop / Content Rewards clips: optional campaign name, hook text, manual caption/hashtags, and a pre-publishing checklist. Save these notes in the current browser; they are not automatically posted or embedded into video, except if you explicitly copy the hook into the headline field.
+- **Safety and reliability**: platform URL allowlist, public-link-only import (no private session cookies, no login bypass), one import at a time, simple network retry/timeout, explicit rights confirmation, and errors when links are unavailable.
+- **No extra paid services**. Existing Render Free `render.yaml` is included, but it has limited CPU/disk and **does not reliably retain data**.
+
+**Important limits:** YouTube, TikTok and Instagram can block automated extraction, require sign-in, or change their websites without notice. The code is integrated and offline import tests use simulated external extraction; **live imports from all three platforms have not been verified** and cannot be guaranteed. Directly uploading the original video remains the most dependable option. This app cannot prevent Whop/Content Rewards from flagging artificial engagement or guarantee acceptance/payout. Never use viewbots or fake engagement; follow each campaign's footage permissions and submission rules. Video publication is manual. We are not affiliated with Whop, Content Rewards, YouTube, TikTok or Instagram.
+
+## Fast deployment to your existing GitHub / Render site
+
+If you **already have ShortMint Premium v7 online**, use `ShortMint_v8_Replace_Only.zip`: replace `app.py`, `static/index.html`, `static/app.js` and **add** `static/source-studio.js` and `static/source-studio.css` in the same folders. Commit to `main`; Render auto-deploys if configured.
+
+If this is a **new repository**, upload the entire contents of the full project ZIP to the root (not the ZIP itself), then connect your Render web service / Blueprint to that repository. Set `OWNER_USERNAME` and `OWNER_PASSWORD` as Render secret environment variables. Confirm the Render Blueprint plan is Free and no paid persistent disk is configured.
+
+**Render Free will normally clear SQLite accounts, login sessions, credit balances, requests and uploaded videos on redeployment/recycle.** Do not accept real credit payments without persistent storage, backups, and further production security testing.
+
+### Making a Short
+
+1. Log in → **Create Shorts**.
+2. Choose **Upload file**, **YouTube**, **TikTok**, or **Instagram**.
+3. If using a link, paste the public video URL and tick the footage-rights confirmation. Import may fail if the platform restricts access.
+4. Preview the imported video; select smart suggestions or a custom clip. Set 9:16 crop, a hook headline and SRT captions; choose 540p, 720p or 1080p.
+5. Click Generate and download the MP4. Optionally use the **Campaign editing toolkit** to plan the caption and check campaign requirements, then upload your result yourself to the required platform and submit its actual post URL.
+
+**Whop / Content Rewards**: authorized clips, meaningful edits, genuine views, and campaign-specific requirements matter more than which editor produced the MP4. Adding subtitles alone does not automatically grant rights or make a clip monetizable.
+
+## Verification
+
+- 17 automated tests passed, including actual FFmpeg conversion and mocked video imports for YouTube, TikTok, and Instagram.
+- JavaScript syntax checked. A full live browser integration preview and real platform extractor requests were unavailable in this environment.
+
+---
+
+# ShortMint Studio v7 — Original Foundation
+
+**Designed for Sushant Hero.** This package adds the premium responsive interface to the existing v6 video-and-credits app. It retains the original Python/FastAPI/FFmpeg code and v6 login, social imports, downloads, manual purchase inquiries, invite contact, and admin controls. The latest interface files are `static/index.html`, `static/premium.css`, and `static/premium.js`.
+
+**Important:** Render Free uses ephemeral storage. Redeployment can wipe accounts, credits, settings, and video files. Before upgrading a live account, establish persistent storage/backup. For a simple upgrade see `START_HERE_V7.txt`.
+
+**Navigation upgrades:** Sidebar, cinematic dashboard, two-column login, mobile slide-out navigation, Ctrl+K/Cmd+K palette, real FFmpeg health check, and refreshed visual language. Pure CSS/vanilla JavaScript, no external JS frameworks or imagery added. The video-processing performance is still determined by your server hardware and the input video.
+
+---
+
+## NEW: Free invite code contact number on the login page (v6)
+
+The ShortMint login and Join with Invite screens now show **“Get your invite code for FREE”**, plus a public clickable **+977** phone number *only after you set it*. Set the number at **Admin Panel → Free Invite Code — Contact Number → Save Login Page Number**. Leave it blank to hide it.
+
+This number is separate from your existing WhatsApp/Buy Credits contact. Visitors cannot edit it. Invite codes are still created manually by the owner (one code per friend). No paid gateway or automatic invite delivery is added.
+
+**Upgrade an existing GitHub deployment:** Replace exactly these four files from `ShortMint_v6_Replace_Only.zip`, keeping their folder paths: `accounts.py`, `static/index.html`, `static/dashboard.js`, and `static/dashboard.css`. Commit on `main`; if Render auto-deploy is enabled it should redeploy. On first startup the existing SQLite database gets the new setting automatically. Test by logging out or opening a private browser window.
+
+**Hosting warning:** Render Free uses ephemeral filesystem storage. Contact settings, accounts and invitations may be lost after a restart/redeploy. Do not promise lasting free invites or rely on free hosting for paid services without persistent storage.
+
+---
+
 # ShortMint Studio v5 — Social Link Shorts + Free Daily Video Downloads
 
 This upgrade extends ShortMint Studio v4 (manual Buy Credits, owner approvals, and the **Made by Sushant Hero** footer). It retains the free Render Blueprint and all existing functionality.

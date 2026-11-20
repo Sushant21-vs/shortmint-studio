@@ -51,10 +51,27 @@ function showBusy(visible, title = 'Reading your video…', message = 'Keep this
   $('#upload-busy-text').textContent = message;
   $('#upload-progress-fill').style.width = visible ? '6%' : '0%';
 }
+const socialSources = {
+  youtube: {name:'YouTube',placeholder:'https://www.youtube.com/watch?v=...',note:'Paste a public YouTube video or Shorts link you have permission to use.'},
+  tiktok: {name:'TikTok',placeholder:'https://www.tiktok.com/@creator/video/123...',note:'Paste a public TikTok video link. Private videos or links needing login may not be accessible.'},
+  instagram: {name:'Instagram',placeholder:'https://www.instagram.com/reel/ABC123/',note:'Paste a public Instagram Reel or video post. Instagram may restrict automated imports.'}
+};
+let selectedVideoSource = 'file';
 function chooseSource(source) {
-  $$('.source-tab').forEach(b => b.classList.toggle('active', b.dataset.source === source));
-  $('#file-source').classList.toggle('hidden', source !== 'file');
-  $('#url-source').classList.toggle('hidden', source !== 'youtube');
+  selectedVideoSource = source in socialSources ? source : 'file';
+  $$('.source-tab').forEach(b => {const active=b.dataset.source === selectedVideoSource;b.classList.toggle('active',active);b.setAttribute('aria-pressed', String(active));});
+  $('#file-source').classList.toggle('hidden', selectedVideoSource !== 'file');
+  $('#url-source').classList.toggle('hidden', selectedVideoSource === 'file');
+  if(selectedVideoSource !== 'file') {
+    const item=socialSources[selectedVideoSource];
+    $('#source-service-title').textContent = `Import from ${item.name}`;
+    $('#source-service-pill').textContent = item.name;
+    $('#source-link-label').textContent = `${item.name.toUpperCase()} VIDEO LINK`;
+    $('#source-link-note').textContent = item.note;
+    $('#youtube-url').placeholder = item.placeholder;
+    $('#youtube-url').value='';
+    $('#import-rights').checked=false;
+  }
 }
 $$('.source-tab').forEach(btn => btn.addEventListener('click', () => chooseSource(btn.dataset.source)));
 const drop = $('#dropzone');
@@ -92,13 +109,19 @@ function uploadFile(file) {
 $('#url-source').addEventListener('submit', async event => {
   event.preventDefault();
   const url = $('#youtube-url').value.trim();
-  if (!url) return;
-  showBusy(true, 'Importing from YouTube…', 'This can take longer for large videos. Some YouTube links may not be available.');
+  const source = selectedVideoSource;
+  if (!url || !(source in socialSources)) return;
+  if(!$('#import-rights').checked){ toast('Please confirm you have permission to use this footage.');return; }
+  const platformName=socialSources[source].name;
+  const button=$('#social-import-button');button.disabled=true;
+  showBusy(true, `Importing from ${platformName}…`, 'The source platform may restrict access. Try a direct upload if this import fails.');
   $('#upload-progress-fill').style.width = '23%';
   try {
-    const data = await api('/api/import-url', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({url})});
+    const data = await api('/api/import-url', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({url, platform: source, rights_confirmed: true})});
     loadProject(data);
+    toast(`${platformName} video imported. Preview it and choose a clip.`,true);
   } catch (err) { showBusy(false); toast(errorMessage(err)); }
+  finally {button.disabled=false;}
 });
 
 function getShortLength() { return Number($('#clip-length').value); }

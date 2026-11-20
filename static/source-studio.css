@@ -1,0 +1,37 @@
+/* v8 platform-specific source selector and creator campaign kit */
+#app-view .sm-source-switcher{max-width:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:6px;background:#0b131e;border:1px solid #32404e;border-radius:17px;margin:26px 0 18px}
+#app-view .sm-source-switcher .source-tab{border:1px solid transparent;padding:16px 9px;gap:12px;justify-content:center;border-radius:12px;min-width:0;transition:background .18s,border-color .18s,transform .18s;text-align:left}
+#app-view .sm-source-switcher .source-tab:hover{background:#26313d;transform:translateY(-1px)}
+#app-view .sm-source-switcher .source-tab.active{border-color:#cc744c;background:linear-gradient(125deg,#422c2a,#251f28);color:#fff}
+.sm-source-switcher .source-tab>span:last-child{display:flex;flex-direction:column;font-size:13px;white-space:nowrap;line-height:1.35}
+.sm-source-switcher .source-tab small{display:block;margin-top:2px;font-size:10px;font-weight:500;opacity:.7}
+#app-view .sm-source-switcher .source-tab .source-glyph{width:35px;height:35px;flex:none;display:grid;place-items:center;background:#1b2935;color:#f4b98d;border-radius:10px;font-size:19px}
+#app-view .sm-source-switcher .source-tab .youtube-glyph{color:#ff706e}
+#app-view .sm-source-switcher .source-tab .tiktok-glyph{color:#74e4dc}
+#app-view .sm-source-switcher .source-tab .instagram-glyph{color:#e7a8e3}
+#app-view .sm-source-switcher .source-tab.active .source-glyph{background:#5d322d}
+#app-view #url-source{border:1px solid #395568;background:linear-gradient(130deg,#172635,#141e2d);padding:25px}
+.source-service-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.source-service-top h4{font-size:20px;margin:8px 0 0;color:#f9f3ed}
+.source-overline{color:#f1a274;letter-spacing:1.5px;font-size:10px;font-weight:850}
+.source-service-pill,.sm-kit-badge{font-size:10px;font-weight:850;letter-spacing:.5px;border:1px solid #925742;background:#38271f;padding:8px 11px;color:#ffc3a2;border-radius:999px;white-space:nowrap}
+#app-view #url-source>label:not(.sm-rights-check){font-size:10px;color:#c0d0dc}
+#app-view .sm-rights-check{display:flex;align-items:flex-start;gap:10px;margin-top:18px;letter-spacing:normal;font-size:12px;color:#e7f0f6;font-weight:600;text-transform:none;line-height:1.5;cursor:pointer}
+#app-view .sm-rights-check input{accent-color:#fd8c54;flex:none;width:16px;height:16px;margin-top:1px}
+#app-view #url-source .source-link-note{color:#afc4d3;font-size:12px;margin:12px 0 0}
+#app-view #url-source .sm-source-caution{color:#8194a3;font-size:11px;margin-top:11px}
+#app-view #social-import-button:disabled{opacity:.55;cursor:wait}
+.sm-campaign-kit{margin:26px 0;padding:25px;background:linear-gradient(130deg,#1a2634 0%,#161d2b 60%,#271e29 100%);border:1px solid #385368;border-radius:18px;color:#e9f1f7}
+.sm-kit-header{display:flex;justify-content:space-between;align-items:start;gap:22px;margin-bottom:20px}.sm-kit-header h3{font-size:22px;margin:9px 0;color:white;line-height:1.25}.sm-kit-header p{color:#9daebe;font-size:12px;line-height:1.6;max-width:650px;margin:0}
+.sm-kit-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.sm-campaign-kit label{color:#bfccd9;font-size:11px;font-weight:750;display:flex;flex-direction:column;gap:8px}
+.sm-campaign-kit input[type=text],.sm-campaign-kit textarea{width:100%;box-sizing:border-box;border:1px solid #46586a;border-radius:9px;padding:13px 14px;background:#111d2c;color:white;font-family:inherit;font-size:13px}
+.sm-campaign-kit input:focus,.sm-campaign-kit textarea:focus{outline:2px solid #e17b52;outline-offset:1px}
+.sm-kit-full{margin-top:14px}.sm-kit-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.sm-kit-actions button{padding:12px 16px;border-radius:9px;font-size:12px}.sm-kit-checks{display:flex;flex-direction:column;gap:9px;border-top:1px solid #364553;padding-top:16px;margin-top:18px}
+.sm-kit-checks label{display:flex;flex-direction:row;gap:10px;align-items:center;font-weight:500;font-size:12px}.sm-kit-checks input{accent-color:#fb8750}
+.sm-kit-disclaimer{font-size:11px;color:#879dad;line-height:1.6;margin:17px 0 0}
+body.light-theme #app-view .sm-source-switcher,body.light-theme #app-view #url-source,body.light-theme #app-view .sm-campaign-kit{background:#fff;border-color:#ded5d1}
+body.light-theme .source-service-top h4,body.light-theme .sm-kit-header h3{color:#151c29}
+body.light-theme .sm-campaign-kit label,body.light-theme #app-view .sm-rights-check{color:#283344}
+body.light-theme .sm-campaign-kit input[type=text],body.light-theme .sm-campaign-kit textarea{background:#f6f5f5;color:#1e2634}
+@media(max-width:850px){#app-view .sm-source-switcher{grid-template-columns:repeat(2,minmax(0,1fr))}.sm-source-switcher .source-tab>span:last-child{font-size:12px}}
+@media(max-width:560px){#app-view .sm-source-switcher{gap:6px}.sm-kit-grid{grid-template-columns:1fr}.sm-kit-header{flex-direction:column;gap:12px}.sm-campaign-kit{padding:18px}.sm-kit-actions button{width:100%}#app-view .sm-source-switcher .source-tab{padding:11px 6px;gap:8px}#app-view .sm-source-switcher .source-tab .source-glyph{width:28px;height:28px;font-size:15px}.sm-source-switcher .source-tab small{font-size:9px}#app-view #url-source{padding:17px}}

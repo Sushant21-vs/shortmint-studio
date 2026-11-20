@@ -182,23 +182,36 @@ async def upload(file: UploadFile = File(...), user=Depends(user_for_request)):
         await file.close()
 
 
-class YoutubeImport(BaseModel):
-    url: str = Field(min_length=10, max_length=1000)
+class SocialVideoImport(BaseModel):
+    url: str = Field(min_length=10, max_length=1200)
+    platform: str = Field(default='', max_length=20)
+    rights_confirmed: bool = False
+
+
+IMPORT_GATE = threading.BoundedSemaphore(1)
 
 
 @app.post('/api/import-url')
-def import_url(body: YoutubeImport, user=Depends(user_for_request)):
+def import_url(body: SocialVideoImport, user=Depends(user_for_request)):
     try:
         platform = source_platform(body.url)
     except ValueError as err:
         raise HTTPException(400,str(err))
+    expected = {'YouTube':'youtube','TikTok':'tiktok','Instagram':'instagram'}[platform]
+    if body.platform and body.platform.lower() != expected:
+        raise HTTPException(400, f'This is a {platform} URL. Select the {platform} import tab.')
+    if not body.rights_confirmed:
+        raise HTTPException(400, 'Confirm you own the video or have the creator/campaign permission to edit it.')
+    if not IMPORT_GATE.acquire(blocking=False):
+        raise HTTPException(429, 'A social import is already processing. Try again after it finishes.')
     sid = uuid.uuid4().hex
     folder = STORAGE / sid
-    folder.mkdir(parents=True)
     try:
+        folder.mkdir(parents=True)
         cmd = [
             sys.executable, '-m', 'yt_dlp', '--ignore-config', '--no-playlist',
             '--no-progress', '--no-warnings', '--no-write-info-json',
+            '--socket-timeout', '20', '--retries', '2',
             '--max-filesize', '1G', '--match-filter', 'duration < 86400',
             '-f', 'bv*[height<=1080]+ba/b[height<=1080]/best',
             '--merge-output-format', 'mp4', '-o', str(folder / 'source.%(ext)s'),
@@ -221,6 +234,8 @@ def import_url(body: YoutubeImport, user=Depends(user_for_request)):
     except Exception:
         shutil.rmtree(folder, ignore_errors=True)
         raise
+    finally:
+        IMPORT_GATE.release()
 
 
 @app.get('/api/project/{session_id}')

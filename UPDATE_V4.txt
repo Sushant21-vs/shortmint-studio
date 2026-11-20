@@ -1,0 +1,4 @@
+This is the COMPLETE project for ShortMint v4.
+To update your EXISTING GitHub repository, only replace accounts.py and
+static/index.html, static/dashboard.js, static/dashboard.css.
+See README.md for important instructions and free hosting limitations.
