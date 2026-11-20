@@ -1,0 +1,21 @@
+/* ShortMint Studio v9.0.1 — social source visibility and link-entry controls */
+#app-view #upload-panel[data-active-source="file"] #file-source{display:block!important}
+#app-view #upload-panel[data-active-source="file"] #url-source{display:none!important}
+#app-view #upload-panel[data-active-source="youtube"] #file-source,
+#app-view #upload-panel[data-active-source="tiktok"] #file-source,
+#app-view #upload-panel[data-active-source="instagram"] #file-source{display:none!important}
+#app-view #upload-panel[data-active-source="youtube"] #url-source,
+#app-view #upload-panel[data-active-source="tiktok"] #url-source,
+#app-view #upload-panel[data-active-source="instagram"] #url-source{display:block!important;visibility:visible!important;opacity:1!important}
+#app-view #url-source{min-height:232px;margin-top:16px;overflow:visible}
+#app-view #url-source .youtube-input-row{display:flex;gap:9px;flex-wrap:wrap;align-items:stretch}
+#app-view #url-source #youtube-url{flex:1 1 300px;min-height:49px;font-size:14px;background:#0d1624;border:1px solid #5b7082;color:#fff}
+#app-view #url-source #youtube-url:focus{border-color:#ff935c;outline:2px solid #ff975d33}
+#app-view #url-source .sm-paste-btn{background:#263342;border:1px solid #51677b;color:#fff;border-radius:9px;padding:12px 17px;font-size:12px;font-weight:700;cursor:pointer}
+#app-view #url-source #social-import-button{min-height:49px;padding:12px 18px}
+#app-view #url-source .sm-link-help{border:1px solid #36546c;border-radius:9px;background:#101e2b;color:#adc5d5;padding:12px;font-size:12px;line-height:1.55;margin-top:14px}
+#app-view #url-source .sm-link-help.is-error{background:#37231d;border-color:#a95b3b;color:#ffcfaa}
+#download-feedback #download-upload-fallback{display:inline-flex;margin-top:12px;cursor:pointer}
+#download-feedback #download-upload-fallback.hidden{display:none!important}
+#download-feedback #download-status-text{overflow-wrap:anywhere;line-height:1.55}
+@media(max-width:680px){#app-view #url-source .youtube-input-row{flex-direction:column}#app-view #url-source #youtube-url{flex:1 1 auto;width:100%}#app-view #url-source .sm-paste-btn{min-height:46px}}

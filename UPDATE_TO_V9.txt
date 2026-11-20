@@ -1,0 +1,15 @@
+ShortMint v9.0.1 — YouTube / TikTok / Instagram import and downloader fixes
+
+1. Go to https://github.com/Sushant21-vs/shortmint-studio
+2. Replace two root files: app.py, downloads.py.
+3. Replace these five files inside static/: index.html, app.js, downloads.js, dashboard.js, dashboard.css.
+4. Add new static/import-fixes.css.
+5. Commit everything to the main branch.
+6. Wait for Render to report Live and press Ctrl+Shift+R on the ShortMint website.
+7. Open Create Shorts -> TikTok. A box labeled TIKTOK VIDEO LINK should now be visible.
+   Open Instagram and YouTube tabs and check their dedicated labels, too.
+8. Start with 1080p rather than 4K for social-media downloads.
+
+Platform limitation: YouTube's 'Sign in to confirm you're not a bot' error means it is blocking the Render server. No code change can guarantee access to a platform-blocked URL. For your own clips use Upload file -> original MP4 instead. Do not upload your account cookies/passwords to cloud.
+
+Important: Render Free storage is ephemeral. Existing member accounts, credits, videos, and settings may be erased on redeploy/restart. Always back up anything important before deploying.

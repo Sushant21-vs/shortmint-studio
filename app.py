@@ -24,7 +24,7 @@ from pydantic import BaseModel, Field
 from PIL import Image, ImageDraw, ImageFont
 from captions import parse_srt, clip_srt, transcript_to_srt
 from accounts import user_for_request, install_auth_routes, reserve_credits, finish_credit_job
-from downloads import source_platform, install_download_routes
+from downloads import source_platform, extraction_failure_message, install_download_routes
 
 ROOT = Path(__file__).resolve().parent
 DATA_ROOT = Path(os.environ.get('SHORTMINT_STORAGE_DIR') or str(ROOT / 'storage')).resolve()
@@ -210,14 +210,13 @@ def import_url(body: SocialVideoImport, user=Depends(user_for_request)):
             '--no-progress', '--no-warnings', '--no-write-info-json',
             '--socket-timeout', '20', '--retries', '2',
             '--max-filesize', '1G', '--match-filter', 'duration < 86400',
-            '-f', 'bv*[height<=1080]+ba/b[height<=1080]/best',
+            '-f', 'bv*+ba/best', '-S', 'res:1080',
             '--merge-output-format', 'mp4', '-o', str(folder / 'source.%(ext)s'),
             '--', body.url.strip()
         ]
         proc = run(cmd, timeout=900)
         if proc.returncode != 0:
-            last = (proc.stderr or proc.stdout or 'The platform could not provide this video.').strip().splitlines()
-            raise ValueError(f'{platform} import failed: ' + (last[-1][:260] if last else 'Unknown error'))
+            raise ValueError(extraction_failure_message(platform, proc.stderr or proc.stdout))
         files = [p for p in folder.glob('source.*') if p.suffix.lower() in ALLOWED_EXTS]
         if not files:
             raise ValueError('No video was downloaded. Try uploading the original video file instead.')

@@ -6,8 +6,9 @@
   <meta name="description" content="ShortMint Studio: share a video-to-shorts workspace with friends, credit requests and private admin controls.">
   <title>ShortMint Studio — Create beyond ordinary</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMwYTBkMTciLz48cGF0aCBkPSJNMzIgNS4yIDQwLjYgMjMuNCA1OC44IDMyIDQwLjYgNDAuNiAzMiA1OC44IDIzLjQgNDAuNiA1LjIgMzIgMjMuNCAyMy40WiIgZmlsbD0iI2ZmNzgxZiIvPjxwYXRoIGQ9Ik0yNyAyMi41IDQzLjUgMzIgMjcgNDEuNVoiIGZpbGw9IiNmZmZmZmYiLz48Y2lyY2xlIGN4PSI0OSIgY3k9IjQ5IiByPSI0IiBmaWxsPSIjNDhkN2FjIi8+PC9zdmc+">
-  <link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/dashboard.css"><link rel="stylesheet" href="/downloads.css">
-  <link rel="stylesheet" href="/premium.css"><link rel="stylesheet" href="/source-studio.css">
+  <link rel="stylesheet" href="/styles.css?v=9.0.1"><link rel="stylesheet" href="/dashboard.css?v=9.0.1"><link rel="stylesheet" href="/downloads.css?v=9.0.1">
+  <link rel="stylesheet" href="/premium.css?v=9.0.1"><link rel="stylesheet" href="/source-studio.css?v=9.0.1">
+  <link rel="stylesheet" href="/import-fixes.css?v=9.0.1">
 </head>
 <body>
   <section id="auth-view" class="auth-screen hidden">
@@ -133,14 +134,14 @@
               <label for="download-quality">Video quality</label>
               <select id="download-quality">
                 <option value="720">720p · 1 daily credit</option>
-                <option value="1080" selected>1080p · 1 daily credit</option>
+                <option value="1080" selected>1080p · 1 daily credit (recommended)</option>
                 <option value="1440">1440p · 2 daily credits (if available)</option>
                 <option value="2160">4K / 2160p · 3 daily credits (if available)</option>
               </select>
               <button type="submit" class="orange-btn wide" id="start-video-download">↓ Download Video</button>
             </form>
-            <div id="download-feedback" class="download-feedback hidden" role="status"><span id="download-status-icon">◉</span><div><strong id="download-status-title">Preparing…</strong><p id="download-status-text"></p><a id="download-file-link" class="orange-btn hidden" href="#">↓ Save video to device</a></div></div>
-            <p class="mini-caption">Public accessible videos only. No private posts, login bypass, or DRM downloads. Some links may be blocked by their platforms. 4K is not available on every video, and the free server may reject large files (350 MB maximum). Files expire after 6 hours.</p>
+            <div id="download-feedback" class="download-feedback hidden" role="status"><span id="download-status-icon">◉</span><div><strong id="download-status-title">Preparing…</strong><p id="download-status-text"></p><a id="download-file-link" class="orange-btn hidden" href="#">↓ Save video to device</a><button id="download-upload-fallback" type="button" class="outline-btn hidden">↑ Open Upload File Instead</button></div></div>
+            <p class="mini-caption">Public accessible videos only. No private posts, login bypass, or DRM downloads. Some links may be blocked by their platforms. TikTok and Instagram frequently provide vertical video below 4K. Select 1080p first. The free server may reject large files (350 MB maximum). Files expire after 6 hours.</p>
           </article>
           <aside class="dashboard-panel download-balance">
             <span class="card-kicker">DAILY FREE DOWNLOADS</span><h2 id="download-available">—</h2>
@@ -226,8 +227,9 @@
         <form id="url-source" class="source-content hidden">
           <div class="source-service-top"><div><span class="source-overline">DIRECT SOCIAL IMPORT</span><h4 id="source-service-title">Import from YouTube</h4></div><span id="source-service-pill" class="source-service-pill">YouTube</span></div>
           <label id="source-link-label" for="youtube-url">YOUTUBE VIDEO LINK</label>
-          <div class="youtube-input-row"><input id="youtube-url" type="url" placeholder="https://www.youtube.com/watch?v=..." required autocomplete="off" maxlength="1200"><button id="social-import-button" type="submit" class="btn-accent">Import to editor <span>↗</span></button></div>
-          <p id="source-link-note" class="source-link-note">Paste a public YouTube video or Shorts link to get started.</p>
+          <div class="youtube-input-row"><input id="youtube-url" type="url" placeholder="https://www.youtube.com/watch?v=..." required autocomplete="off" maxlength="1200"><button id="paste-social-link" type="button" class="sm-paste-btn">Paste link</button><button id="social-import-button" type="submit" class="btn-accent">Import to editor <span>↗</span></button></div>
+          <p id="source-link-note" class="source-link-note">Paste a publicly accessible YouTube video or Shorts link.</p>
+          <div class="sm-link-help" id="sm-link-help" aria-live="polite">Choose YouTube, TikTok, or Instagram above, then paste the public video link into this box. If the platform blocks server imports, use Upload file instead.</div>
           <p class="sm-source-caution">Only public accessible videos are supported. Login-protected or restricted links may fail. If unavailable, upload the original video file. Use media you have the right to reuse.</p>
         </form>
       </div>
@@ -283,6 +285,6 @@
     </div>
   </div>
   <div class="toast hidden" id="toast" role="alert"><span id="toast-icon">!</span><div id="toast-text"></div><button id="toast-dismiss" type="button" aria-label="Dismiss">×</button></div>
-  <script src="/source-studio.js" defer></script><script src="/app.js" defer></script><script src="/dashboard.js" defer></script><script src="/downloads.js" defer></script><script src="/premium.js" defer></script>
+  <script src="/source-studio.js?v=9.0.1" defer></script><script src="/app.js?v=9.0.1" defer></script><script src="/dashboard.js?v=9.0.1" defer></script><script src="/downloads.js?v=9.0.1" defer></script><script src="/premium.js?v=9.0.1" defer></script>
 </body>
 </html>

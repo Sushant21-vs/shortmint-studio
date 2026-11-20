@@ -34,6 +34,7 @@ function setDownloadFeedback(state, heading, message, jobId=null){
   $('#download-status-title').textContent=heading;
   $('#download-status-text').textContent=message;
   $('#download-file-link').classList.toggle('hidden',state!=='completed');
+  $('#download-upload-fallback').classList.toggle('hidden', state!=='failed');
   if(jobId&&state==='completed')$('#download-file-link').href='/api/downloads/file/'+encodeURIComponent(jobId);
 }
 
@@ -51,7 +52,7 @@ async function pollDownload(jobId){
     if (result.state === 'failed') {
       activeDownloadJob=null;
       $('#start-video-download').disabled=false;
-      setDownloadFeedback('failed','Download could not be completed',result.message+'. Your daily credits have been restored.');
+      setDownloadFeedback('failed','Download could not be completed',result.message + (currentUser?.role === 'owner' ? ' No credits were charged.' : ' Your daily download credits were refunded.'));
       loadDownloads();
       return;
     }
@@ -84,5 +85,10 @@ $('#video-download-form').addEventListener('submit', async event=>{
     btn.disabled=false;
     setDownloadFeedback('failed','Download not started',errorMessage(err));
   }
+});
+$('#download-upload-fallback').addEventListener('click', () => {
+  startNew();
+  chooseSource('file');
+  document.getElementById('dropzone').focus();
 });
 $('#refresh-download-list').addEventListener('click',()=>loadDownloads());

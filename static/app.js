@@ -59,9 +59,15 @@ const socialSources = {
 let selectedVideoSource = 'file';
 function chooseSource(source) {
   selectedVideoSource = source in socialSources ? source : 'file';
+  const switcher = $('#upload-panel');
+  if (switcher) switcher.dataset.activeSource = selectedVideoSource;
+  $('#sm-link-help')?.classList.remove('is-error');
   $$('.source-tab').forEach(b => {const active=b.dataset.source === selectedVideoSource;b.classList.toggle('active',active);b.setAttribute('aria-pressed', String(active));});
   $('#file-source').classList.toggle('hidden', selectedVideoSource !== 'file');
   $('#url-source').classList.toggle('hidden', selectedVideoSource === 'file');
+  $('#url-source').hidden = selectedVideoSource === 'file';
+  $('#file-source').hidden = selectedVideoSource !== 'file';
+
   if(selectedVideoSource !== 'file') {
     const item=socialSources[selectedVideoSource];
     $('#source-service-title').textContent = `Import from ${item.name}`;
@@ -70,8 +76,23 @@ function chooseSource(source) {
     $('#source-link-note').textContent = item.note;
     $('#youtube-url').placeholder = item.placeholder;
     $('#youtube-url').value='';
+    $('#youtube-url').focus({preventScroll:true});
+    $('#sm-link-help').textContent = `Paste your ${item.name} link here. This site imports only links the source platform makes accessible to its server.`;
   }
 }
+// Choose source on startup, independent of stale HTML classes.
+chooseSource('file');
+$('#paste-social-link').addEventListener('click', async () => {
+  try {
+    const text = (await navigator.clipboard.readText()).trim();
+    if (!text) throw new Error('empty');
+    $('#youtube-url').value = text;
+    $('#youtube-url').focus();
+  } catch {
+    $('#youtube-url').focus();
+    toast('Click in the link box and press Ctrl+V to paste. Clipboard access may be disabled.');
+  }
+});
 $$('.source-tab').forEach(btn => btn.addEventListener('click', () => chooseSource(btn.dataset.source)));
 const drop = $('#dropzone');
 drop.addEventListener('click', () => $('#file-input').click());
@@ -118,7 +139,13 @@ $('#url-source').addEventListener('submit', async event => {
     const data = await api('/api/import-url', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({url, platform: source})});
     loadProject(data);
     toast(`${platformName} video imported. Preview it and choose a clip.`,true);
-  } catch (err) { showBusy(false); toast(errorMessage(err)); }
+  } catch (err) {
+    showBusy(false);
+    const message = errorMessage(err);
+    toast(message.length > 210 ? message.slice(0,207) + '…' : message);
+    $('#sm-link-help').textContent = message;
+    $('#sm-link-help').classList.add('is-error');
+  }
   finally {button.disabled=false;}
 });
 

@@ -46,6 +46,33 @@ DOWNLOAD_LOCK = threading.RLock()
 ACTIVE_DOWNLOADS = set()
 
 
+def extraction_failure_message(platform, output):
+    """Return a concise, actionable error; never request browser cookies or credentials."""
+    log = str(output or '').lower()
+    if 'sign in to confirm you' in log or "not a bot" in log:
+        return (f'{platform} blocked automated downloads from this server. '
+                'This is a platform restriction, not a ShortMint login problem. '
+                'For videos you own, download the original file using the platform’s authorized tools '
+                'and choose Upload file in Create Shorts. Do not share your account cookies or password.')
+    if any(x in log for x in ('login required','login to view','private video','private account',
+                              'requires authentication','restricted video','this video is private')):
+        return f'{platform} requires login or has restricted this video. Use a video file you have permission to edit instead.'
+    if any(x in log for x in ('requested format is not available','requested format not available',
+                              'no video formats found','no video formats')):
+        return (f'{platform} does not expose the selected quality for this video. '
+                'Try 1080p or 720p. 4K is rarely available for social Reels and TikToks.')
+    if any(x in log for x in ('http error 429','too many requests','rate limit')):
+        return f'{platform} is limiting automated downloads at the moment. Try later or upload the original file.'
+    if any(x in log for x in ('unsupported url','unsupported url:', 'not a valid url')):
+        return f'{platform} link is unsupported. Paste a direct public video or Reel URL.'
+    if any(x in log for x in ('403 forbidden','http error 403','access denied')):
+        return f'{platform} refused server access to this video (HTTP 403). Try an original MP4 upload.'
+    if 'no space left' in log or 'disk quota exceeded' in log:
+        return 'The free hosting server ran out of temporary storage. Try a shorter video later.'
+    return (f'{platform} could not provide this video to the ShortMint server. '
+            'Check the public link, try 1080p, or upload the original MP4 in Create Shorts.')
+
+
 def source_platform(url):
     try:
         value = url.strip()
@@ -66,12 +93,9 @@ class DownloadRequest(BaseModel):
 
 
 def quality_format(quality):
-    if quality == '2160':
-        # Require actual 4K source; never upscale or mislabel an HD download.
-        return 'bv*[height>=2160][height<=3840]+ba/b[height>=2160][height<=3840]'
-    if quality == '1440':
-        return 'bv*[height>=1440][height<=1440]+ba/b[height>=1440][height<=1440]'
-    return f'bv*[height<={int(quality)}]+ba/b[height<={int(quality)}]'
+    # Do not filter on height: 1080x1920 TikTok video is a 1080p portrait,
+    # not a 1920p landscape video. yt-dlp -S res:<N> sorts by the short side.
+    return 'bv*+ba/best'
 
 
 def video_metadata(path):
@@ -116,13 +140,11 @@ def _download_worker(job_id, folder, url, quality):
             '--socket-timeout', '15', '--retries', '2', '--fragment-retries', '2',
             '--max-filesize', '350M', '-f', selector,
             '--merge-output-format', 'mp4',
-            '-o', str(folder / 'video.%(ext)s'), '--', url,
+            '-S', f'res:{quality}', '-o', str(folder / 'video.%(ext)s'), '--', url,
         ]
         proc = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
         if proc.returncode != 0:
-            logs = (proc.stderr or proc.stdout or '').splitlines()
-            reason = (logs[-1] if logs else 'The source platform rejected this video.')[-270:]
-            raise ValueError(f'Could not download this public video: {reason}')
+            raise ValueError(extraction_failure_message(job['platform'], proc.stderr or proc.stdout))
         files = [p for p in folder.glob('video.*')
                  if p.suffix.lower() in {'.mp4','.webm','.mkv','.mov'} and p.is_file()]
         if len(files) != 1:
@@ -131,10 +153,8 @@ def _download_worker(job_id, folder, url, quality):
         if file.stat().st_size > MAX_MEDIA_BYTES:
             raise ValueError('This file exceeds the free server limit of 350 MB.')
         info = video_metadata(file)
-        if quality in ('1440','2160') and info['height'] < int(quality):
+        if quality in ('1440','2160') and min(info['width'],info['height']) < int(quality):
             raise ValueError(f'{quality}p is not available from this source. Choose a lower quality.')
-        if quality == '2160' and info['width'] < 1000:
-            raise ValueError('The platform did not provide a verifiable 4K video.')
         info.update({'file':file.name,'quality':quality,'job_id':job_id,
                      'platform':job['platform'],'created_at':int(time.time())})
         (folder / 'meta.json').write_text(json.dumps(info),encoding='utf-8')
