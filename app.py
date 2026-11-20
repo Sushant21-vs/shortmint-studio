@@ -185,7 +185,6 @@ async def upload(file: UploadFile = File(...), user=Depends(user_for_request)):
 class SocialVideoImport(BaseModel):
     url: str = Field(min_length=10, max_length=1200)
     platform: str = Field(default='', max_length=20)
-    rights_confirmed: bool = False
 
 
 IMPORT_GATE = threading.BoundedSemaphore(1)
@@ -200,8 +199,6 @@ def import_url(body: SocialVideoImport, user=Depends(user_for_request)):
     expected = {'YouTube':'youtube','TikTok':'tiktok','Instagram':'instagram'}[platform]
     if body.platform and body.platform.lower() != expected:
         raise HTTPException(400, f'This is a {platform} URL. Select the {platform} import tab.')
-    if not body.rights_confirmed:
-        raise HTTPException(400, 'Confirm you own the video or have the creator/campaign permission to edit it.')
     if not IMPORT_GATE.acquire(blocking=False):
         raise HTTPException(429, 'A social import is already processing. Try again after it finishes.')
     sid = uuid.uuid4().hex

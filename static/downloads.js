@@ -70,14 +70,12 @@ $('#video-download-form').addEventListener('submit', async event=>{
   if (activeDownloadJob) {toast('Finish the current download first.');return;}
   const url=$('#download-video-url').value.trim();
   const quality=$('#download-quality').value;
-  const rights_confirmed=$('#download-rights').checked;
-  if (!rights_confirmed) {toast('Confirm you have rights to download the video.');return;}
   const btn=$('#start-video-download');btn.disabled=true;
   setDownloadFeedback('loading','Starting download…','Checking source, requested quality and daily allowance.');
   try {
     const started=await api('/api/downloads/start',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({url,quality,rights_confirmed})
+      body:JSON.stringify({url,quality})
     });
     activeDownloadJob=started.job_id;
     await loadDownloads();

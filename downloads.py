@@ -63,7 +63,6 @@ def source_platform(url):
 class DownloadRequest(BaseModel):
     url: str = Field(min_length=12, max_length=1200)
     quality: str = Field(default='1080')
-    rights_confirmed: bool = False
 
 
 def quality_format(quality):
@@ -179,8 +178,6 @@ def install_download_routes(app, storage):
 
     @app.post('/api/downloads/start')
     def start_download(body:DownloadRequest,user=Depends(user_for_request)):
-        if not body.rights_confirmed:
-            raise HTTPException(400,'Confirm you own this video or have permission to download it.')
         try:
             platform = source_platform(body.url)
         except ValueError as exc:

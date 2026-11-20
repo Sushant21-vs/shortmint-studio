@@ -52,7 +52,7 @@ function showBusy(visible, title = 'Reading your video…', message = 'Keep this
   $('#upload-progress-fill').style.width = visible ? '6%' : '0%';
 }
 const socialSources = {
-  youtube: {name:'YouTube',placeholder:'https://www.youtube.com/watch?v=...',note:'Paste a public YouTube video or Shorts link you have permission to use.'},
+  youtube: {name:'YouTube',placeholder:'https://www.youtube.com/watch?v=...',note:'Paste a public YouTube video or Shorts link.'},
   tiktok: {name:'TikTok',placeholder:'https://www.tiktok.com/@creator/video/123...',note:'Paste a public TikTok video link. Private videos or links needing login may not be accessible.'},
   instagram: {name:'Instagram',placeholder:'https://www.instagram.com/reel/ABC123/',note:'Paste a public Instagram Reel or video post. Instagram may restrict automated imports.'}
 };
@@ -70,7 +70,6 @@ function chooseSource(source) {
     $('#source-link-note').textContent = item.note;
     $('#youtube-url').placeholder = item.placeholder;
     $('#youtube-url').value='';
-    $('#import-rights').checked=false;
   }
 }
 $$('.source-tab').forEach(btn => btn.addEventListener('click', () => chooseSource(btn.dataset.source)));
@@ -111,13 +110,12 @@ $('#url-source').addEventListener('submit', async event => {
   const url = $('#youtube-url').value.trim();
   const source = selectedVideoSource;
   if (!url || !(source in socialSources)) return;
-  if(!$('#import-rights').checked){ toast('Please confirm you have permission to use this footage.');return; }
   const platformName=socialSources[source].name;
   const button=$('#social-import-button');button.disabled=true;
   showBusy(true, `Importing from ${platformName}…`, 'The source platform may restrict access. Try a direct upload if this import fails.');
   $('#upload-progress-fill').style.width = '23%';
   try {
-    const data = await api('/api/import-url', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({url, platform: source, rights_confirmed: true})});
+    const data = await api('/api/import-url', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({url, platform: source})});
     loadProject(data);
     toast(`${platformName} video imported. Preview it and choose a clip.`,true);
   } catch (err) { showBusy(false); toast(errorMessage(err)); }

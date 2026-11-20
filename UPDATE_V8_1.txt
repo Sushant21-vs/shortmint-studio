@@ -1,0 +1,17 @@
+# ShortMint v8.1 — Smooth Import / Download
+
+The upload/import/download pages no longer require a confirmation checkbox or show the "Confirm you own this video" popup.
+
+New import fields: choose YouTube / TikTok / Instagram, paste a public link, and click Import to editor.
+The Download Videos tab similarly accepts the URL and quality immediately; normal login and download credit limits still apply.
+
+This is only a workflow change, not a way to bypass source-site restrictions or copyright. Use authorized footage, and note that some links may not be accessible via yt-dlp.
+
+## Replace exactly these five files in GitHub
+- app.py
+- downloads.py
+- static/index.html
+- static/app.js
+- static/downloads.js
+
+Commit changes to main, then let Render deploy. Important: Render Free storage is temporary; redeploying may reset your account data and credits.

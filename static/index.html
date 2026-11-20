@@ -118,7 +118,7 @@
         <div class="history-grid"><article class="dashboard-panel"><h2>Credit Activity</h2><div id="credit-history" class="history-list"></div></article><article class="dashboard-panel"><h2>Your Requests</h2><div id="my-requests" class="history-list"></div></article></div>
       </section>
       <section id="downloads-view" class="app-page hidden">
-        <div class="page-heading"><div><span class="overline">SHORTMINT DOWNLOAD STUDIO</span><h1>Download Videos <span class="wave">✦</span></h1><p>Save public video links you own or have permission to use. Free daily download allowance; no payment required.</p></div></div>
+        <div class="page-heading"><div><span class="overline">SHORTMINT DOWNLOAD STUDIO</span><h1>Download Videos <span class="wave">✦</span></h1><p>Save supported public videos using your free daily download allowance.</p></div></div>
         <div class="download-layout">
           <article class="dashboard-panel download-main">
             <div class="download-platforms"><span>▶ YouTube</span><span>♪ TikTok</span><span>◎ Instagram</span></div>
@@ -133,7 +133,6 @@
                 <option value="1440">1440p · 2 daily credits (if available)</option>
                 <option value="2160">4K / 2160p · 3 daily credits (if available)</option>
               </select>
-              <label class="checkbox-label download-permission"><input id="download-rights" type="checkbox" required> I own this video or have permission to download it.</label>
               <button type="submit" class="orange-btn wide" id="start-video-download">↓ Download Video</button>
             </form>
             <div id="download-feedback" class="download-feedback hidden" role="status"><span id="download-status-icon">◉</span><div><strong id="download-status-title">Preparing…</strong><p id="download-status-text"></p><a id="download-file-link" class="orange-btn hidden" href="#">↓ Save video to device</a></div></div>
@@ -207,7 +206,7 @@
       <div class="section-heading"><div><div class="eyebrow small">THE CREATOR STUDIO</div><h2>Create your next Short</h2><p>Cut, caption and export 9:16 MP4 videos for YouTube Shorts. Members spend 1 credit per Short.</p></div><span class="step-counter" id="step-counter">STEP 01 / 03</span></div>
       <div class="steps"><div class="step active" data-step="1"><span>01</span> Add your video</div><div class="step-line"></div><div class="step" data-step="2"><span>02</span> Customize</div><div class="step-line"></div><div class="step" data-step="3"><span>03</span> Download Shorts</div></div>
       <div class="upload-panel" id="upload-panel">
-        <div class="upload-header"><div><div class="panel-label">SOURCE VIDEO</div><h3>Bring your video to life</h3><p>Choose a video file or import a YouTube, TikTok or Instagram video you own or have permission to use.</p></div><div class="supported">MP4 · MOV · MKV · WEBM</div></div>
+        <div class="upload-header"><div><div class="panel-label">SOURCE VIDEO</div><h3>Bring your video to life</h3><p>Choose a video file or import a public YouTube, TikTok or Instagram link.</p></div><div class="supported">MP4 · MOV · MKV · WEBM</div></div>
         <div class="source-tabs sm-source-switcher" role="group" aria-label="Select a video source">
           <button class="source-tab active" data-source="file" type="button" aria-pressed="true"><span class="source-glyph">↑</span><span>Upload file<small>MP4 / MOV</small></span></button>
           <button class="source-tab" data-source="youtube" type="button" aria-pressed="false"><span class="source-glyph youtube-glyph">▶</span><span>YouTube<small>Video / Shorts</small></span></button>
@@ -224,9 +223,8 @@
           <div class="source-service-top"><div><span class="source-overline">DIRECT SOCIAL IMPORT</span><h4 id="source-service-title">Import from YouTube</h4></div><span id="source-service-pill" class="source-service-pill">YouTube</span></div>
           <label id="source-link-label" for="youtube-url">YOUTUBE VIDEO LINK</label>
           <div class="youtube-input-row"><input id="youtube-url" type="url" placeholder="https://www.youtube.com/watch?v=..." required autocomplete="off" maxlength="1200"><button id="social-import-button" type="submit" class="btn-accent">Import to editor <span>↗</span></button></div>
-          <p id="source-link-note" class="source-link-note">Use public YouTube videos or Shorts you own or are authorized to edit.</p>
-          <label class="sm-rights-check"><input id="import-rights" type="checkbox" required><span>I own this video or have permission from the creator/campaign to download and edit it.</span></label>
-          <p class="sm-source-caution">Only public accessible videos are supported. Login-protected, blocked, or restricted links may fail. If a link is unavailable, upload the source video file instead.</p>
+          <p id="source-link-note" class="source-link-note">Paste a public YouTube video or Shorts link to get started.</p>
+          <p class="sm-source-caution">Only public accessible videos are supported. Login-protected or restricted links may fail. If unavailable, upload the original video file. Use media you have the right to reuse.</p>
         </form>
       </div>
 
@@ -261,7 +259,7 @@
           <div class="sm-kit-grid"><label>Campaign / brand name<input id="campaign-brand" type="text" maxlength="100" placeholder="e.g. Campaign name"></label><label>Original hook idea<input id="campaign-hook" type="text" maxlength="120" placeholder="A surprising moment you want to highlight"></label></div>
           <label class="sm-kit-full">Caption / required hashtags<textarea id="campaign-caption" rows="3" maxlength="1000" placeholder="Write your own caption, then include any hashtags required by your campaign."></textarea></label>
           <div class="sm-kit-actions"><button id="campaign-use-hook" type="button" class="secondary-btn">Use hook as video headline ↗</button><button id="campaign-copy-caption" type="button" class="outline-btn">Copy posting caption</button></div>
-          <div class="sm-kit-checks"><label><input type="checkbox" id="campaign-rights"> Footage authorized for this campaign</label><label><input type="checkbox" id="campaign-creative"> Original commentary or meaningful creative editing added</label><label><input type="checkbox" id="campaign-rules"> I checked required tags, platform, duration, and submission rules</label></div>
+          <div class="sm-kit-checks"><label><input type="checkbox" id="campaign-rights"> Source video selected for this campaign</label><label><input type="checkbox" id="campaign-creative"> Original commentary or meaningful creative editing added</label><label><input type="checkbox" id="campaign-rules"> I checked required tags, platform, duration, and submission rules</label></div>
           <p class="sm-kit-disclaimer">Use real audience engagement and submit the genuine post URL manually. This editor cannot assess rights, guarantee Whop approvals, or prevent platform fraud flags.</p>
         </section>
         <section class="export-panel hidden" id="export-panel"><div class="export-heading"><div class="export-spinner"></div><div><h3 id="export-title">Creating your Shorts</h3><p id="export-message">Selecting moments…</p></div><strong id="export-percent">0%</strong></div><div class="export-progress"><span id="export-progress-fill"></span></div><button id="cancel-button" class="cancel-button" type="button">Cancel export</button></section>
