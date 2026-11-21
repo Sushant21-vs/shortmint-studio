@@ -15,37 +15,64 @@
   <link rel="stylesheet" href="/creator-dashboard-v23.css?v=23.0.0">
   <link rel="stylesheet" href="/sidebar-contact-v25.css?v=25.0.0">
   <link rel="stylesheet" href="/shortmint-cloud-v24.css?v=24.0.1">
+  <link rel="stylesheet" href="/shortmint-login-cinema-v26.css?v=26.0.0">
 </head>
 <body>
-  <section id="auth-view" class="auth-screen hidden">
-    <div class="sm-auth-glow sm-auth-glow-one" aria-hidden="true"></div>
-    <div class="sm-auth-glow sm-auth-glow-two" aria-hidden="true"></div>
-    <div class="sm-auth-film" aria-hidden="true"><svg viewBox="0 0 420 480" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M-40 82C180-25 220 215 100 233S-40 350 120 455" stroke="#FD9659" stroke-width="70" opacity=".23"/><path d="M-40 82C180-25 220 215 100 233S-40 350 120 455" stroke="#FFAD79" stroke-width="58" stroke-dasharray="4 12" opacity=".35"/><path d="M-40 82C180-25 220 215 100 233S-40 350 120 455" stroke="#FFE7D8" stroke-width="2" opacity=".6"/></svg></div>
-    <div class="sm-auth-floating-clip" aria-hidden="true"><div class="sm-float-play">▶</div><span>CREATOR / 9:16</span><div class="sm-float-line"></div></div>
-    <div class="auth-card">
-      <div class="auth-heading"><svg class="sm-auth-brand-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 3.5 39.8 24.2 60.5 32l-20.7 7.8L32 60.5l-7.8-20.7L3.5 32l20.7-7.8L32 3.5Z" fill="url(#authStar)"/><path d="M32 17v30M17 32h30" stroke="#FFE9D6" stroke-opacity=".65" stroke-width="1.5"/><defs><linearGradient id="authStar" x1="14" y1="8" x2="52" y2="59"><stop stop-color="#FFBF7A"/><stop offset=".5" stop-color="#FF7F39"/><stop offset="1" stop-color="#E34D1D"/></linearGradient></defs></svg><span>Short<span>Mint</span><small>STUDIO</small></span></div>
-      <div class="sm-auth-eyebrow">SHORT-FORM CREATION PLATFORM <span>✦</span> STUDIO EDITION</div><h1>Creators start here<span class="sm-auth-dot">.</span></h1><p class="muted">A smarter workspace for turning long-form videos into Shorts.</p>
-      <div class="auth-switch"><button id="auth-login-tab" type="button" class="active">Sign in</button><button id="auth-register-tab" type="button">Join with invite</button></div>
-      <form id="auth-form" class="stack-form">
-        <label for="auth-username">Username</label><div class="sm-auth-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7.5" r="3.4"/><path d="M4.7 20v-2.2c0-3.6 3.3-5.8 7.3-5.8s7.3 2.2 7.3 5.8V20"/></svg><input id="auth-username" autocomplete="username" required minlength="3" maxlength="24" placeholder="Your username"></div>
-        <label for="auth-password">Password</label><div class="sm-auth-field sm-auth-password"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="10.5" width="13" height="10" rx="2"/><path d="M8.5 10.5V7.3a3.5 3.5 0 0 1 7 0v3.2"/></svg><input id="auth-password" type="password" autocomplete="current-password" required minlength="10" placeholder="Your password"><button type="button" id="sm-auth-reveal" aria-label="Show password" aria-pressed="false" class="sm-auth-reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.7 12S6 6.7 12 6.7s9.3 5.3 9.3 5.3S18 17.3 12 17.3 2.7 12 2.7 12Z"/><circle cx="12" cy="12" r="2.5"/></svg></button></div>
-        <div id="auth-invite-wrap" class="hidden"><label for="auth-invite">Invitation code</label><input id="auth-invite" maxlength="60" placeholder="SM-XXXXXXXXXX"><p class="helper">Ask the website owner for a one-time invite code.</p></div>
-        <button id="auth-submit" type="submit" class="orange-btn wide"><span>Sign in to your dashboard</span><span class="sm-auth-arr" aria-hidden="true">↗</span></button>
-      </form>
-      <p id="auth-message" class="auth-message" aria-live="polite"></p>
-      <div id="invite-contact-box" class="invite-contact-box" aria-label="Free invite code contact">
-        <span class="invite-contact-spark" aria-hidden="true">✦</span>
-        <div class="invite-contact-content">
-          <strong>Get your invite code for FREE</strong>
-          <p id="invite-contact-copy">Contact Sushant Hero to request your free one-time registration code.</p>
-          <div class="invite-contact-actions hidden" id="invite-contact-actions">
-            <a id="invite-contact-number" class="invite-contact-number" href="#" aria-label="Call ShortMint owner">Call owner <span id="invite-contact-phone">+977</span></a>
-            <a id="invite-contact-whatsapp" class="invite-contact-whatsapp" href="#" target="_blank" rel="noopener noreferrer" aria-label="Message ShortMint owner on WhatsApp">WhatsApp <span aria-hidden="true">↗</span></a>
+  <section id="auth-view" class="auth-screen hidden" aria-label="ShortMint Studio sign in">
+    <div class="sm26-wave sm26-wave-top" aria-hidden="true"></div>
+    <div class="sm26-wave sm26-wave-bottom" aria-hidden="true"></div>
+    <div class="sm26-ambient sm26-ambient-left" aria-hidden="true"></div>
+    <div class="sm26-ambient sm26-ambient-right" aria-hidden="true"></div>
+    <div class="sm26-film" aria-hidden="true">
+      <svg viewBox="0 0 360 580" xmlns="http://www.w3.org/2000/svg" role="presentation">
+        <defs><linearGradient id="sm26FilmGrad" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFE7CE"/><stop offset=".45" stop-color="#FFA869"/><stop offset="1" stop-color="#B64D3C"/></linearGradient><filter id="sm26FilmGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="14"/></filter></defs>
+        <path d="M-57 90 C278 -26 298 225 112 266 C-38 305 -36 404 232 532" stroke="#ff9b58" stroke-width="116" fill="none" opacity=".18" filter="url(#sm26FilmGlow)"/>
+        <path d="M-57 90 C278 -26 298 225 112 266 C-38 305 -36 404 232 532" stroke="url(#sm26FilmGrad)" stroke-width="82" fill="none" opacity=".75"/>
+        <path d="M-57 90 C278 -26 298 225 112 266 C-38 305 -36 404 232 532" stroke="#FFF0DC" stroke-width="7" stroke-dasharray="17 13" fill="none" opacity=".85"/>
+        <path d="M-57 90 C278 -26 298 225 112 266 C-38 305 -36 404 232 532" stroke="#9D533D" stroke-width="2" fill="none" opacity=".54"/>
+      </svg>
+      <span class="sm26-film-play">▶</span>
+    </div>
+    <div class="sm26-video-card" aria-hidden="true">
+      <div class="sm26-video-top"><span>9:16</span><span>SHORTS</span></div>
+      <div class="sm26-video-sun"></div><div class="sm26-video-mountain-one"></div><div class="sm26-video-mountain-two"></div>
+      <div class="sm26-video-play">▶</div>
+      <div class="sm26-video-social"><span>♡</span><span>●</span><span>↗</span></div>
+      <div class="sm26-video-progress"></div>
+    </div>
+    <div class="sm26-specks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="sm26-auth-content">
+      <header class="sm26-auth-hero">
+        <div class="auth-heading"><svg class="sm-auth-brand-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 3.5 39.8 24.2 60.5 32l-20.7 7.8L32 60.5l-7.8-20.7L3.5 32l20.7-7.8L32 3.5Z" fill="url(#authStar)"/><defs><linearGradient id="authStar" x1="14" y1="8" x2="52" y2="59"><stop stop-color="#FFBF7A"/><stop offset=".5" stop-color="#FF7F39"/><stop offset="1" stop-color="#E34D1D"/></linearGradient></defs></svg><span>Short<span>Mint</span><small>STUDIO</small></span></div>
+        <h1>Creators start here<span class="sm-auth-dot">.</span></h1>
+        <div class="sm26-underline" aria-hidden="true"></div>
+        <p>A smarter workspace for turning long-form videos into Shorts.</p>
+      </header>
+      <div class="auth-card">
+        <div class="auth-switch" role="group" aria-label="Account access"><button id="auth-login-tab" type="button" class="active">Sign in</button><button id="auth-register-tab" type="button">Join with invite</button></div>
+        <form id="auth-form" class="stack-form">
+          <label for="auth-username">Username</label>
+          <div class="sm-auth-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7.5" r="3.4"/><path d="M4.7 20v-2.2c0-3.6 3.3-5.8 7.3-5.8s7.3 2.2 7.3 5.8V20"/></svg><input id="auth-username" autocomplete="username" required minlength="3" maxlength="24" placeholder="Your username"></div>
+          <label for="auth-password">Password</label>
+          <div class="sm-auth-field sm-auth-password"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="10.5" width="13" height="10" rx="2"/><path d="M8.5 10.5V7.3a3.5 3.5 0 0 1 7 0v3.2"/></svg><input id="auth-password" type="password" autocomplete="current-password" required minlength="10" placeholder="Your password"><button type="button" id="sm-auth-reveal" aria-label="Show password" aria-pressed="false" class="sm-auth-reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.7 12S6 6.7 12 6.7s9.3 5.3 9.3 5.3S18 17.3 12 17.3 2.7 12 2.7 12Z"/><circle cx="12" cy="12" r="2.5"/></svg></button></div>
+          <div id="auth-invite-wrap" class="hidden"><label for="auth-invite">Invitation code</label><input id="auth-invite" maxlength="60" placeholder="SM-XXXXXXXXXX"><p class="helper">Ask the website owner for a one-time invite code.</p></div>
+          <button id="auth-submit" type="submit" class="orange-btn wide"><span>Sign in to your dashboard</span><span class="sm-auth-arr" aria-hidden="true">→</span></button>
+        </form>
+        <p id="auth-message" class="auth-message" aria-live="polite"></p>
+        <div id="invite-contact-box" class="invite-contact-box" aria-label="Free invite code contact">
+          <span class="invite-contact-spark" aria-hidden="true">✦</span>
+          <div class="invite-contact-content">
+            <strong>Get your invite code for FREE</strong>
+            <p id="invite-contact-copy">Contact Sushant Hero to request your free one-time registration code.</p>
+            <div class="invite-contact-actions hidden" id="invite-contact-actions">
+              <a id="invite-contact-number" class="invite-contact-number" href="#" aria-label="Call ShortMint owner">Call owner <span id="invite-contact-phone">+977</span></a>
+              <a id="invite-contact-whatsapp" class="invite-contact-whatsapp" href="#" target="_blank" rel="noopener noreferrer" aria-label="Message ShortMint owner on WhatsApp">WhatsApp <span aria-hidden="true">↗</span></a>
+            </div>
+            <small class="invite-contact-unset" id="invite-contact-unset">Contact details will appear here once the owner adds a number.</small>
           </div>
-          <small class="invite-contact-unset" id="invite-contact-unset">Contact details will appear here once the owner adds a number.</small>
         </div>
+        <p class="auth-foot">Private creator access · Your projects are visible only to your account.</p>
       </div>
-      <p class="auth-foot">Private creator access · Your projects are visible only to your account.</p>
     </div>
   </section>
   <div id="app-view" class="hidden">
