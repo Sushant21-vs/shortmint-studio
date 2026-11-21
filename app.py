@@ -159,12 +159,59 @@ def public_manifest(data):
     return result
 
 
+# v34: High-resolution export is optional and guarded by the server's actual
+# memory quota. Render's free tier cannot safely encode 4K/8K using libx264.
+QUALITY_LABELS = {'540':'540p','720':'720p','1080':'1080p','2160':'4K','4320':'8K'}
+HIGH_RES_MEMORY_MB = {'2160': 2048, '4320': 8192}
+
+
+def _server_memory_limit_mb():
+    """Best known RAM limit, respecting Linux cgroups (including Render/Docker)."""
+    limits = []
+    for file in ('/sys/fs/cgroup/memory.max',
+                 '/sys/fs/cgroup/memory/memory.limit_in_bytes'):
+        try:
+            value = Path(file).read_text().strip()
+            if value.isdigit():
+                mb = int(value) // (1024 * 1024)
+                if 64 <= mb < 1024 * 1024:
+                    limits.append(mb)
+        except (OSError, ValueError):
+            pass
+    try:
+        mb = os.sysconf('SC_PHYS_PAGES') * os.sysconf('SC_PAGE_SIZE') // (1024 * 1024)
+        if mb > 0: limits.append(mb)
+    except (OSError, ValueError, AttributeError):
+        pass
+    return min(limits) if limits else None
+
+
+def quality_availability():
+    memory = _server_memory_limit_mb()
+    result = {}
+    for width, label in QUALITY_LABELS.items():
+        minimum = HIGH_RES_MEMORY_MB.get(width, 0)
+        supported = not minimum or (memory is not None and memory >= minimum)
+        reason = ('Ready to export on this server.' if supported else
+                  f'{label} requires at least {minimum // 1024} GB server RAM for reliable encoding. '
+                  f'This server reports {memory or "unknown"} MB. Upgrade the Render instance or use 1080p.')
+        result[width] = {'label':label,'width':int(width),'height':int(width)*16//9,
+                         'available':supported,'reason':reason}
+    return {'memory_mb':memory,'qualities':result,
+            'note':'4K and 8K require sufficient server resources. Enlarging a low-resolution source does not create missing detail.'}
+
+
+@app.get('/api/export/capabilities')
+def export_capabilities(user=Depends(user_for_request)):
+    return quality_availability()
+
+
 @app.get('/api/health')
 def health():
     return {'ok': True, 'ffmpeg': bool(shutil.which('ffmpeg')), 'ffprobe': bool(shutil.which('ffprobe')),
             'auto_captions': bool(os.getenv('OPENAI_API_KEY')) or importlib.util.find_spec('faster_whisper') is not None,
             'voiceover': importlib.util.find_spec('edge_tts') is not None,
-            'version': '3.0', 'studio_version': '33', **media_runtime_status()}
+            'version': '3.0', 'studio_version': '34', **media_runtime_status()}
 
 
 @app.post('/api/upload')
@@ -638,8 +685,10 @@ def validate_generation(data, body):
         raise ValueError('Invalid crop preference')
     if body.edit_pace not in {'fast','balanced','story'}:
         raise ValueError('Invalid edit pace')
-    if body.resolution not in {'540', '720', '1080'}:
+    if body.resolution not in QUALITY_LABELS:
         raise ValueError('Invalid quality')
+    if not quality_availability()['qualities'][body.resolution]['available']:
+        raise ValueError(quality_availability()['qualities'][body.resolution]['reason'])
     if body.title_position not in {'top', 'middle', 'bottom'}:
         raise ValueError('Invalid title position')
     if body.mode == 'manual' and body.start >= data['duration']:
@@ -695,7 +744,8 @@ def render_clip(source, output, start, length, body, task, total_progress_base, 
     command.extend([
         '-filter_complex', output_filter(w, h, body.crop_mode, bool(title_img), body.focus_x, caption_file, punch),
         '-map', '[out]', '-map', '0:a?',
-        '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '22', '-threads', '2',
+        '-c:v', 'libx264', '-preset', 'ultrafast' if w >= 4320 else ('superfast' if w >= 2160 else 'veryfast'),
+        '-crf', '19' if w >= 2160 else '22', '-threads', '2',
         '-r', '30',
         '-pix_fmt', 'yuv420p', '-movflags', '+faststart',
         '-c:a', 'aac', '-b:a', '160k',
@@ -904,6 +954,11 @@ def generate(body: GenerateRequest, user=Depends(user_for_request)):
             raise HTTPException(409, 'An export is already running for this video.')
         if len(ACTIVE_SESSIONS) >= 2:
             raise HTTPException(429,'Two exports are already running. Try again when one finishes.')
+        # Resource-intensive UHD jobs run alone to avoid exhausting Render memory.
+        if body.resolution in HIGH_RES_MEMORY_MB and ACTIVE_SESSIONS:
+            raise HTTPException(429, '4K and 8K exports need exclusive server capacity. Finish the running export first.')
+        if any(t.get('resolution') in HIGH_RES_MEMORY_MB and t.get('state') not in ('completed','failed','cancelled') for t in TASKS.values()):
+            raise HTTPException(429, 'A high-resolution export is running. Please finish it before starting another export.')
         task_id = uuid.uuid4().hex
         count = 1 if body.mode in ('manual','cutlist') or (body.mode == 'auto' and data['duration'] <= body.clip_length + 0.5) else (min(body.count,max(1,int(data['duration']/max(12.,body.clip_length*.9)))) if body.mode == 'montage' else body.count)
         reserve_credits(user, task_id, count)
@@ -911,7 +966,7 @@ def generate(body: GenerateRequest, user=Depends(user_for_request)):
         TASKS[task_id] = {
             'state': 'queued', 'progress': 0, 'message': 'Starting export…',
             'results': [], 'segments': [], 'process': None, 'cancel': False,
-            'session_id': body.session_id, 'user_id': user['id'],
+            'session_id': body.session_id, 'user_id': user['id'], 'resolution': body.resolution,
         }
     threading.Thread(target=background_generate, args=(task_id, body), daemon=True).start()
     return {'task_id': task_id}

@@ -106,6 +106,7 @@ function showApp(user) {
   $('#app-view').classList.remove('hidden');
   updateUser();
   showView('dashboard');
+  if(typeof window.sm34RefreshCapabilities==='function')window.sm34RefreshCapabilities();
 }
 function setAuthMode(next) {
   authMode=next;

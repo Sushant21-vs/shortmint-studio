@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="/shortmint-inner-v29.css?v=29.1.0">
   <link rel="stylesheet" href="/shortmint-settings-v30.css?v=32.0.0">
   <link rel="stylesheet" href="/voice-studio-v33.css?v=33.0.0">
+  <link rel="stylesheet" href="/shortmint-export-v34.css?v=34.0.0">
 </head>
 <body>
   <section id="auth-view" class="auth-screen hidden" aria-label="ShortMint Studio sign in">
@@ -356,6 +357,36 @@ Second channel | https://www.youtube.com/@secondchannel"></textarea>
                 <div class="sm30-toggle-line"><div><strong>Reduce animations</strong><p>Limit decorative motion for a quieter experience.</p></div><label class="sm30-switch"><input id="sm30-reduce-motion" type="checkbox"><span class="sm30-track"></span><span class="sr-only">Reduce animations</span></label></div>
                 <div class="sm30-note">Changes apply immediately and are remembered in this browser.</div>
               </section>
+              <section class="sm30-panel sm34-editor-panel" aria-labelledby="sm34-export-title">
+                <div class="sm30-panel-heading"><span class="sm30-panel-icon" aria-hidden="true">▣</span><div><span class="sm30-card-kicker">CREATION PREFERENCES</span><h2 id="sm34-export-title">Video export defaults</h2></div></div>
+                <p>Save your favorite editing options. These are browser-only defaults and can be changed for each Short in the editor.</p>
+                <div class="sm34-preference-grid">
+                  <label class="sm34-field" for="sm34-quality">Default quality<select id="sm34-quality"><option value="540">540p · Fast</option><option value="720">720p · Quick</option><option value="1080">1080p · Recommended</option><option value="2160">4K Ultra HD · 2160×3840</option><option value="4320">8K Ultra HD · 4320×7680</option></select></label>
+                  <label class="sm34-field" for="sm34-length">Short length<select id="sm34-length"><option value="15">15 seconds</option><option value="30">30 seconds</option><option value="45">45 seconds</option><option value="60">60 seconds</option><option value="90">90 seconds</option><option value="120">120 seconds</option><option value="180">180 seconds</option></select></label>
+                  <label class="sm34-field" for="sm34-count">Shorts per export<select id="sm34-count"><option value="1">1 short</option><option value="2">2 shorts</option><option value="3">3 shorts</option><option value="4">4 shorts</option><option value="5">5 shorts</option><option value="6">6 shorts</option><option value="8">8 shorts</option></select></label>
+                  <label class="sm34-field" for="sm34-crop">Default framing<select id="sm34-crop"><option value="center">Center crop</option><option value="blur">Blur background</option><option value="left">Focus left</option><option value="right">Focus right</option></select></label>
+                </div>
+                <div class="sm30-toggle-line"><div><strong>Normalize speech volume</strong><p>Balance audio volume when exporting new Shorts.</p></div><label class="sm30-switch"><input id="sm34-normalize" type="checkbox" checked><span class="sm30-track"></span></label></div>
+                <p class="sm34-quality-warning" id="sm34-server-note" role="status">Checking available export resolutions…</p>
+                <div class="sm34-actions"><button type="button" id="sm34-save" class="sm34-primary-action">Save editor defaults</button><button type="button" id="sm34-apply" class="sm34-outline-action">Apply to current editor</button></div>
+                <p id="sm34-prefs-status" class="sm34-status" role="status">Defaults are saved in this browser, not in your ShortMint account.</p>
+              </section>
+              <section class="sm30-panel sm34-editor-panel" aria-labelledby="sm34-audio-title">
+                <div class="sm30-panel-heading"><span class="sm30-panel-icon" aria-hidden="true">♫</span><div><span class="sm30-card-kicker">SOUND &amp; CAPTIONS</span><h2 id="sm34-audio-title">Voice &amp; subtitles</h2></div></div>
+                <p>Choose how new editing sessions handle speech and narration.</p>
+                <div class="sm34-preference-grid">
+                  <label class="sm34-field" for="sm34-voice">Preferred AI voice<select id="sm34-voice"><optgroup label="Female voices"><option value="ava">Ava · Warm</option><option value="jenny">Jenny · Friendly</option><option value="aria">Aria · Expressive</option></optgroup><optgroup label="Male voices"><option value="andrew">Andrew · Natural</option><option value="guy">Guy · Energetic</option><option value="brian">Brian · Smooth</option></optgroup></select></label>
+                  <label class="sm34-field" for="sm34-mix">Voiceover sound<select id="sm34-mix"><option value="replace">Replace original sound</option><option value="mix">Mix with original sound</option></select></label>
+                </div>
+                <div class="sm30-toggle-line"><div><strong>Automatic subtitles by default</strong><p>When enabled, speech-to-text runs during export if subtitles are missing. This can send source audio to the configured provider.</p></div><label class="sm30-switch"><input id="sm34-captions" type="checkbox"><span class="sm30-track"></span></label></div>
+                <div class="sm34-quality-warning">Voiceover itself remains off until you enable it inside the editor. Cloud transcription may have provider charges.</div>
+              </section>
+              <section class="sm30-panel sm34-editor-panel" aria-labelledby="sm34-tools-title">
+                <div class="sm30-panel-heading"><span class="sm30-panel-icon" aria-hidden="true">⚙</span><div><span class="sm30-card-kicker">WORKSPACE &amp; PRIVACY</span><h2 id="sm34-tools-title">Data &amp; tools</h2></div></div>
+                <p>Manage your local settings without affecting videos, account credits or cloud projects.</p>
+                <div class="sm34-actions"><button type="button" id="sm34-reset" class="sm34-outline-action">Reset editor defaults</button><button type="button" id="sm34-credits" class="sm34-outline-action">View credit balance</button></div>
+                <p class="sm34-small-note">Only these editor defaults are cleared when reset. Account data and saved videos remain unchanged. Use the account sign-out button below to end your session.</p>
+              </section>
               <section class="sm30-panel sm30-access-panel" aria-labelledby="sm30-access-title">
                 <div class="sm30-panel-heading"><span class="sm30-panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span><div><span class="sm30-card-kicker">ACCOUNT</span><h2 id="sm30-access-title">Privacy &amp; access</h2></div></div>
                 <p>Your workspace is private to your account. Open the privacy policy or securely end your session.</p>
@@ -403,7 +434,8 @@ Second channel | https://www.youtube.com/@secondchannel"></textarea>
             <div class="settings-divider"></div>
             <div class="setting-group"><label>HOW SHOULD IT FILL THE SCREEN?</label><div class="crop-grid" id="crop-choices"><button type="button" class="crop-choice active" data-value="center"><span class="crop-illustration crop-center"><i></i></span>Center crop</button><button type="button" class="crop-choice" data-value="blur"><span class="crop-illustration crop-blur"><i></i></span>Blur background</button><button type="button" class="crop-choice" data-value="left"><span class="crop-illustration crop-left"><i></i></span>Focus left</button><button type="button" class="crop-choice" data-value="right"><span class="crop-illustration crop-right"><i></i></span>Focus right</button></div></div>
             <div class="settings-divider"></div>
-            <div class="two-settings"><div class="setting-group"><label for="resolution">EXPORT QUALITY</label><select id="resolution"><option value="540">540p · Faster</option><option value="720">720p · Faster</option><option value="1080" selected>1080p · YouTube-ready</option></select></div><div class="setting-group"><label for="title-position">TITLE POSITION</label><select id="title-position"><option value="top" selected>Top</option><option value="middle">Middle</option><option value="bottom">Bottom</option></select></div></div>
+            <div class="two-settings"><div class="setting-group"><label for="resolution">EXPORT QUALITY</label><select id="resolution"><option value="540">540p · Faster</option><option value="720">720p · Faster</option><option value="1080" selected>1080p · YouTube-ready</option><option value="2160">4K Ultra HD · 2160×3840</option><option value="4320">8K Ultra HD · 4320×7680</option></select></div><div class="setting-group"><label for="title-position">TITLE POSITION</label><select id="title-position"><option value="top" selected>Top</option><option value="middle">Middle</option><option value="bottom">Bottom</option></select></div></div>
+            <div class="sm34-quality-hint" id="sm34-quality-hint" role="status">1080p is recommended for most Shorts. 4K/8K require powerful server hardware. Higher resolution cannot restore detail missing from your source video.</div>
             <div class="setting-group title-group"><label for="overlay-title">OPTIONAL TEXT ON SHORTS</label><input id="overlay-title" type="text" placeholder="e.g. You won't believe this!" maxlength="120"><p class="field-note">Optional hook text displayed on your Short. Captions can be added below.</p></div>
             <div class="settings-divider"></div>
             <div class="setting-group"><label for="focus-x">CAMERA FOCUS · <span id="focus-percent">50%</span></label><input id="focus-x" class="time-range" type="range" min="0" max="100" step="5" value="50"><p class="field-note">For center crop, slide toward the person or subject you want to keep visible. Other crop modes ignore this slider.</p></div>
@@ -439,7 +471,7 @@ Second channel | https://www.youtube.com/@secondchannel"></textarea>
               <p id="sm33-voice-status" class="sm33-voice-status" role="status">Voice previews use an online speech service. Voiceover is included in MP4 exports only when enabled. Keep your script shorter than the Short.</p>
               <a id="sm33-voice-download" class="sm33-download hidden" download="shortmint-narration-preview.mp3">↓ Download voice preview MP3</a>
             </section>
-            <button id="generate-button" type="button" class="generate-button"><span class="button-spark">✦</span><span id="generate-text">Generate 1 Edited Short</span><span class="button-arrow">↗</span></button><p class="generation-footnote">Export: 9:16 • H.264 MP4 • AAC audio • 30 fps • up to 3 minutes. Processing runs on the host server; higher quality takes longer.</p>
+            <button id="generate-button" type="button" class="generate-button"><span class="button-spark">✦</span><span id="generate-text">Generate 1 Edited Short</span><span class="button-arrow">↗</span></button><p class="generation-footnote">Export: 9:16 • H.264 MP4 • AAC audio • 30 fps • up to 3 minutes. 4K/8K require sufficient server RAM and may take much longer. Lower-res sources are upscaled, not enhanced.</p>
           </article>
         </div>
         <section class="export-panel hidden" id="export-panel"><div class="export-heading"><div class="export-spinner"></div><div><h3 id="export-title">Creating your Shorts</h3><p id="export-message">Selecting moments…</p></div><strong id="export-percent">0%</strong></div><div class="export-progress"><span id="export-progress-fill"></span></div><button id="cancel-button" class="cancel-button" type="button">Cancel export</button></section>
@@ -469,5 +501,6 @@ Second channel | https://www.youtube.com/@secondchannel"></textarea>
   <script src="/growth-v27.js?v=27.0.0" defer></script>
   <script src="/shortmint-settings-v30.js?v=30.0.0" defer></script>
   <script src="/voice-studio-v33.js?v=33.0.0" defer></script>
+  <script src="/shortmint-export-v34.js?v=34.0.0" defer></script>
 </body>
 </html>
