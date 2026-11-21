@@ -453,3 +453,28 @@ body.light-theme #app-view .studio .source-tabs.sm-source-switcher .source-tab.a
 body.light-theme #app-view .sm-upload-focus{background:#fff6f0;border-color:#f6d1bf}
 body.light-theme #app-view .sm-upload-focus-label{color:#a94d2c}
 @media(max-width:600px){#app-view .sm-upload-focus{padding:13px;gap:10px}#app-view .sm-upload-focus-label{display:none}#app-view .sm-upload-focus-icon{flex-basis:36px;width:36px;height:36px}}
+
+/* v19 / FIX NATIVE SELECT POPUP CONTRAST — Open Canvas day/night modes.
+   ShortMint uses body.light-theme for its DARK appearance.
+   The browser's native <option> menu was inheriting a hard-coded navy
+   background from styles.css while the daylight palette used dark text.
+   Explicit color-scheme also addresses Windows/Chrome native dropdowns. */
+body:not(.light-theme) #app-view select {
+  color-scheme: light;
+}
+body:not(.light-theme) #app-view select option,
+body:not(.light-theme) #app-view select optgroup {
+  background-color: #ffffff;
+  color: #1b2637;
+}
+body.light-theme #app-view select {
+  color-scheme: dark;
+}
+body.light-theme #app-view select option,
+body.light-theme #app-view select optgroup {
+  background-color: #192431;
+  color: #f4f7fa;
+}
+#app-view select option:disabled {
+  color: #8c9aa9;
+}
