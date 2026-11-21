@@ -1,0 +1,185 @@
+/* ShortMint Studio v16 — focused sign-in screen, adapted from the user's layout.
+ * Isolated to #auth-view: dashboard, editor, credit and admin styling is untouched.
+ * The login/register forms still use the original ids and JavaScript handlers. */
+body:has(#auth-view:not(.hidden)){
+  margin:0;
+  background:#f4f4f2!important;
+  color:#202938;
+}
+#auth-view.auth-screen{
+  box-sizing:border-box;
+  width:100%;
+  max-width:none!important;
+  min-height:100vh;
+  margin:0 auto!important;
+  padding:28px 20px!important;
+  display:flex!important;
+  align-items:center;
+  justify-content:center;
+  overflow:visible;
+  background:#f4f4f2!important;
+}
+#auth-view.auth-screen.hidden{display:none!important}
+#auth-view .auth-card{
+  box-sizing:border-box;
+  display:block;
+  position:relative;
+  z-index:1;
+  width:100%!important;
+  max-width:612px!important;
+  margin:0 auto!important;
+  padding:55px 58px 37px!important;
+  border:1px solid #e5e5e2!important;
+  border-radius:30px!important;
+  background:#fff!important;
+  box-shadow:0 16px 64px rgba(27,36,56,.055)!important;
+  color:#202939!important;
+}
+#auth-view .auth-heading{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:13px;
+  margin:0 auto;
+  font:800 27px/1.1 Outfit,system-ui,sans-serif;
+  letter-spacing:-.7px;
+  color:#18243b!important;
+}
+#auth-view .auth-heading span span{color:#fa793b!important}
+#auth-view .auth-brand-mark{
+  color:#ff955f!important;
+  font-size:29px;
+  text-shadow:0 4px 24px rgba(255,143,88,.14);
+}
+#auth-view .auth-heading small{
+  color:#8794a8!important;
+  letter-spacing:3px;
+  font-size:8px;
+  margin-top:3px;
+}
+#auth-view .auth-card h1{
+  font:850 clamp(29px,3.7vw,36px)/1.1 Outfit,system-ui,sans-serif!important;
+  letter-spacing:-1.35px!important;
+  color:#19263a!important;
+  margin:43px 0 15px!important;
+  text-align:center;
+}
+#auth-view .auth-card>.muted{
+  color:#738299!important;
+  font-size:13px!important;
+  line-height:1.6;
+  text-align:center;
+  margin:0!important;
+}
+#auth-view .auth-switch{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:5px;
+  margin:34px 0 27px!important;
+  padding:6px!important;
+  background:#f4f3f1!important;
+  border:1px solid #bdc7d4!important;
+  border-radius:14px!important;
+  box-shadow:none!important;
+}
+#auth-view .auth-switch button{
+  min-height:46px;
+  padding:12px 9px;
+  font-size:13px!important;
+  font-weight:800;
+  color:#607085!important;
+  background:transparent!important;
+  border-radius:10px!important;
+  cursor:pointer;
+}
+#auth-view .auth-switch button.active{
+  background:#fff!important;
+  color:#17243b!important;
+  box-shadow:0 3px 12px rgba(26,40,65,.085)!important;
+}
+#auth-view .stack-form{display:flex;flex-direction:column;gap:10px}
+#auth-view .stack-form label{
+  font-size:12px!important;
+  font-weight:800!important;
+  color:#233047!important;
+  margin:7px 0 0!important;
+}
+#auth-view .stack-form input{
+  box-sizing:border-box;
+  width:100%;
+  min-height:56px;
+  padding:13px 16px!important;
+  background:#e8f0ff!important;
+  border:1px solid #d5deed!important;
+  border-radius:13px!important;
+  color:#142139!important;
+  font-size:13px!important;
+  box-shadow:none!important;
+}
+#auth-view .stack-form input:focus{
+  border-color:#fb955e!important;
+  box-shadow:0 0 0 4px rgba(255,146,92,.16)!important;
+  outline:none!important;
+}
+#auth-view .stack-form .orange-btn{
+  display:block;
+  margin:17px 0 0!important;
+  min-height:57px;
+  padding:16px 22px!important;
+  border:0!important;
+  border-radius:12px!important;
+  background:linear-gradient(110deg,#ffc58f,#ff8b56)!important;
+  color:#231b1a!important;
+  font-size:13px!important;
+  font-weight:850!important;
+  box-shadow:0 10px 26px rgba(255,146,88,.13)!important;
+  cursor:pointer;
+}
+#auth-view .stack-form .orange-btn:hover{filter:brightness(1.045)}
+#auth-view .auth-message{min-height:17px;margin:9px 0 0;font-size:12px;text-align:center;color:#b44a38!important}
+#auth-view .invite-contact-box{
+  box-sizing:border-box;
+  display:flex;
+  align-items:flex-start;
+  gap:13px;
+  width:100%;
+  margin:27px 0 0!important;
+  padding:19px 20px!important;
+  border:1px solid #f4d9c8!important;
+  border-radius:16px!important;
+  background:#faf4ef!important;
+  box-shadow:none!important;
+}
+#auth-view .invite-contact-spark{font-size:23px;color:#fc8f57;margin-top:-3px}
+#auth-view .invite-contact-content{min-width:0}
+#auth-view .invite-contact-content strong{font-size:14px!important;color:#263146!important;font-weight:800}
+#auth-view .invite-contact-content p{font-size:12px!important;line-height:1.6;margin:6px 0!important;color:#798293!important}
+#auth-view .invite-contact-unset{font-size:11px!important;color:#99919a!important;margin-top:12px}
+#auth-view .invite-contact-actions{margin-top:11px}
+#auth-view .invite-contact-actions a{font-size:11px}
+#auth-view .auth-foot{
+  margin:24px 0 0!important;
+  text-align:center;
+  color:#8793a6!important;
+  font-size:10px!important;
+  line-height:1.6;
+}
+@media(max-width:650px){
+  #auth-view.auth-screen{padding:0!important;align-items:stretch}
+  #auth-view .auth-card{
+    max-width:none!important;
+    min-height:100dvh;
+    padding:42px clamp(21px,8vw,55px) 28px!important;
+    border-radius:0!important;
+    border:0!important;
+    box-shadow:none!important;
+  }
+  #auth-view .auth-card h1{margin-top:35px!important;font-size:30px!important}
+  #auth-view .auth-switch{margin-top:30px!important}
+}
+@media(max-width:370px){
+  #auth-view .auth-heading{font-size:24px}
+  #auth-view .auth-card h1{font-size:27px!important}
+  #auth-view .invite-contact-box{padding:16px!important}
+}
+@media(prefers-reduced-motion:reduce){#auth-view *{transition:none!important;animation:none!important}}
