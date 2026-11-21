@@ -168,7 +168,7 @@ function startNew(){
   $('#upload-panel').classList.remove('hidden');
   $('#upload-busy').classList.add('hidden');
   $('#file-input').value='';
-  $('#youtube-url').value='';
+  // Link imports removed; the upload queue remains available.
   setStep(1);showView('studio');
 }
 async function refreshData(){

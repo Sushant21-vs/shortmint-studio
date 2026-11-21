@@ -51,47 +51,7 @@ function showBusy(visible, title = 'Reading your video…', message = 'Keep this
   $('#upload-busy-text').textContent = message;
   $('#upload-progress-fill').style.width = visible ? '6%' : '0%';
 }
-const socialSources = {
-  youtube: {name:'YouTube', placeholder:'https://www.youtube.com/watch?v=...', note:'Paste a public YouTube link. If the cloud server blocks access, upload the original video file.'}
-};
-let selectedVideoSource = 'file';
-function chooseSource(source) {
-  selectedVideoSource = source in socialSources ? source : 'file';
-  const switcher = $('#upload-panel');
-  if (switcher) switcher.dataset.activeSource = selectedVideoSource;
-  $('#sm-link-help')?.classList.remove('is-error');
-  $$('.source-tab').forEach(b => {const active=b.dataset.source === selectedVideoSource;b.classList.toggle('active',active);b.setAttribute('aria-pressed', String(active));});
-  $('#file-source').classList.toggle('hidden', selectedVideoSource !== 'file');
-  $('#url-source').classList.toggle('hidden', selectedVideoSource === 'file');
-  $('#url-source').hidden = selectedVideoSource === 'file';
-  $('#file-source').hidden = selectedVideoSource !== 'file';
-
-  if(selectedVideoSource !== 'file') {
-    const item=socialSources[selectedVideoSource];
-    $('#source-service-title').textContent = `Import from ${item.name}`;
-    $('#source-service-pill').textContent = item.name;
-    $('#source-link-label').textContent = `${item.name.toUpperCase()} VIDEO LINK`;
-    $('#source-link-note').textContent = item.note;
-    $('#youtube-url').placeholder = item.placeholder;
-    $('#youtube-url').value='';
-    $('#youtube-url').focus({preventScroll:true});
-    $('#sm-link-help').textContent = `Paste your ${item.name} link here. This site imports only links the source platform makes accessible to its server.`;
-  }
-}
-// Choose source on startup, independent of stale HTML classes.
-chooseSource('file');
-$('#paste-social-link').addEventListener('click', async () => {
-  try {
-    const text = (await navigator.clipboard.readText()).trim();
-    if (!text) throw new Error('empty');
-    $('#youtube-url').value = text;
-    $('#youtube-url').focus();
-  } catch {
-    $('#youtube-url').focus();
-    toast('Click in the link box and press Ctrl+V to paste. Clipboard access may be disabled.');
-  }
-});
-$$('.source-tab').forEach(btn => btn.addEventListener('click', () => chooseSource(btn.dataset.source)));
+// Single-source creator: video uploads only. Social-link import UI removed.
 const drop = $('#dropzone');
 drop.addEventListener('click', () => $('#file-input').click());
 drop.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); $('#file-input').click(); } });
@@ -101,7 +61,7 @@ drop.addEventListener('keydown', event => { if (event.key === 'Enter' || event.k
 // Processing files sequentially is intentional: free hosting may be resource constrained.
 const SM_BATCH_LIMIT = 20;
 const SM_MAX_FILE_BYTES = 1024 * 1024 * 1024;
-const smAllowedExts = new Set(['.mp4','.mov','.mkv','.webm','.avi','.m4v']);
+// File extensions are not a reliable format check; the server validates with FFprobe.
 let smBatch = [];
 let smBatchRunning = false;
 let smBatchXHR = null;
@@ -205,7 +165,7 @@ async function smRunBatch() {
     if(!hasProject && !project && !activeTask) loadProject(done[0].data);
     toast(`${done.length} of ${smBatch.length} videos uploaded. Choose “Edit Short” beside any video.`,true);
   } else {
-    toast('No videos uploaded. Check each error and try smaller MP4 files.');
+    toast('No videos uploaded. Check each file error and try smaller, FFmpeg-readable videos.');
   }
 }
 function smQueueFiles(fileList) {
@@ -216,8 +176,7 @@ function smQueueFiles(fileList) {
   if(files.length > SM_BATCH_LIMIT) toast(`You selected ${files.length} videos. Only the first ${SM_BATCH_LIMIT} will upload in this batch.`);
   smBatch=[];
   for(const file of files.slice(0,SM_BATCH_LIMIT)) {
-    const ext='.'+(file.name.split('.').pop()||'').toLowerCase();
-    const error = !smAllowedExts.has(ext) ? 'Unsupported file format. Use MP4, MOV, MKV, WebM, AVI, or M4V.' : file.size > SM_MAX_FILE_BYTES ? 'File exceeds the 1 GB limit.' : file.size < 1024 ? 'Video file is empty or too small.' : '';
+    const error = file.size > SM_MAX_FILE_BYTES ? 'File exceeds the 1 GB limit.' : file.size < 1024 ? 'Video file is empty or too small.' : ''; 
     smBatch.push({file,name:file.name,size:file.size,progress:error?100:0,state:error?'failed':'pending',message:error,data:null});
   }
   smUpdateQueue();
@@ -231,39 +190,17 @@ smQueueRetry.addEventListener('click', () => {
   let retried=0;
   smBatch.forEach(item => {
     if(item.state !== 'failed') return;
-    const ext='.'+(item.name.split('.').pop()||'').toLowerCase();
-    if(!smAllowedExts.has(ext) || item.size>SM_MAX_FILE_BYTES || item.size<1024) return;
+    if(item.size>SM_MAX_FILE_BYTES || item.size<1024) return;
+    if(/not a readable video|no video track|duration must be|unable to decode/i.test(item.message)) return;
     item.state='pending';item.progress=0;item.message='Retry queued';retried++;
   });
   smUpdateQueue();
   if(retried) smRunBatch();
-  else toast('These files need a supported format and must be smaller than 1 GB.');
+  else toast('Only valid, non-empty video files under 1 GB can be retried.');
 });
 smQueueClear.addEventListener('click',()=>{
   if(smBatchRunning){smStopRequested=true;if(smBatchXHR)smBatchXHR.abort();smQueueClear.disabled=true;return;}
   smBatch=[];smUpdateQueue();
-});
-$('#url-source').addEventListener('submit', async event => {
-  event.preventDefault();
-  const url = $('#youtube-url').value.trim();
-  const source = selectedVideoSource;
-  if (!url || !(source in socialSources)) return;
-  const platformName=socialSources[source].name;
-  const button=$('#social-import-button');button.disabled=true;
-  showBusy(true, `Importing from ${platformName}…`, 'The source platform may restrict access. Try a direct upload if this import fails.');
-  $('#upload-progress-fill').style.width = '23%';
-  try {
-    const data = await api('/api/import-url', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({url, platform: source})});
-    loadProject(data);
-    toast(`${platformName} video imported. Preview it and choose a clip.`,true);
-  } catch (err) {
-    showBusy(false);
-    const message = errorMessage(err);
-    toast(message.length > 210 ? message.slice(0,207) + '…' : message);
-    $('#sm-link-help').textContent = message;
-    $('#sm-link-help').classList.add('is-error');
-  }
-  finally {button.disabled=false;}
 });
 
 function getShortLength() { return Number($('#clip-length').value); }

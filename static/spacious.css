@@ -441,3 +441,15 @@ body.light-theme #app-view .studio .source-tabs.sm-source-switcher .source-tab.a
     flex-basis: 33px;
   }
 }
+
+/* v18 — upload-only source panel: no misleading YouTube tab or white strip */
+#app-view .sm-upload-focus{display:flex;align-items:center;gap:14px;padding:17px 21px;margin:2px 0 19px;background:linear-gradient(110deg,rgba(252,135,73,.13),rgba(252,135,73,.02));border:1px solid rgba(251,162,103,.35);border-radius:16px}
+#app-view .sm-upload-focus-icon{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;background:rgba(254,161,101,.15);color:#ff9b67;border-radius:12px;font-size:25px;font-weight:900}
+#app-view .sm-upload-focus>div{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
+#app-view .sm-upload-focus strong{font-size:15px;color:var(--ui-ink,#f5f6ff);font-weight:800}
+#app-view .sm-upload-focus>div span{font-size:12px;line-height:1.45;color:var(--ui-sub,#a8b6c9)}
+#app-view .sm-upload-focus-label{font-size:10px;letter-spacing:1.1px;color:#ffaf87;font-weight:900;white-space:nowrap}
+#app-view .sm-supported-file-types{padding:4px 1px!important;margin-top:13px!important;color:var(--ui-sub,#a8b6c9)!important;font-size:12px!important;line-height:1.7!important}
+body.light-theme #app-view .sm-upload-focus{background:#fff6f0;border-color:#f6d1bf}
+body.light-theme #app-view .sm-upload-focus-label{color:#a94d2c}
+@media(max-width:600px){#app-view .sm-upload-focus{padding:13px;gap:10px}#app-view .sm-upload-focus-label{display:none}#app-view .sm-upload-focus-icon{flex-basis:36px;width:36px;height:36px}}

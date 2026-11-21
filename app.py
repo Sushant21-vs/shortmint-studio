@@ -107,12 +107,19 @@ def load_manifest(session_id):
 def probe_video(path):
     result = run([
         'ffprobe', '-v', 'error', '-show_entries',
-        'format=duration:stream=codec_type,width,height', '-of', 'json', str(path)
+        'format=duration,format_name:stream=codec_type,width,height:stream_disposition=attached_pic',
+        '-of', 'json', str(path)
     ], timeout=45)
     if result.returncode != 0:
         raise ValueError('This file is not a readable video.')
     data = json.loads(result.stdout)
-    stream = next((s for s in data.get('streams', []) if s.get('codec_type') == 'video'), None)
+    # FFprobe can interpret plain text as a terminal-recording (tty) video.
+    # Refuse that format and still images; do not confuse artwork with footage.
+    detected = set(str(data.get('format', {}).get('format_name') or '').lower().split(','))
+    if detected.intersection({'tty', 'image2', 'image2pipe', 'png_pipe', 'jpeg_pipe', 'bmp_pipe', 'webp_pipe'}):
+        raise ValueError('This is not a recognized video recording. Select a real video file.')
+    stream = next((s for s in data.get('streams', []) if s.get('codec_type') == 'video'
+                   and not s.get('disposition', {}).get('attached_pic')), None)
     if not stream:
         raise ValueError('No video track was found in this file.')
     duration = float(data.get('format', {}).get('duration') or 0)
@@ -152,10 +159,12 @@ def health():
 
 @app.post('/api/upload')
 async def upload(file: UploadFile = File(...), user=Depends(user_for_request)):
-    filename = (file.filename or 'video.mp4')
+    # Accept video containers by content, not only a short list of extensions.
+    # The original name is display-only, and never used as a filesystem path.
+    filename = (file.filename or 'video').replace('\\', '/').rsplit('/', 1)[-1]
     ext = Path(filename).suffix.lower()
-    if ext not in ALLOWED_EXTS:
-        raise HTTPException(400, 'Upload MP4, MOV, MKV, WebM, AVI or M4V video files.')
+    if not re.fullmatch(r'\.[a-z0-9]{1,10}', ext):
+        ext = '.bin'
     sid = uuid.uuid4().hex
     folder = STORAGE / sid
     folder.mkdir(parents=True)
@@ -252,7 +261,10 @@ def get_source(session_id: str, user=Depends(user_for_request)):
     source = source_for(data)
     if not source.is_file():
         raise HTTPException(404, 'Source video missing')
-    return FileResponse(source, media_type='video/mp4')
+    ext = source.suffix.lower()
+    source_types = {'.3gp':'video/3gpp', '.3g2':'video/3gpp2', '.ts':'video/mp2t', '.m2ts':'video/mp2t'}
+    media_type = source_types.get(ext) or __import__('mimetypes').guess_type(source.name)[0] or 'application/octet-stream'
+    return FileResponse(source, media_type=media_type)
 
 
 @app.get('/api/media/{session_id}/{filename}')
