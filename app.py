@@ -27,6 +27,7 @@ from accounts import user_for_request, install_auth_routes, reserve_credits, fin
 from downloads import source_platform, extraction_failure_message, install_download_routes
 from media_runtime import javascript_runtime_options, media_runtime_status
 from montage import scene_changes, plan_montage, parse_custom_cuts
+from admin_backup import install_backup_routes
 
 ROOT = Path(__file__).resolve().parent
 DATA_ROOT = Path(os.environ.get('SHORTMINT_STORAGE_DIR') or str(ROOT / 'storage')).resolve()
@@ -857,5 +858,6 @@ def list_projects(user=Depends(user_for_request)):
 
 
 install_auth_routes(app)
+install_backup_routes(app, has_active_exports=lambda: bool(ACTIVE_SESSIONS))
 install_download_routes(app,STORAGE)
 app.mount('/', StaticFiles(directory=STATIC, html=True), name='static')

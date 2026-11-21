@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/premium.css?v=9.0.1"><link rel="stylesheet" href="/source-studio.css?v=12.0.0">
   <link rel="stylesheet" href="/import-fixes.css?v=9.0.1"><link rel="stylesheet" href="/multi-upload.css?v=12.0.0">
   <link rel="stylesheet" href="/montage.css?v=13">
-  <link rel="stylesheet" href="/spacious.css?v=19.0.0">
+  <link rel="stylesheet" href="/spacious.css?v=20.0.0">
   <link rel="stylesheet" href="/login-clean.css?v=16.0.0">
 </head>
 <body>
@@ -136,6 +136,14 @@
       <section id="admin-view" class="app-page hidden">
         <div class="page-heading"><div><span class="overline">OWNER ONLY</span><h1>Admin Dashboard <span class="wave">✦</span></h1><p>Approve requests, invite friends, and manage each member's credits.</p></div><button id="admin-refresh" class="outline-btn">↻ Refresh dashboard</button></div>
         <div class="admin-summary"><div><span>Members</span><strong id="admin-members">0</strong></div><div><span>Pending requests</span><strong id="admin-pending">0</strong></div><div><span>Active invitations</span><strong id="admin-invites">0</strong></div></div>
+        <article class="dashboard-panel sm-data-safety-panel" aria-label="Back up your member data">
+          <span class="card-kicker">ACCOUNT DATA SAFETY</span><h2>Save your accounts &amp; credits</h2>
+          <p>Your current Render Free server uses temporary storage. A normal refresh does not erase members, but server restarts and redeployments can. Download a private backup after changes and restore it if needed.</p>
+          <div class="sm-backup-actions"><button class="secondary-btn" type="button" id="sm-download-backup">↓ Download private backup</button>
+          <label for="sm-restore-file" class="sm-restore-label">↥ Restore a backup</label><input id="sm-restore-file" type="file" accept=".sqlite3,.db,application/octet-stream" hidden></div>
+          <p class="mini-caption" id="sm-backup-message">Keep your backup private: it includes member information and password hashes. Restoring replaces current member and invitation records. A persistent database is still required to prevent automatic data loss.</p>
+        </article>
+        <p class="sm-data-explain">These counters show the data saved on the current server. Refreshing the page does not reset them.</p>
         <div class="admin-main-grid"><article class="dashboard-panel"><div class="admin-panel-heading"><div><span class="card-kicker">ACCESS CONTROL</span><h2>Invite a Friend</h2></div></div><p>Generate a unique one-time invite code. Share the website address and the code with your friend.</p><button id="create-invite" class="orange-btn">＋ Generate Invite Code</button><div id="invite-list" class="history-list spaced"></div></article>
         <article class="dashboard-panel"><span class="card-kicker">DEFAULTS</span><h2>New Member Settings</h2><p>Choose how many free Shorts credits every newly invited member receives.</p><form id="starting-credit-form" class="stack-form"><label for="starting-credits">Starting credits per friend</label><input id="starting-credits" type="number" min="0" max="1000" value="5" required><button class="secondary-btn" type="submit">Save Starting Credits</button></form><p class="mini-caption">Existing balances will not be changed.</p></article></div>
         <div class="section-title-row"><h2>Credit Requests <span id="request-heading-count" class="count-pill">0 pending</span></h2></div>
@@ -213,14 +221,6 @@
             <button id="generate-button" type="button" class="generate-button"><span class="button-spark">✦</span><span id="generate-text">Generate 1 Edited Short</span><span class="button-arrow">↗</span></button><p class="generation-footnote">Export: 9:16 • H.264 MP4 • AAC audio • 30 fps • up to 3 minutes. Processing runs on the host server; higher quality takes longer.</p>
           </article>
         </div>
-        <section class="sm-campaign-kit" aria-label="Campaign clipping planner">
-          <div class="sm-kit-header"><div><span class="source-overline">CAMPAIGN EDITING TOOLKIT</span><h3>Campaign-ready clips. Your own creative touch.</h3><p>Plan a permitted Whop/Content Rewards clip before publishing. Your notes stay in this browser; they are not added automatically to your exported MP4.</p></div><span class="sm-kit-badge">CREATOR TOOLS</span></div>
-          <div class="sm-kit-grid"><label>Campaign / brand name<input id="campaign-brand" type="text" maxlength="100" placeholder="e.g. Campaign name"></label><label>Original hook idea<input id="campaign-hook" type="text" maxlength="120" placeholder="A surprising moment you want to highlight"></label></div>
-          <label class="sm-kit-full">Caption / required hashtags<textarea id="campaign-caption" rows="3" maxlength="1000" placeholder="Write your own caption, then include any hashtags required by your campaign."></textarea></label>
-          <div class="sm-kit-actions"><button id="campaign-use-hook" type="button" class="secondary-btn">Use hook as video headline ↗</button><button id="campaign-copy-caption" type="button" class="outline-btn">Copy posting caption</button></div>
-          <div class="sm-kit-checks"><label><input type="checkbox" id="campaign-rights"> Source video selected for this campaign</label><label><input type="checkbox" id="campaign-creative"> Original commentary or meaningful creative editing added</label><label><input type="checkbox" id="campaign-rules"> I checked required tags, platform, duration, and submission rules</label></div>
-          <p class="sm-kit-disclaimer">Use real audience engagement and submit the genuine post URL manually. This editor cannot assess rights, guarantee Whop approvals, or prevent platform fraud flags.</p>
-        </section>
         <section class="export-panel hidden" id="export-panel"><div class="export-heading"><div class="export-spinner"></div><div><h3 id="export-title">Creating your Shorts</h3><p id="export-message">Selecting moments…</p></div><strong id="export-percent">0%</strong></div><div class="export-progress"><span id="export-progress-fill"></span></div><button id="cancel-button" class="cancel-button" type="button">Cancel export</button></section>
         <section class="results-area hidden" id="results-area"><div class="results-top"><div><div class="eyebrow small">YOUR CREATIONS</div><h2>Fresh Shorts, ready to go <span>✦</span></h2><p>Preview and download YouTube-ready vertical MP4 files. Upload them manually in YouTube Studio.</p></div><div class="result-top-actions"><a class="download-all youtube-outline" href="https://studio.youtube.com/" target="_blank" rel="noopener noreferrer">↗ Open YouTube Studio</a><a id="download-all" class="download-all" href="#">↓ Download all ZIP</a></div></div><div id="results-grid" class="results-grid"></div></section>
       </div>
@@ -238,7 +238,8 @@
     </div>
   </div>
   <div class="toast hidden" id="toast" role="alert"><span id="toast-icon">!</span><div id="toast-text"></div><button id="toast-dismiss" type="button" aria-label="Dismiss">×</button></div>
-  <script src="/source-studio.js?v=9.0.1" defer></script><script src="/app.js?v=18.0.0" defer></script><script src="/dashboard.js?v=18.0.0" defer></script><script src="/premium.js?v=14.0.0" defer></script>
+  <script src="/app.js?v=20.0.0" defer></script><script src="/dashboard.js?v=20.0.0" defer></script><script src="/premium.js?v=14.0.0" defer></script>
   <script src="/spacious.js?v=15.0.0" defer></script>
+  <script src="/account-safety.js?v=20.0.0" defer></script>
 </body>
 </html>

@@ -478,3 +478,13 @@ body.light-theme #app-view select optgroup {
 #app-view select option:disabled {
   color: #8c9aa9;
 }
+
+/* v20: owner-only backup panel; no impact on video styles */
+#app-view .sm-data-safety-panel{margin:24px 0;border-color:#d4a177;background:var(--ui-card);color:var(--ui-ink)}
+#app-view .sm-data-safety-panel p{max-width:900px;line-height:1.65}
+#app-view .sm-backup-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:18px 0}
+#app-view .sm-restore-label{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:13px 18px;border:1px solid var(--ui-line);border-radius:11px;background:var(--ui-soft);color:var(--ui-ink);font-weight:750;font-size:13px}
+#app-view .sm-restore-label:hover{border-color:#fb995f}
+#app-view .sm-data-safety-panel button{min-height:45px}
+
+#app-view .sm-data-explain{font-size:12px;color:var(--ui-sub);margin:8px 0 22px}

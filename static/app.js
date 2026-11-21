@@ -6,6 +6,7 @@ let mode = 'montage';
 let crop = 'center';
 let activeTask = null;
 let pollTimer = null;
+let smPollErrors = 0;
 let toastTimer = null;
 let captionsPending = false;
 
@@ -379,6 +380,7 @@ async function generateClips() {
   try {
     const result = await api('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     activeTask = result.task_id;
+    smPollErrors = 0;
     checkTask();
   } catch (err) {
     $('#generate-button').disabled = false;
@@ -413,10 +415,16 @@ async function checkTask() {
       if (typeof refreshData === 'function') refreshData();
       return;
     }
-    pollTimer = setTimeout(checkTask,1000);
+    smPollErrors=0;
+    pollTimer = setTimeout(checkTask,2500);
   } catch (err) {
-    pollTimer = setTimeout(checkTask,2000);
-    toast('Checking export status: ' + errorMessage(err));
+    if (!activeTask) return;
+    // 429 commonly comes from rate limiting on the hosting path; don't flood it.
+    smPollErrors++;
+    const wait = Math.min(30000, 2500 * (2 ** Math.min(smPollErrors,4)));
+    if ($('#export-message')) $('#export-message').textContent = `Checking export progress is delayed; retrying in ${Math.round(wait/1000)}s. Do not start another export.`;
+    if (smPollErrors === 3) toast('Status check is temporarily busy. ShortMint will retry automatically; keep the tab open.');
+    pollTimer = setTimeout(checkTask, wait);
   }
 }
 $('#cancel-button').addEventListener('click',async () => {
