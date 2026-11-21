@@ -177,3 +177,6 @@ body:has(#auth-view:not(.hidden)) {background:#f8f2ee!important;color:#19233a!im
   #app-view #admin-view .sm-security-indicator{display:block;width:max-content;margin:8px 0 0;}
 }
 @media(prefers-reduced-motion:reduce){#app-view #admin-view .sm-admin-hero-icon{animation:none;}#auth-view #auth-submit,#app-view #admin-view .sm-admin-jump{transition:none;}}
+
+/* v22 cloud visibility fix: bright puffs remain visible on the light Aurora canvas. */
+#auth-view #sm-cloud-canvas {opacity:1!important;pointer-events:none!important;mix-blend-mode:normal;filter:saturate(1.12);}
