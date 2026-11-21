@@ -8,7 +8,7 @@
   const menu = $('sm-menu-toggle');
   const scrim = $('sm-mobile-scrim');
   const page = $('sm-current-page');
-  const labels = { dashboard:'Overview',studio:'Create Shorts', downloads:'Download Videos', credits:'Credits & Requests',buy:'Buy Credits',admin:'Admin Panel'};
+  const labels = { dashboard:'Overview',studio:'Create Shorts', credits:'Credits & Requests',buy:'Buy Credits',admin:'Admin Panel'};
   let previousFocus = null;
 
   function closeMobile() {

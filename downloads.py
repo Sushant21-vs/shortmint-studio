@@ -19,6 +19,8 @@ from fastapi import Depends, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
+from media_runtime import javascript_runtime_options
+
 from accounts import (
     download_quota, download_credit_cost, finish_download_quota,
     reserve_download_quota, user_for_request,
@@ -67,6 +69,9 @@ def extraction_failure_message(platform, output):
         return f'{platform} link is unsupported. Paste a direct public video or Reel URL.'
     if any(x in log for x in ('403 forbidden','http error 403','access denied')):
         return f'{platform} refused server access to this video (HTTP 403). Try an original MP4 upload.'
+    if 'no supported javascript runtime' in log or 'yt-dlp-ejs' in log or 'javascript runtime' in log:
+        return ('The video server is missing a supported YouTube JavaScript component. '
+                'Deploy the updated ShortMint Dockerfile and requirements.txt, then try again.')
     if 'no space left' in log or 'disk quota exceeded' in log:
         return 'The free hosting server ran out of temporary storage. Try a shorter video later.'
     return (f'{platform} could not provide this video to the ShortMint server. '
@@ -135,9 +140,10 @@ def _download_worker(job_id, folder, url, quality):
         cmd = [
             sys.executable, '-m', 'yt_dlp', '--ignore-config',
             '--no-playlist', '--playlist-items', '1', '--max-downloads', '1',
-            '--no-progress', '--no-warnings', '--no-write-info-json',
+            '--no-progress', '--no-write-info-json',
             '--no-write-thumbnail', '--no-write-subs',
             '--socket-timeout', '15', '--retries', '2', '--fragment-retries', '2',
+            *javascript_runtime_options(),
             '--max-filesize', '350M', '-f', selector,
             '--merge-output-format', 'mp4',
             '-S', f'res:{quality}', '-o', str(folder / 'video.%(ext)s'), '--', url,

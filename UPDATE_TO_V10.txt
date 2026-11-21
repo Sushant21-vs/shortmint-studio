@@ -1,0 +1,25 @@
+ShortMint v10: YouTube compatibility fix
+=====================================
+
+Required GitHub repository changes:
+ - Replace: Dockerfile
+ - Replace: requirements.txt
+ - Replace: app.py
+ - Replace: downloads.py
+ - Add:     media_runtime.py
+
+Do not replace your static/ assets, login page, dashboard or account database.
+
+1) Upload these files to root of your GitHub repo.
+2) Commit changes to branch main.
+3) In Render open your ShortMint service > Events/Logs and redeploy if necessary.
+4) Once Live, open https://shortmint-studio.onrender.com/api/health
+   It should show: "yt_dlp_ejs_installed": true,
+                   "javascript_runtime": "node".
+5) Re-test one publicly accessible video you own.
+
+YouTube's bot verification on cloud IPs is not guaranteed to be fixable.
+If still blocked, use Create Shorts > Upload file with an authorized original MP4.
+
+FREE Render warning: its temporary storage means redeployment may erase
+accounts, credit balances and uploaded files. Back up important data.

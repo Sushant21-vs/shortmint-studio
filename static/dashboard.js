@@ -11,7 +11,7 @@ const nodes = selector => Array.from(document.querySelectorAll(selector));
 function showView(view) {
   if (!currentUser) return;
   if ((view === 'admin' && currentUser.role !== 'owner') || (view === 'buy' && currentUser.role === 'owner')) {toast('Admin access is for the site owner only.');return;}
-  for (const name of ['dashboard','credits','buy','admin','studio','downloads']) {
+  for (const name of ['dashboard','credits','buy','admin','studio']) {
     const id = name === 'studio' ? 'editor-view' : name+'-view';
     document.getElementById(id).classList.toggle('hidden',view!==name);
   }
@@ -21,7 +21,6 @@ function showView(view) {
   if (view==='credits') loadCreditActivity();
   if (view==='buy') loadBuyCredits();
   if (view==='dashboard') refreshData();
-  if (view==='downloads') loadDownloads();
 }
 function updateUser() {
   if (!currentUser) return;
@@ -243,7 +242,6 @@ async function loadAdmin(){
     $('#nav-request-count').classList.toggle('hidden',pending.length+pendingPurchases.length===0);
     $('#request-heading-count').textContent=plural(pending.length,'pending request');
     $('#starting-credits').value=adminState.starting_credits;
-    $('#daily-download-credits').value=adminState.daily_download_credits ?? 5;
     $('#owner-whatsapp').value=adminState.contact_whatsapp||'';
     $('#invite-phone').value=adminState.invite_phone||'';
     $('#owner-email').value=adminState.contact_email||'';
@@ -294,13 +292,6 @@ $('#admin-users').addEventListener('click',async event=>{
     if(!confirm('Change account access for this member?'))return;
     try{await api(`/api/admin/users/${toggle.dataset.toggleUser}/toggle`,{method:'POST'});toast('Account access updated.',true);loadAdmin();}catch(err){toast(errorMessage(err));}
   }
-});
-$('#daily-download-form').addEventListener('submit',async event=>{
-  event.preventDefault();
-  const value=Number($('#daily-download-credits').value);
-  if(!Number.isInteger(value)||value<0||value>100){toast('Enter a daily download credit limit between 0 and 100.');return;}
-  try{await api('/api/admin/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({daily_download_credits:value})});toast('Daily free download limit saved.',true);loadAdmin();}
-  catch(err){toast(errorMessage(err));}
 });
 $('#starting-credit-form').addEventListener('submit',async event=>{
   event.preventDefault();

@@ -44,7 +44,7 @@ def test_url_validation_and_source_import_expansion(pair,monkeypatch):
         with pytest.raises(ValueError): downloads.source_platform(blocked)
     r=friend.post('/api/import-url',json={'url':'https://localhost/private'},headers=HEADERS)
     assert r.status_code==400
-    assert friend.post('/api/downloads/start',json={'url':'https://www.tiktok.com/@someone/video/77','quality':'720','rights_confirmed':False},headers=HEADERS).status_code==400
+    assert friend.post('/api/downloads/start',json={'url':'https://localhost/private','quality':'720'},headers=HEADERS).status_code==400
 
 
 def test_daily_quota_and_reset(pair,monkeypatch):

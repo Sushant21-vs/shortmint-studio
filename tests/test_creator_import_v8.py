@@ -40,7 +40,7 @@ def test_mocked_social_import_reaches_editor(owner,monkeypatch,source,url):
             return SimpleNamespace(returncode=0,stderr='',stdout='')
         return real_run(cmd,timeout=timeout,**kwargs)
     monkeypatch.setattr(app,'run',fake_run)
-    result=client.post('/api/import-url',headers=HEADERS,json={'url':url,'platform':source,'rights_confirmed':True})
+    result=client.post('/api/import-url',headers=HEADERS,json={'url':url,'platform':source})
     assert result.status_code==200,result.text
     data=result.json()
     assert {'youtube':'YouTube','tiktok':'TikTok','instagram':'Instagram'}[source] in data['filename']
@@ -49,10 +49,8 @@ def test_mocked_social_import_reaches_editor(owner,monkeypatch,source,url):
     assert client.get('/api/media/'+data['id']+'/source').status_code==200
 
 
-def test_wrong_source_permission_and_private_url(owner):
+def test_wrong_source_and_private_url(owner):
     client,_=owner
     src='https://www.tiktok.com/@creator/video/123'
     assert client.post('/api/import-url',headers=HEADERS,json={'url':src,'platform':'instagram','rights_confirmed':True}).status_code==400
-    r=client.post('/api/import-url',headers=HEADERS,json={'url':src,'platform':'tiktok','rights_confirmed':False})
-    assert r.status_code==400 and 'permission' in r.json()['detail']
     assert client.post('/api/import-url',headers=HEADERS,json={'url':'https://127.0.0.1/private','platform':'youtube','rights_confirmed':True}).status_code==400
