@@ -1,0 +1,43 @@
+/* ShortMint Studio v37 — approved standalone orange-spark mark & cinematic dashboard. */
+#app-view .sm-sidebar .dashboard-brand > img.sm-logo,
+#auth-view .sm26-auth-hero .auth-heading > img.sm-auth-brand-icon {
+  display:block!important;
+  object-fit:contain;
+  object-position:center;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  padding:0!important;
+  box-shadow:none!important;
+  opacity:1;
+  flex-shrink:0;
+}
+#app-view .sm-sidebar .dashboard-brand > img.sm-logo {
+  width:44px!important;
+  height:44px!important;
+  filter:drop-shadow(0 3px 10px rgba(255,119,36,.25));
+}
+#auth-view .sm26-auth-hero .auth-heading > img.sm-auth-brand-icon {
+  width:45px!important;
+  height:45px!important;
+  filter:drop-shadow(0 3px 9px rgba(250,118,36,.22));
+}
+/* The previously approved navy/orange cinematic backdrop applies only to the dark
+   dashboard; Daylight stays light and other pages are not restyled. */
+body.light-theme #app-view:has(#dashboard-view:not(.hidden)) {
+  background-color:#101925!important;
+  background-image:
+    radial-gradient(ellipse 48% 25% at 98% 24%, rgba(245,116,53,.37) 0%,transparent 100%),
+    radial-gradient(ellipse 36% 34% at 35% 48%, rgba(236,112,74,.18) 0%,transparent 100%),
+    radial-gradient(ellipse 50% 35% at 85% 67%, rgba(21,105,176,.23) 0%,transparent 100%),
+    radial-gradient(ellipse 60% 60% at 35% 0%, rgba(21,49,81,.28) 0%,transparent 100%),
+    radial-gradient(ellipse 84% 54% at 40% 48%, transparent 64.6%,rgba(255,146,95,.26) 64.72%,transparent 64.86%),
+    radial-gradient(ellipse 82% 45% at 89% 71%, transparent 68.9%,rgba(65,134,205,.22) 69.02%,transparent 69.16%),
+    linear-gradient(145deg,#111c2b,#121823 49%,#0f1a27)!important;
+  background-size:cover!important;
+  background-attachment:fixed!important;
+}
+@media(max-width:760px){
+  #app-view .sm-sidebar .dashboard-brand > img.sm-logo {width:39px!important;height:39px!important;}
+  #auth-view .sm26-auth-hero .auth-heading > img.sm-auth-brand-icon{width:36px!important;height:36px!important;}
+}
