@@ -345,3 +345,99 @@ body.light-theme #app-view .sm-extra-stats summary{color:#dce0e6!important}
 body.light-theme #app-view .metric-card strong{color:#f6f5f2!important}
 body.light-theme #app-view .primary-grid .highlight-panel p{color:#bfcbd7!important}
 body.light-theme #app-view .primary-grid .dashboard-panel:not(.highlight-panel) p{color:#aebbc8!important}
+
+
+/* ShortMint v18 — fixed Upload / YouTube source picker.
+   The older source-studio.css forced a white background in night mode.
+   A two-option picker should use the full row, with no blank strip. */
+#app-view .studio .source-tabs.sm-source-switcher {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: stretch;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0 0 22px;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none;
+  border-radius: 0;
+}
+#app-view .studio .source-tabs.sm-source-switcher .source-tab {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 78px;
+  flex: initial;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+  padding: 15px 20px;
+  border: 1px solid var(--ui-line);
+  border-radius: 15px;
+  color: var(--ui-ink);
+  background: var(--ui-card);
+  box-shadow: 0 2px 12px rgba(0,0,0,.025);
+  transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+#app-view .studio .source-tabs.sm-source-switcher .source-tab:hover {
+  border-color: #eea47e;
+  background: var(--ui-soft);
+  transform: none;
+}
+#app-view .studio .source-tabs.sm-source-switcher .source-tab.active {
+  border-color: #eb9c74;
+  color: #773a27;
+  background: #fff0e6;
+  box-shadow: inset 3px 0 0 #f28a5b;
+}
+#app-view .studio .source-tabs.sm-source-switcher .source-glyph {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border-radius: 11px;
+  background: #fff3ed;
+  color: #dd7348;
+}
+body.light-theme #app-view .studio .source-tabs.sm-source-switcher {
+  background: transparent !important;
+  border: 0 !important;
+}
+body.light-theme #app-view .studio .source-tabs.sm-source-switcher .source-tab {
+  background: #222c37;
+  border-color: #364656;
+  color: #f0f3f5;
+}
+body.light-theme #app-view .studio .source-tabs.sm-source-switcher .source-tab:hover {
+  background: #2b3845;
+  border-color: #b77d61;
+}
+body.light-theme #app-view .studio .source-tabs.sm-source-switcher .source-tab.active {
+  background: linear-gradient(115deg,#43302c,#302729);
+  border-color: #dd9065;
+  color: #fff3e9;
+  box-shadow: inset 3px 0 0 #ff9a6c;
+}
+body.light-theme #app-view .studio .source-tabs.sm-source-switcher .source-glyph {
+  background: #263544;
+  color: #ffc39d;
+}
+body.light-theme #app-view .studio .source-tabs.sm-source-switcher .source-tab.active .source-glyph {
+  background: #57352e;
+  color: #ffb08a;
+}
+@media (max-width: 640px) {
+  #app-view .studio .source-tabs.sm-source-switcher {gap: 9px}
+  #app-view .studio .source-tabs.sm-source-switcher .source-tab {
+    min-height: 68px;
+    padding: 11px;
+    gap: 9px;
+  }
+  #app-view .studio .source-tabs.sm-source-switcher .source-glyph {
+    width: 33px;
+    height: 33px;
+    flex-basis: 33px;
+  }
+}
