@@ -96,3 +96,33 @@ body.light-theme #settings-view .sm30-danger-action{background:#3b2c30;color:#ff
 @media(max-width:1100px){#settings-view .sm30-content-grid{grid-template-columns:1fr 1.6fr}#settings-view .sm30-heading-symbol{margin-right:0}}
 @media(max-width:880px){#settings-view .sm30-content-grid{grid-template-columns:1fr}#settings-view .sm30-profile-card{min-height:260px}#settings-view .sm30-profile-top{margin-top:24px}#settings-view .sm30-profile-help{max-width:560px}}
 @media(max-width:650px){#settings-view .sm30-page-heading{padding:25px 23px;border-radius:23px}#settings-view .sm30-heading-symbol{font-size:63px;margin-right:0}#settings-view .sm30-heading-flex h1{font-size:33px;letter-spacing:-1.2px}#settings-view .sm30-heading-flex p{font-size:12px}#settings-view .sm30-theme-options{gap:9px}#settings-view .sm30-theme-choice{grid-template-columns:42px 1fr;gap:2px 8px;padding:10px;min-height:76px}#settings-view .sm30-theme-preview{width:41px;height:48px}#settings-view .sm30-theme-choice strong{font-size:12px}#settings-view .sm30-panel{padding:22px 20px}#settings-view .sm30-settings-footer{display:block;line-height:2.2}#app-view .sm30-settings-shortcut{padding:10px 11px}#app-view .sm30-settings-shortcut span{display:none}}
+
+
+/* v32 — Right-align the workspace account controls without moving the page title. */
+#app-view .header-inner {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+#app-view .header-inner > .sm-location { flex: 0 1 auto; min-width: 0; }
+#app-view .header-inner > .sm30-settings-shortcut {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+#app-view .header-inner > .header-actions {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  margin-left: 0;
+  white-space: nowrap;
+}
+@media (max-width: 650px) {
+  #app-view .header-inner { gap: 8px; }
+  #app-view .header-inner > .sm30-settings-shortcut {
+    min-width: 38px;
+    padding: 9px 10px;
+  }
+  #app-view .header-inner > .sm-location strong {
+    font-size: clamp(12px, 3.7vw, 16px);
+  }
+}
