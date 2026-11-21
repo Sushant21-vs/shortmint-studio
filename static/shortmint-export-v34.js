@@ -33,9 +33,8 @@
  function setQualityMessage(){
    const quality=$('resolution').value;
    const data=capabilities?.qualities?.[quality];
-   let msg=quality==='4320'?'8K (4320 × 7680) requires a powerful paid server and can render very slowly.'
-           :quality==='2160'?'4K (2160 × 3840) requires a higher-memory server and can render slowly.'
-           :'1080p is recommended for most Shorts. 4K and 8K export increases file size and processing load.';
+   let msg=quality==='2160'?'4K (2160 × 3840) requires a higher-memory server and can render slowly.'
+           :'1080p is recommended for most Shorts. 4K export increases file size and processing load.';
    if(data&&!data.available)msg=data.reason;
    msg+=' Enlarging a low-resolution source does not add real detail.';
    $('sm34-quality-hint').textContent=msg;
@@ -96,7 +95,7 @@
        const available=Object.values(capabilities.qualities||{}).filter(q=>q.available&&q.width>=2160).map(q=>q.label);
        $('sm34-server-note').textContent=available.length
           ?`This server supports: 1080p, ${available.join(', ')}. Reported memory: ${mem?Math.round(mem/1024*10)/10+' GB':'unknown'}. High-resolution exports are slower and may use significant storage.`
-          :`4K and 8K need an upgraded server (at least 2 GB RAM for 4K and 8 GB for 8K). Current server memory: ${mem?mem+' MB':'unknown'}. 1080p remains available.`;
+          :`4K needs a server with at least 2 GB RAM. Current server memory: ${mem?mem+' MB':'unknown'}. 1080p remains available.`;
        if(capabilities.qualities[$('resolution').value]?.available===false){
          $('resolution').value='1080';
        }

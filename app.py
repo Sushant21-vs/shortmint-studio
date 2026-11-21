@@ -159,10 +159,10 @@ def public_manifest(data):
     return result
 
 
-# v34: High-resolution export is optional and guarded by the server's actual
-# memory quota. Render's free tier cannot safely encode 4K/8K using libx264.
-QUALITY_LABELS = {'540':'540p','720':'720p','1080':'1080p','2160':'4K','4320':'8K'}
-HIGH_RES_MEMORY_MB = {'2160': 2048, '4320': 8192}
+# v35: Optional 4K is guarded by the server's memory quota.
+# Render's free tier cannot safely encode 4K using libx264.
+QUALITY_LABELS = {'540':'540p','720':'720p','1080':'1080p','2160':'4K'}
+HIGH_RES_MEMORY_MB = {'2160': 2048}
 
 
 def _server_memory_limit_mb():
@@ -198,7 +198,7 @@ def quality_availability():
         result[width] = {'label':label,'width':int(width),'height':int(width)*16//9,
                          'available':supported,'reason':reason}
     return {'memory_mb':memory,'qualities':result,
-            'note':'4K and 8K require sufficient server resources. Enlarging a low-resolution source does not create missing detail.'}
+            'note':'4K requires sufficient server resources. Enlarging a low-resolution source does not create missing detail.'}
 
 
 @app.get('/api/export/capabilities')
@@ -211,7 +211,7 @@ def health():
     return {'ok': True, 'ffmpeg': bool(shutil.which('ffmpeg')), 'ffprobe': bool(shutil.which('ffprobe')),
             'auto_captions': bool(os.getenv('OPENAI_API_KEY')) or importlib.util.find_spec('faster_whisper') is not None,
             'voiceover': importlib.util.find_spec('edge_tts') is not None,
-            'version': '3.0', 'studio_version': '34', **media_runtime_status()}
+            'version': '3.0', 'studio_version': '35', **media_runtime_status()}
 
 
 @app.post('/api/upload')
@@ -744,7 +744,7 @@ def render_clip(source, output, start, length, body, task, total_progress_base, 
     command.extend([
         '-filter_complex', output_filter(w, h, body.crop_mode, bool(title_img), body.focus_x, caption_file, punch),
         '-map', '[out]', '-map', '0:a?',
-        '-c:v', 'libx264', '-preset', 'ultrafast' if w >= 4320 else ('superfast' if w >= 2160 else 'veryfast'),
+        '-c:v', 'libx264', '-preset', 'superfast' if w >= 2160 else 'veryfast',
         '-crf', '19' if w >= 2160 else '22', '-threads', '2',
         '-r', '30',
         '-pix_fmt', 'yuv420p', '-movflags', '+faststart',
@@ -956,7 +956,7 @@ def generate(body: GenerateRequest, user=Depends(user_for_request)):
             raise HTTPException(429,'Two exports are already running. Try again when one finishes.')
         # Resource-intensive UHD jobs run alone to avoid exhausting Render memory.
         if body.resolution in HIGH_RES_MEMORY_MB and ACTIVE_SESSIONS:
-            raise HTTPException(429, '4K and 8K exports need exclusive server capacity. Finish the running export first.')
+            raise HTTPException(429, '4K exports need exclusive server capacity. Finish the running export first.')
         if any(t.get('resolution') in HIGH_RES_MEMORY_MB and t.get('state') not in ('completed','failed','cancelled') for t in TASKS.values()):
             raise HTTPException(429, 'A high-resolution export is running. Please finish it before starting another export.')
         task_id = uuid.uuid4().hex
