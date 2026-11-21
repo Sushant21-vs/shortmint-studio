@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="/montage.css?v=13">
   <link rel="stylesheet" href="/spacious.css?v=20.0.0">
   <link rel="stylesheet" href="/creator-experience-v21.css?v=22.0.0">
+  <link rel="stylesheet" href="/creator-dashboard-v23.css?v=23.0.0">
 </head>
 <body>
   <section id="auth-view" class="auth-screen hidden">
@@ -77,24 +78,39 @@
     </header>
     <main class="shell main-shell">
       <section id="dashboard-view" class="app-page">
-      <div class="sm-hero" aria-label="ShortMint creative workspace">
-        <div class="sm-hero-copy"><span class="sm-hero-eyebrow"><i></i> YOUR CREATIVE WORKSPACE <b>● 02 / VERTICAL-FIRST</b></span>
-          <h2>Make room for<br><em>big ideas<span class="sm-period">.</span></em></h2>
-          <p>A calmer place to create better Shorts. Bring your footage, craft your story, and export with confidence.</p>
-          <div class="sm-hero-actions"><button type="button" class="sm-primary-action" data-view="studio">Start creating <span aria-hidden="true">↗</span></button><button class="sm-ghost-action" type="button" data-view="credits">My Credits <span aria-hidden="true">↗</span></button></div>
-          <div class="sm-hero-features"><span><i></i> PROFESSIONAL 9:16</span><span><i></i> MULTI-SCENE MONTAGES</span><span><i></i> CREATOR-CONTROLLED</span></div>
-        </div>
-        <div class="sm-hero-art" aria-hidden="true"><div class="sm-art-ambient"></div>
-          <div class="sm-art-topline"><span><i></i> SHORTMINT / LIVE STUDIO</span><span>FRAME 01 · 02</span></div>
-          <div class="sm-art-stage"><div class="sm-art-orbit orbit-1"></div><div class="sm-art-orbit orbit-2"></div><div class="sm-art-film"><div class="sm-art-film-top"><span>9:16</span><span>REC ◉</span></div><div class="sm-art-light"></div><div class="sm-art-bloom"></div><div class="sm-art-text">MAKE<br><em>IT</em> COUNT.</div><div class="sm-art-caption">Your story. Your spotlight.</div><div class="sm-art-progress"><span></span></div></div>
-          <div class="sm-art-float sm-art-float-top"><span>↗</span><b>A new perspective</b><small>Format · Vertical</small></div>
-          <div class="sm-art-float sm-art-float-bottom"><div class="sm-waveform"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span><b>MAKE EVERY FRAME MATTER</b><small>CREATIVE ENGINE / READY</small></span></div>
-          </div>
-          <div class="sm-art-footer"><span>AN IDEA INTO A VIDEO</span><span>◉</span><span>ALL IN ONE WORKSPACE</span></div>
-        </div>
+      <div class="sm23-intro-row">
+        <div><span class="sm23-intro-orbit">✦</span><span class="sm23-intro-label">THE CREATOR DESK</span><span class="sm23-intro-slash">/</span><span class="sm23-intro-label sm23-intro-muted">YOUR HOME</span></div>
+        <div class="sm23-live"><span></span> SHORTMINT STUDIO <b>EDITION 23</b></div>
       </div>
-
-        <div class="page-heading"><div><span class="overline">WORKSPACE OVERVIEW</span><h1>Your studio <span class="wave">✦</span></h1><p id="welcome-copy">Welcome back. Your next great Short starts here.</p></div><div class="header-person"><span class="avatar large" id="welcome-avatar">S</span><div><b id="welcome-user">Creator</b><small id="welcome-role">Creator account</small></div></div></div>
+      <section class="sm23-hero" aria-label="Create YouTube Shorts">
+        <div class="sm23-hero-copy">
+          <span class="sm23-hero-tag"><span class="sm23-tag-spark">✳</span> EVERY GREAT SHORT STARTS SOMEWHERE</span>
+          <h2>Make the<br><em>moment</em><span class="sm23-period">.</span></h2>
+          <p>From long recordings to scroll-stopping stories. One creative home for your clips, captions and next big idea.</p>
+          <div class="sm23-actions">
+            <button type="button" class="sm23-create" data-view="studio"><span class="sm23-btn-icon">↗</span> Create a Short <span class="sm23-btn-arrow">→</span></button>
+            <button type="button" class="sm23-recent" id="sm23-projects-jump">See my projects <span aria-hidden="true">↘</span></button>
+          </div>
+          <div class="sm23-hero-bottom"><span><i></i> UPLOAD YOUR VIDEO</span><span><i></i> EDIT THE BEST MOMENTS</span><span><i></i> EXPORT YOUR SHORT</span></div>
+        </div>
+        <div class="sm23-creative-art" aria-hidden="true">
+          <div class="sm23-art-marks"><span>SHORTMINT / STUDIO</span><span>FRAME 001</span></div>
+          <div class="sm23-backdrop-orb"></div>
+          <div class="sm23-phone-wrap">
+            <div class="sm23-back-card"><span>SCENE 02</span><strong>✦</strong></div>
+            <div class="sm23-movie-card">
+              <div class="sm23-movie-head"><span>9:16</span><span>● REC</span></div>
+              <div class="sm23-movie-glow"></div><div class="sm23-movie-arc arc-a"></div><div class="sm23-movie-arc arc-b"></div>
+              <div class="sm23-movie-center"><span>CREATE<br>THE <i>SPARK.</i></span><small>YOUR NEXT SHORT</small></div>
+              <div class="sm23-movie-bottom"><div class="sm23-movie-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span>00:15 / 00:30</span></div>
+              <div class="sm23-movie-bar"><span></span></div>
+            </div>
+            <div class="sm23-front-card"><span class="sm23-front-icon">↗</span><div><b>Vertical ready</b><small>1080 × 1920</small></div></div>
+          </div>
+          <div class="sm23-art-foot"><span>STORYTELLING / SIMPLIFIED</span><span>✦</span><span>MADE FOR CREATORS</span></div>
+        </div>
+      </section>
+        <div class="page-heading"><div><span class="overline">WORKSPACE OVERVIEW</span><h1>Creative overview <span class="wave">✦</span></h1><p id="welcome-copy">Welcome back. Your next great Short starts here.</p></div><div class="header-person"><span class="avatar large" id="welcome-avatar">S</span><div><b id="welcome-user">Creator</b><small id="welcome-role">Creator account</small></div></div></div>
         <div id="metric-grid" class="metric-grid" aria-label="Account statistics">
           <div class="metric-card"><div class="metric-label">Credits <span class="metric-glyph">▣</span></div><strong id="metric-credits">–</strong><small id="metric-credits-desc">available</small></div>
           <div class="metric-card"><div class="metric-label">Total projects <span class="metric-glyph">▣</span></div><strong id="metric-projects">0</strong><small>video projects</small></div>
@@ -103,14 +119,15 @@
           <div class="metric-card"><div class="metric-label">Total Shorts <span class="metric-glyph purple">▥</span></div><strong id="metric-shorts">0</strong><small>clips generated</small></div>
           <div class="metric-card"><div class="metric-label">Your plan <span class="metric-glyph orange">✦</span></div><strong id="metric-plan">Creator</strong><small id="metric-plan-desc">Credit-based account</small></div>
         </div>
+        <div class="sm23-section-kicker"><span>THE NEXT STEP</span><span>MAKE IT YOURS ↗</span></div>
         <div class="primary-grid">
-          <article class="dashboard-panel highlight-panel"><div><span class="card-kicker">QUICK START</span><h2>Create New Project</h2><p>Upload or import a video, pick moments, and generate vertical Shorts.</p></div><button id="dashboard-new-project" type="button" class="orange-btn wide">＋ &nbsp; New Project <span>→</span></button></article>
+          <article class="dashboard-panel highlight-panel"><div><span class="card-kicker">QUICK START</span><h2>Create New Project</h2><p>Upload your video, shape the best moments, and export a polished vertical Short.</p></div><button id="dashboard-new-project" type="button" class="orange-btn wide">＋ &nbsp; New Project <span>→</span></button></article>
           <article class="dashboard-panel"><div><span class="card-kicker muted-orange">ACCOUNT & ACCESS</span><h2 id="access-heading">Manage Credits</h2><p id="access-description">Keep creating with credits approved by the owner.</p></div><div class="panel-actions"><button id="dashboard-manage-credits" class="secondary-btn wide">View Credit Balance</button><button id="dashboard-secondary-action" class="gray-btn wide">Buy Credits / Contact Owner</button></div></article>
         </div>
         <div class="section-title-row"><h2>Tips & inspiration <span class="little-flare">✦</span></h2><span>Better Shorts, one video at a time</span></div>
         <div class="tips-grid"><article class="tip-card"><span>STRONGER HOOKS</span><h3>Make your first 3 seconds count</h3><p>Start with a question, surprising result, or the most interesting line.</p><button type="button" data-view="studio">Create a Short ↗</button></article><article class="tip-card"><span>VERTICAL CONTENT</span><h3>Turn landscape into 9:16</h3><p>Pick center-crop or blur to make your long video fit a vertical format.</p><button type="button" data-view="studio">Open the Studio ↗</button></article><article class="tip-card"><span>SMARTER EDITING</span><h3>Find your best moments</h3><p>Use activity-based picks, then review every clip before you publish.</p><button type="button" data-view="studio">Explore tools ↗</button></article></div>
-        <div class="section-title-row project-heading"><h2>Your Projects</h2><button type="button" class="text-btn" id="refresh-projects">↻ Refresh</button></div>
-        <div id="project-list" class="project-list"><div class="empty-list">Your videos will appear here after you upload them.</div></div>
+        <div class="sm23-project-section"><div class="section-title-row project-heading"><h2>Your Projects</h2><button type="button" class="text-btn" id="refresh-projects">↻ Refresh</button></div>
+        <div id="project-list" class="project-list"><div class="empty-list">Your videos will appear here after you upload them.</div></div></div>
       </section>
       <section id="credits-view" class="app-page hidden">
         <div class="page-heading"><div><span class="overline">YOUR ACCOUNT</span><h1>Credits & Requests</h1><p>Keep track of Shorts credits and ask the owner for more.</p></div></div>
@@ -247,5 +264,6 @@
   <script src="/spacious.js?v=15.0.0" defer></script>
   <script src="/account-safety.js?v=20.0.0" defer></script>
   <script src="/creator-experience-v21.js?v=22.0.0" defer></script>
+  <script src="/creator-dashboard-v23.js?v=23.0.0" defer></script>
 </body>
 </html>
