@@ -857,7 +857,16 @@ def list_projects(user=Depends(user_for_request)):
            'this_month':month_count,'total_shorts':sum(x['shorts'] for x in items)}}
 
 
+
+@app.get('/api/hosting/status')
+def hosting_storage_status():
+    return {'persistent_accounts': bool(os.environ.get('DATABASE_URL', '').strip()),
+            'database': 'PostgreSQL' if os.environ.get('DATABASE_URL', '').strip() else 'temporary SQLite',
+            'video_storage_persistent': False}
+
 install_auth_routes(app)
+from growth import install_growth_routes
+install_growth_routes(app)
 install_backup_routes(app, has_active_exports=lambda: bool(ACTIVE_SESSIONS))
 install_download_routes(app,STORAGE)
 app.mount('/', StaticFiles(directory=STATIC, html=True), name='static')

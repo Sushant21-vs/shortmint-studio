@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="/sidebar-contact-v25.css?v=25.0.0">
   <link rel="stylesheet" href="/shortmint-cloud-v24.css?v=24.0.1">
   <link rel="stylesheet" href="/shortmint-login-cinema-v26.css?v=26.0.0">
+  <link rel="stylesheet" href="/growth-v27.css?v=27.0.0">
 </head>
 <body>
   <section id="auth-view" class="auth-screen hidden" aria-label="ShortMint Studio sign in">
@@ -50,6 +51,15 @@
       </header>
       <div class="auth-card">
         <div class="auth-switch" role="group" aria-label="Account access"><button id="auth-login-tab" type="button" class="active">Sign in</button><button id="auth-register-tab" type="button">Join with invite</button></div>
+        <section class="sm27-google-entrance" aria-label="Create account or sign in with Google">
+          <span class="sm27-welcome-pill">NEW CREATORS · 5 FREE CREDITS</span>
+          <div class="sm27-google-heading"><strong>Start with your Google account</strong><small>One account. Your Shorts and credit balance.</small></div>
+          <label class="sm27-promo-signup-label" for="sm27-google-promo">Have a promo code? Add it for bonus credits</label>
+          <input type="text" id="sm27-google-promo" autocomplete="off" maxlength="32" placeholder="Optional code · e.g. WELCOME10">
+          <div id="sm27-google-button" class="sm27-google-button" aria-live="polite">Loading Google sign-in…</div>
+          <p id="sm27-google-status" class="sm27-google-status" role="status" aria-live="polite"></p>
+          <div class="sm27-divider"><span>OR USE AN EXISTING SHORTMINT LOGIN</span></div>
+        </section>
         <form id="auth-form" class="stack-form">
           <label for="auth-username">Username</label>
           <div class="sm-auth-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7.5" r="3.4"/><path d="M4.7 20v-2.2c0-3.6 3.3-5.8 7.3-5.8s7.3 2.2 7.3 5.8V20"/></svg><input id="auth-username" autocomplete="username" required minlength="3" maxlength="24" placeholder="Your username"></div>
@@ -62,8 +72,8 @@
         <div id="invite-contact-box" class="invite-contact-box" aria-label="Free invite code contact">
           <span class="invite-contact-spark" aria-hidden="true">✦</span>
           <div class="invite-contact-content">
-            <strong>Get your invite code for FREE</strong>
-            <p id="invite-contact-copy">Contact Sushant Hero to request your free one-time registration code.</p>
+            <strong>Have an invite code?</strong>
+            <p id="invite-contact-copy">Google signup is free. For a legacy ShortMint account, request an invitation from Sushant Hero.</p>
             <div class="invite-contact-actions hidden" id="invite-contact-actions">
               <a id="invite-contact-number" class="invite-contact-number" href="#" aria-label="Call ShortMint owner">Call owner <span id="invite-contact-phone">+977</span></a>
               <a id="invite-contact-whatsapp" class="invite-contact-whatsapp" href="#" target="_blank" rel="noopener noreferrer" aria-label="Message ShortMint owner on WhatsApp">WhatsApp <span aria-hidden="true">↗</span></a>
@@ -71,7 +81,7 @@
             <small class="invite-contact-unset" id="invite-contact-unset">Contact details will appear here once the owner adds a number.</small>
           </div>
         </div>
-        <p class="auth-foot">Private creator access · Your projects are visible only to your account.</p>
+        <p class="auth-foot">Private creator access · Your projects are visible only to your account. · <a href="/privacy.html" target="_blank" rel="noopener noreferrer" style="color:#bd642d;text-decoration:underline">Privacy</a></p>
       </div>
     </div>
   </section>
@@ -79,7 +89,7 @@
     <aside id="sm-sidebar" class="sm-sidebar" aria-label="Workspace navigation">
       <div class="sm-side-top">
         <button class="brand dashboard-brand" type="button" data-view="dashboard" aria-label="Go to ShortMint dashboard"><svg class="sm-logo" viewBox="0 0 54 54" aria-hidden="true" fill="none"><rect x="1" y="1" width="52" height="52" rx="16" fill="url(#mint-plate)" stroke="#ffb07c" stroke-opacity=".30"/><path d="M27 8 32.5 21.5 46 27 32.5 32.5 27 46 21.5 32.5 8 27 21.5 21.5 27 8Z" fill="#fff8f2"/><path d="m27 18 3.5 9L27 36l-3.5-9L27 18Z" fill="#fe752f"/><defs><linearGradient id="mint-plate" x1="0" x2="54" y1="0" y2="54"><stop stop-color="#FF9850"/><stop offset="1" stop-color="#DA3F1E"/></linearGradient></defs></svg><span class="sm-brand-type">Short<span class="brand-accent">Mint</span><small>STUDIO / CREATOR OS</small></span></button>
-        <div class="sm-side-edition"><span class="sm-edition-dot"></span> THE CREATOR WORKSPACE <b>V21</b></div>
+        <div class="sm-side-edition"><span class="sm-edition-dot"></span> THE CREATOR WORKSPACE <b>V27</b></div>
       </div>
       <div class="sm-side-label">WORKSPACE <span>CREATOR TOOLS</span></div>
       <nav class="header-nav" aria-label="Primary navigation">
@@ -166,6 +176,10 @@
       <section id="credits-view" class="app-page hidden">
         <div class="page-heading"><div><span class="overline">YOUR ACCOUNT</span><h1>Credits & Requests</h1><p>Keep track of Shorts credits and ask the owner for more.</p></div></div>
         <div class="credits-layout"><article class="dashboard-panel balance-card"><span class="card-kicker">CURRENT BALANCE</span><strong id="big-credit-count">–</strong><p id="balance-info">1 credit = 1 exported Short. Credits are returned if an export fails or is cancelled.</p></article><article id="request-credit-panel" class="dashboard-panel"><span class="card-kicker">NEED MORE?</span><h2>Request Credits</h2><p>Submit a request here. The owner can approve or reject it in their admin dashboard.</p><form id="request-credit-form" class="stack-form"><label for="request-amount">Credits needed</label><input id="request-amount" type="number" min="1" max="500" value="10" required><label for="request-message">Message to the owner (optional)</label><textarea id="request-message" maxlength="300" rows="3" placeholder="I need more credits for my upcoming videos"></textarea><button type="submit" class="orange-btn">Send Credit Request →</button></form></article><article id="owner-info-panel" class="dashboard-panel hidden"><span class="card-kicker">OWNER ACCESS</span><h2>Unlimited Shorts</h2><p>As the site owner, you never spend credits. Manage friend accounts and their requests in your private admin panel.</p><button type="button" class="orange-btn" data-view="admin">Open Admin Panel →</button></article></div>
+        <article class="dashboard-panel sm27-redeem-card">
+          <div><span class="card-kicker">BONUS CREDITS</span><h2>Redeem a promo code</h2><p>Have a code from Sushant Hero? Add free extra Shorts credits to your account. Each code can be redeemed once per member.</p></div>
+          <form id="sm27-redeem-form"><label for="sm27-redeem-code" class="sr-only">Promo code</label><input id="sm27-redeem-code" type="text" placeholder="Enter your promo code" maxlength="32" required autocomplete="off"><button class="orange-btn" type="submit">Redeem Code →</button></form>
+        </article>
         <div class="history-grid"><article class="dashboard-panel"><h2>Credit Activity</h2><div id="credit-history" class="history-list"></div></article><article class="dashboard-panel"><h2>Your Requests</h2><div id="my-requests" class="history-list"></div></article></div>
       </section>
       <section id="buy-view" class="app-page hidden">
@@ -200,6 +214,32 @@
           <p class="mini-caption" id="sm-backup-message">Keep your backup private: it includes member information and password hashes. Restoring replaces current member and invitation records. A persistent database is still required to prevent automatic data loss.</p>
         </article>
         <p class="sm-data-explain">These counters show the data saved on the current server. Refreshing the page does not reset them.</p>
+        <div class="sm27-admin-growth-grid">
+          <article id="sm27-promos-panel" class="dashboard-panel sm27-promo-admin">
+            <span class="card-kicker">MEMBER GROWTH</span><h2>Promo code generator</h2><p>Create a reusable promo with a controlled credit reward and total usage limit.</p>
+            <form id="sm27-create-promo" class="stack-form">
+              <label for="sm27-promo-name">Promo code (optional, blank = auto-generate)</label><input id="sm27-promo-name" maxlength="32" placeholder="WELCOME10">
+              <div class="sm27-admin-fields">
+                <label>Credits per use<input id="sm27-promo-credits" type="number" min="1" max="1000" value="10" required></label>
+                <label>Max total uses<input id="sm27-promo-limit" type="number" min="1" max="10000" value="25" required></label>
+                <label>Expires after days (0=never)<input id="sm27-promo-days" type="number" min="0" max="365" value="30" required></label>
+              </div><button type="submit" class="orange-btn">＋ Create Promo Code</button>
+            </form>
+            <div id="sm27-promo-list" class="sm27-promo-list"><p class="mini-caption">Loading your promo codes…</p></div>
+          </article>
+          <article class="dashboard-panel sm27-prices-admin">
+            <span class="card-kicker">CREDIT STORE</span><h2>Set your credit pack prices</h2>
+            <p>Optional NPR prices shown on Buy Credits. You confirm payment manually before granting credits.</p>
+            <form id="sm27-prices-form" class="stack-form">
+              <label>10 credits · NPR<input id="sm27-price-10" type="number" min="1" max="1000000" placeholder="Ask owner"></label>
+              <label>25 credits · NPR<input id="sm27-price-25" type="number" min="1" max="1000000" placeholder="Ask owner"></label>
+              <label>50 credits · NPR<input id="sm27-price-50" type="number" min="1" max="1000000" placeholder="Ask owner"></label>
+              <label>100 credits · NPR<input id="sm27-price-100" type="number" min="1" max="1000000" placeholder="Ask owner"></label>
+              <button type="submit" class="secondary-btn">Save Pack Prices</button>
+            </form>
+          </article>
+        </div>
+        <p class="sm27-storage-notice" id="sm27-storage-note" role="status">Checking account storage…</p>
         <div class="admin-main-grid"><article id="sm-admin-invites-section" class="dashboard-panel"><div class="admin-panel-heading"><div><span class="card-kicker">ACCESS CONTROL</span><h2>Invite a Friend</h2></div></div><p>Generate a unique one-time invite code. Share the website address and the code with your friend.</p><button id="create-invite" class="orange-btn">＋ Generate Invite Code</button><div id="invite-list" class="history-list spaced"></div></article>
         <article class="dashboard-panel"><span class="card-kicker">DEFAULTS</span><h2>New Member Settings</h2><p>Choose how many free Shorts credits every newly invited member receives.</p><form id="starting-credit-form" class="stack-form"><label for="starting-credits">Starting credits per friend</label><input id="starting-credits" type="number" min="0" max="1000" value="5" required><button class="secondary-btn" type="submit">Save Starting Credits</button></form><p class="mini-caption">Existing balances will not be changed.</p></article></div>
         <div class="section-title-row"><h2>Credit Requests <span id="request-heading-count" class="count-pill">0 pending</span></h2></div>
@@ -312,12 +352,13 @@ Second channel | https://www.youtube.com/@secondchannel"></textarea>
     </div>
   </div>
   <div class="toast hidden" id="toast" role="alert"><span id="toast-icon">!</span><div id="toast-text"></div><button id="toast-dismiss" type="button" aria-label="Dismiss">×</button></div>
-  <script src="/app.js?v=20.0.0" defer></script><script src="/dashboard.js?v=21.0.0" defer></script><script src="/premium.js?v=14.0.0" defer></script>
+  <script src="/app.js?v=20.0.0" defer></script><script src="/dashboard.js?v=27.0.0" defer></script><script src="/premium.js?v=14.0.0" defer></script>
   <script src="/spacious.js?v=15.0.0" defer></script>
   <script src="/account-safety.js?v=20.0.0" defer></script>
   <script src="/creator-experience-v21.js?v=22.0.0" defer></script>
   <script src="/creator-dashboard-v23.js?v=23.0.0" defer></script>
   <script src="/shortmint-cloud-v24.js?v=25.0.0" defer></script>
   <script src="/sidebar-contact-v25.js?v=25.0.0" defer></script>
+  <script src="/growth-v27.js?v=27.0.0" defer></script>
 </body>
 </html>

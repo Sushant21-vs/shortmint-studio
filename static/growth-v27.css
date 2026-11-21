@@ -1,0 +1,35 @@
+/* ShortMint v27 · controlled growth and storefront */
+#auth-view .sm27-google-entrance{position:relative;display:grid;gap:10px;margin:8px 0 20px;padding:16px 19px 3px;border-radius:17px;background:linear-gradient(140deg,#fff8f4dd,#ffede2b9);border:1px solid #f7d5bd;box-shadow:0 12px 30px #e9a27117;text-align:center;color:#182338}
+#auth-view .sm27-welcome-pill{justify-self:center;background:#fff0df;color:#b75b2c;border:1px solid #f6caa6;border-radius:50px;padding:6px 12px;font-size:10px;font-weight:850;letter-spacing:.08em}
+#auth-view .sm27-google-heading{display:grid;gap:3px}
+#auth-view .sm27-google-heading strong{font:800 19px/1.25 Outfit,'DM Sans',sans-serif;color:#19243a}
+#auth-view .sm27-google-heading small{font-size:12px;color:#6d7889}
+#auth-view .sm27-promo-signup-label{display:block;margin:12px 0 0;color:#685d58;font-weight:750;font-size:11px;text-align:left}
+#auth-view #sm27-google-promo{display:block;width:100%;padding:13px 15px;min-height:46px;color:#1e2941;background:#fff!important;border:1px solid #ecc7b1;border-radius:12px;letter-spacing:.02em}
+#auth-view #sm27-google-promo:focus{outline:3px solid #ffb07348;border-color:#e88953}
+#auth-view .sm27-google-button{min-height:48px;display:flex;justify-content:center;align-items:center;padding:1px;overflow:visible;color:#6b7280;font-size:12px}
+#auth-view .sm27-google-status{margin:0!important;color:#a94a2b!important;font-size:11px!important;min-height:0}
+#auth-view .sm27-divider{display:flex;gap:9px;align-items:center;color:#8a8c96;font-size:9px;letter-spacing:.07em;font-weight:800;margin:4px 0 0}
+#auth-view .sm27-divider::before,#auth-view .sm27-divider::after{content:'';height:1px;background:#ead9d1;flex:1}
+#auth-view .sm27-google-disabled{padding:14px;text-align:center;background:#fff9f4;border-radius:10px;color:#93766b}
+#auth-view .auth-switch{margin:15px 0 11px!important}
+#auth-view .sm26-auth-content .auth-card{padding-bottom:26px}
+.sm27-redeem-card{display:grid;grid-template-columns:minmax(220px,1fr) minmax(250px,1fr);gap:23px;align-items:center;margin:20px 0!important}
+.sm27-redeem-card p{color:var(--ui-sub,#8295ab);line-height:1.7}
+#sm27-redeem-form{display:flex;gap:10px;align-items:stretch}
+#sm27-redeem-form input{width:100%;min-width:0;flex:1;padding:11px 14px;border-radius:12px;border:1px solid #cfd6df;background:var(--ui-card,#fff);color:var(--ui-ink,#182337);font:700 14px inherit}
+#sm27-redeem-form button{flex-shrink:0;white-space:nowrap}
+.sm27-admin-growth-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;margin:20px 0}
+.sm27-admin-growth-grid h2{font-size:24px;margin:12px 0;color:var(--ui-ink)}
+.sm27-admin-growth-grid p{color:var(--ui-sub);font-size:13px;line-height:1.65}
+.sm27-admin-growth-grid label{display:grid;gap:6px;color:var(--ui-ink);font-size:11px;font-weight:750}
+.sm27-admin-growth-grid input{width:100%;min-height:42px;padding:10px 11px;border-radius:10px;border:1px solid #d8dce6;background:var(--ui-card,#fff);color:var(--ui-ink,#1f2937)}
+.sm27-admin-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.sm27-promo-list{max-height:230px;overflow:auto;display:grid;gap:8px;margin-top:17px}
+.sm27-promo-row{display:flex;gap:12px;justify-content:space-between;align-items:center;padding:12px;background:var(--ui-card);border:1px solid var(--ui-line,#e3e8ee);border-radius:10px}
+.sm27-promo-row strong{display:block;overflow-wrap:anywhere;color:var(--ui-ink);font-size:13px}
+.sm27-promo-row small{display:block;color:var(--ui-sub);font-size:11px;margin-top:4px}
+.sm27-storage-notice{margin:20px 0;padding:12px 15px;color:#a26841;background:#fff4e9;border:1px solid #f2d4b8;border-radius:12px;font-size:12px;line-height:1.6}
+.sm27-cloud-storage #sm-download-backup{display:none!important}
+@media(max-width:950px){.sm27-admin-growth-grid{grid-template-columns:1fr}.sm27-redeem-card{grid-template-columns:1fr}}
+@media(max-width:580px){#auth-view .sm27-google-entrance{padding:15px 12px 8px}.sm27-admin-fields{grid-template-columns:1fr}#sm27-redeem-form{flex-direction:column}}

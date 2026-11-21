@@ -31,7 +31,7 @@
       const response=await fetch('/api/admin/data-restore',{method:'POST',credentials:'same-origin',headers:{'X-ShortMint-Request':'1'},body});
       const result=await response.json().catch(()=>({}));
       if(!response.ok)throw new Error(result.detail||`Restore failed (${response.status})`);
-      show(`Restored ${result.members_restored} members and ${result.invitations_restored} invitation codes. Download a fresh backup after new changes.`);
+      show(`Restored ${result.members_restored} members and ${result.invitations_restored} invitation codes. Keep external PostgreSQL backups configured if using cloud storage.`);
       if(typeof loadAdmin==='function')loadAdmin();
     }catch(error){show(String(error.message||error),true);}finally{download.disabled=false;restore.disabled=false;restore.value='';}
   });

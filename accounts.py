@@ -1,5 +1,6 @@
 """Persistent identity, invitations, credit ledger, and role permissions for ShortMint."""
 import hashlib
+import json
 import hmac
 import os
 import re
@@ -23,6 +24,9 @@ LOGIN_LOCK = threading.Lock()
 
 
 def db():
+    if os.environ.get('DATABASE_URL', '').strip():
+        from pg_storage import connect
+        return connect()
     con = sqlite3.connect(DB_FILE, timeout=30, isolation_level=None)
     con.row_factory = sqlite3.Row
     con.execute('PRAGMA busy_timeout=30000')
@@ -31,6 +35,12 @@ def db():
 
 
 def init_db():
+    if os.environ.get('REQUIRE_PERSISTENT_DB') == '1' and not os.environ.get('DATABASE_URL'):
+        raise RuntimeError('Persistent DATABASE_URL is required on the hosted ShortMint server. Set up Neon before deploying v27.')
+    if os.environ.get('DATABASE_URL', '').strip():
+        from pg_storage import initialize
+        initialize()
+        return
     with db() as con:
         con.execute('PRAGMA journal_mode=WAL')
         con.executescript('''
@@ -94,6 +104,29 @@ def init_db():
         INSERT OR IGNORE INTO settings(name,value) VALUES ('public_instagram','');
         INSERT OR IGNORE INTO settings(name,value) VALUES ('public_youtube_channels','');
         INSERT OR IGNORE INTO settings(name,value) VALUES ('daily_download_credits','5');
+        INSERT OR IGNORE INTO settings(name,value) VALUES ('credit_prices_json','{}');
+        ''')
+        # Existing v26 SQLite installs gain Google IDs and promo accounting in place.
+        columns = {r[1] for r in con.execute('PRAGMA table_info(users)')}
+        if 'google_sub' not in columns:
+            con.execute('ALTER TABLE users ADD COLUMN google_sub TEXT')
+        if 'email' not in columns:
+            con.execute('ALTER TABLE users ADD COLUMN email TEXT')
+        con.executescript('''
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub);
+        CREATE TABLE IF NOT EXISTS promo_codes (
+            code TEXT PRIMARY KEY, credits INTEGER NOT NULL CHECK(credits BETWEEN 1 AND 1000),
+            max_uses INTEGER NOT NULL CHECK(max_uses BETWEEN 1 AND 100000),
+            used_count INTEGER NOT NULL DEFAULT 0,
+            expires_at INTEGER, active INTEGER NOT NULL DEFAULT 1,
+            created_at INTEGER NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS promo_redemptions (
+            code TEXT NOT NULL REFERENCES promo_codes(code),
+            user_id INTEGER NOT NULL REFERENCES users(id),
+            credits INTEGER NOT NULL, redeemed_at INTEGER NOT NULL,
+            PRIMARY KEY (code,user_id)
+        );
         ''')
         # If the app was closed during export, return reserved credits on restart.
         con.execute('BEGIN IMMEDIATE')
@@ -158,7 +191,9 @@ def owner_exists():
 def public_user(row):
     return {'id':row['id'], 'username':row['username'], 'role':row['role'],
             'credits': None if row['role']=='owner' else row['credits'],
-            'disabled': bool(row['disabled']), 'created_at':row['created_at']}
+            'disabled': bool(row['disabled']), 'created_at':row['created_at'],
+            'email':row['email'] if 'email' in row.keys() else None,
+            'google_connected':bool(row['google_sub']) if 'google_sub' in row.keys() else False}
 
 
 def user_for_request(request: Request):
@@ -387,12 +422,13 @@ def install_auth_routes(app):
     def shop_info(user=Depends(user_for_request)):
         with db() as con:
             settings = {r['name']: r['value'] for r in con.execute(
-                "SELECT name,value FROM settings WHERE name IN ('contact_email','contact_whatsapp')")}
+                "SELECT name,value FROM settings WHERE name IN ('contact_email','contact_whatsapp','credit_prices_json')")}
             purchases = [dict(r) for r in con.execute(
                 '''SELECT id,amount,contact,message,status,created_at,reviewed_at
                    FROM purchase_requests WHERE user_id=? ORDER BY id DESC LIMIT 30''',(user['id'],)).fetchall()]
         return {'packages':[10,25,50,100], 'email':settings.get('contact_email',''),
-                'whatsapp':settings.get('contact_whatsapp',''), 'purchases':purchases}
+                'whatsapp':settings.get('contact_whatsapp',''),
+                'prices':json.loads(settings.get('credit_prices_json','{}') or '{}'), 'purchases':purchases}
 
     @app.post('/api/credits/purchase-request')
     def request_purchase(body:PurchaseBody,user=Depends(user_for_request)):
@@ -431,7 +467,8 @@ def install_auth_routes(app):
                 'public_phone':settings.get('public_phone',''),
                 'public_instagram':settings.get('public_instagram',''),
                 'public_youtube_channels':settings.get('public_youtube_channels',''),
-                'daily_download_credits':int(settings.get('daily_download_credits','5'))}
+                'daily_download_credits':int(settings.get('daily_download_credits','5')),
+                'credit_prices':json.loads(settings.get('credit_prices_json','{}') or '{}')}
 
     @app.post('/api/admin/invites')
     def admin_invites(user=Depends(require_owner)):
@@ -540,7 +577,7 @@ def install_auth_routes(app):
     @app.post('/api/admin/settings')
     def save_settings(body:dict,user=Depends(require_owner)):
         valid={'starting_credits','contact_email','contact_whatsapp','daily_download_credits','invite_phone',
-               'public_email','public_phone','public_instagram','public_youtube_channels'}
+               'public_email','public_phone','public_instagram','public_youtube_channels', 'credit_prices_json'}
         if not body or set(body)-valid:
             raise HTTPException(400,'Invalid settings update.')
         if 'daily_download_credits' in body:
@@ -589,6 +626,17 @@ def install_auth_routes(app):
                 _youtube_rows(val)
             except ValueError as err:
                 raise HTTPException(400,str(err))
+        if 'credit_prices_json' in body:
+            value = body['credit_prices_json']
+            try:
+                prices = json.loads(value) if isinstance(value, str) else None
+            except (ValueError, TypeError):
+                prices = None
+            if not isinstance(prices, dict) or set(prices) - {'10','25','50','100'} or any(
+                type(v) is not int or v < 1 or v > 1000000 for v in prices.values()
+            ):
+                raise HTTPException(400, 'Credit pack prices must be whole NPR amounts for 10, 25, 50 or 100 credits.')
+            body['credit_prices_json'] = json.dumps(prices, separators=(',',':'))
         with db() as con:
             for name, value in body.items():
                 con.execute('INSERT INTO settings(name,value) VALUES (?,?) ON CONFLICT(name) DO UPDATE SET value=excluded.value',

@@ -35,6 +35,8 @@ def _check_snapshot(snapshot, current_owner):
 def install_backup_routes(app, has_active_exports=lambda: False):
     @app.get('/api/admin/data-backup')
     def download_backup(user=Depends(require_owner)):
+        if os.environ.get('DATABASE_URL'):
+            raise HTTPException(409, 'Accounts now live in PostgreSQL. Use your database provider backups; the SQLite download button is disabled in cloud mode.')
         # SQLite online backup produces a consistent database even in WAL mode.
         with tempfile.TemporaryDirectory(prefix='sm_backup_') as td:
             destination = os.path.join(td, 'shortmint.sqlite3')
@@ -80,6 +82,12 @@ def install_backup_routes(app, has_active_exports=lambda: False):
         live=db()
         try:
             live.execute('BEGIN IMMEDIATE')
+            if os.environ.get('DATABASE_URL'):
+                # An old Render SQLite backup can initialize a fresh cloud DB,
+                # but must never overwrite paying members already in Neon.
+                count=live.execute("SELECT COUNT(*) AS total FROM users WHERE role='member'").fetchone()['total']
+                if count:
+                    raise ValueError('Cloud database already has members. Restore a backup only into a new empty cloud database.')
             owner=live.execute("SELECT id FROM users WHERE username=? AND role='owner'",(user['username'],)).fetchone()
             if not owner:
                 raise ValueError('Current owner account could not be found.')
@@ -116,14 +124,16 @@ def install_backup_routes(app, has_active_exports=lambda: False):
                              (id_map[req['user_id']],req['amount'],req['contact'],req['message'],req['status'],req['reviewed_at'],req['created_at']))
             for setting in old_settings:
                 if setting['name'] not in {'starting_credits','contact_email','contact_whatsapp','invite_phone','daily_download_credits',
-                                           'public_email','public_phone','public_instagram','public_youtube_channels'}:
+                                           'public_email','public_phone','public_instagram','public_youtube_channels','credit_prices_json'}:
                     continue
                 live.execute('INSERT INTO settings(name,value) VALUES (?,?) ON CONFLICT(name) DO UPDATE SET value=excluded.value',
                              (setting['name'],setting['value']))
             live.commit()
-        except (sqlite3.Error, ValueError, KeyError) as err:
+        except Exception as err:
             live.rollback()
-            raise HTTPException(400,'Restore failed; no changes saved: '+str(err)[:180]) from None
+            if isinstance(err, ValueError):
+                raise HTTPException(400,'Restore failed; no changes saved: '+str(err)[:180]) from None
+            raise HTTPException(400,'Restore could not be completed. Check cloud database configuration.') from None
         finally:
             live.close()
         # Passwords for members are restored (hashed), but their login sessions are not.
