@@ -25,6 +25,8 @@ from PIL import Image, ImageDraw, ImageFont
 from captions import parse_srt, clip_srt, transcript_to_srt
 from accounts import user_for_request, install_auth_routes, reserve_credits, finish_credit_job
 from downloads import source_platform, extraction_failure_message, install_download_routes
+from media_runtime import javascript_runtime_options, media_runtime_status
+from montage import scene_changes, plan_montage, parse_custom_cuts
 
 ROOT = Path(__file__).resolve().parent
 DATA_ROOT = Path(os.environ.get('SHORTMINT_STORAGE_DIR') or str(ROOT / 'storage')).resolve()
@@ -145,7 +147,7 @@ def public_manifest(data):
 
 @app.get('/api/health')
 def health():
-    return {'ok': True, 'ffmpeg': bool(shutil.which('ffmpeg')), 'ffprobe': bool(shutil.which('ffprobe')), 'auto_captions': __import__('importlib').util.find_spec('faster_whisper') is not None, 'version': '3.0'}
+    return {'ok': True, 'ffmpeg': bool(shutil.which('ffmpeg')), 'ffprobe': bool(shutil.which('ffprobe')), 'auto_captions': __import__('importlib').util.find_spec('faster_whisper') is not None, 'version': '3.0', **media_runtime_status()}
 
 
 @app.post('/api/upload')
@@ -207,8 +209,9 @@ def import_url(body: SocialVideoImport, user=Depends(user_for_request)):
         folder.mkdir(parents=True)
         cmd = [
             sys.executable, '-m', 'yt_dlp', '--ignore-config', '--no-playlist',
-            '--no-progress', '--no-warnings', '--no-write-info-json',
+            '--no-progress', '--no-write-info-json',
             '--socket-timeout', '20', '--retries', '2',
+            *javascript_runtime_options(),
             '--max-filesize', '1G', '--match-filter', 'duration < 86400',
             '-f', 'bv*+ba/best', '-S', 'res:1080',
             '--merge-output-format', 'mp4', '-o', str(folder / 'source.%(ext)s'),
@@ -511,24 +514,31 @@ class GenerateRequest(BaseModel):
     watermark: str = Field(default='', max_length=36)
     focus_x: int = Field(default=50, ge=0, le=100)
     normalize_audio: bool = True
+    edit_pace: str = 'fast'
+    punch_zoom: bool = True
+    cuts_text: str = Field(default='', max_length=1200)
 
 
 def validate_generation(data, body):
-    if body.mode not in {'auto', 'manual'}:
+    if body.mode not in {'auto', 'manual', 'montage', 'cutlist'}:
         raise ValueError('Invalid generation mode')
     if body.crop_mode not in {'center', 'left', 'right', 'blur'}:
         raise ValueError('Invalid crop preference')
+    if body.edit_pace not in {'fast','balanced','story'}:
+        raise ValueError('Invalid edit pace')
     if body.resolution not in {'540', '720', '1080'}:
         raise ValueError('Invalid quality')
     if body.title_position not in {'top', 'middle', 'bottom'}:
         raise ValueError('Invalid title position')
     if body.mode == 'manual' and body.start >= data['duration']:
         raise ValueError('Start point is beyond the end of the video')
+    if body.mode == 'cutlist':
+        parse_custom_cuts(body.cuts_text, data['duration'])
     # Validate untrusted subtitle text before reserving any member credits.
     parse_srt(body.caption_srt)
 
 
-def output_filter(w, h, mode, use_title, focus_x=50, caption_file=None):
+def output_filter(w, h, mode, use_title, focus_x=50, caption_file=None, punch=1.0):
     if mode == 'blur':
         filt = (f'[0:v]split=2[bg][fg];'
                 f'[bg]scale={w}:{h}:force_original_aspect_ratio=increase,'
@@ -537,7 +547,9 @@ def output_filter(w, h, mode, use_title, focus_x=50, caption_file=None):
                 f'[blurred][foreground]overlay=(W-w)/2:(H-h)/2,setsar=1[base]')
     else:
         xpos = {'center':f'(in_w-out_w)*{focus_x/100:.4f}', 'left':'0', 'right':'in_w-out_w'}[mode]
-        filt = (f'[0:v]scale={w}:{h}:force_original_aspect_ratio=increase,'
+        scale_w = max(w, int(round(w*punch/2)*2))
+        scale_h = max(h, int(round(h*punch/2)*2))
+        filt = (f'[0:v]scale={scale_w}:{scale_h}:force_original_aspect_ratio=increase,'
                 f'crop={w}:{h}:{xpos}:0,setsar=1[base]')
     if use_title:
         filt += ';[base][1:v]overlay=0:0:format=auto[composed]'
@@ -551,7 +563,7 @@ def output_filter(w, h, mode, use_title, focus_x=50, caption_file=None):
     return filt + ';[composed]format=yuv420p[out]'
 
 
-def render_clip(source, output, start, length, body, task, total_progress_base, count, title_img, caption_file, has_audio):
+def render_clip(source, output, start, length, body, task, total_progress_base, count, title_img, caption_file, has_audio, punch=1.0):
     w = int(body.resolution)
     h = int(round(w * 16 / 9 / 2) * 2)
     command = [
@@ -561,7 +573,7 @@ def render_clip(source, output, start, length, body, task, total_progress_base, 
     if title_img:
         command.extend(['-loop', '1', '-i', str(title_img)])
     command.extend([
-        '-filter_complex', output_filter(w, h, body.crop_mode, bool(title_img), body.focus_x, caption_file),
+        '-filter_complex', output_filter(w, h, body.crop_mode, bool(title_img), body.focus_x, caption_file, punch),
         '-map', '[out]', '-map', '0:a?',
         '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '22', '-threads', '2',
         '-r', '30',
@@ -602,6 +614,53 @@ def render_clip(source, output, start, length, body, task, total_progress_base, 
         log_path.unlink(missing_ok=True)
 
 
+def render_montage(source, output, edit_points, body, task, clip_i, clip_total, title_img, cues, has_audio):
+    """Render individual jump-cut beats then stream-copy them into one playable Short.
+
+    Per-segment SRT is translated to local timestamps before burning; no audio
+    discontinuity is disguised as a 'transition' and the source is not repeated.
+    """
+    segment_dir = output.parent / ('parts_' + output.stem)
+    segment_dir.mkdir(parents=True, exist_ok=True)
+    files = []
+    any_captions = False
+    try:
+        for k, edit in enumerate(edit_points):
+            if task.get('cancel'):
+                raise RuntimeError('Export cancelled')
+            task['message'] = f'Editing cut {k+1}/{len(edit_points)} in Short {clip_i+1}/{clip_total}…'
+            tmp = segment_dir / f'beat_{k:02d}.mp4'
+            subtitle = segment_dir / f'beat_{k:02d}.srt'
+            has_cap = clip_srt(cues, edit['start'],edit['duration'],subtitle) if cues else False
+            any_captions |= bool(has_cap)
+            try:
+                render_clip(source, tmp, edit['start'],edit['duration'],body,task,
+                            clip_i + k/len(edit_points),clip_total,
+                            title_img,subtitle if has_cap else None,has_audio,
+                            punch=1.075 if body.punch_zoom and k%3 == 1 else 1.0)
+            finally:
+                subtitle.unlink(missing_ok=True)
+            files.append(tmp)
+            task['progress'] = min(94,int((clip_i+(k+1)/len(edit_points))/clip_total*94))
+        if len(files)==1:
+            files[0].replace(output)
+        else:
+            # Use a path-safe concat list with relative file names, no shell execution.
+            concat_file = segment_dir / 'list.txt'
+            concat_file.write_text(''.join(f"file '{p.name}'\n" for p in files),encoding='utf-8')
+            cmd = ['ffmpeg','-y','-hide_banner','-loglevel','error','-nostdin',
+                   '-f','concat','-safe','1','-i',str(concat_file),
+                   '-c','copy','-movflags','+faststart',str(output)]
+            result = run(cmd,timeout=240)
+            if result.returncode:
+                raise RuntimeError('Could not join the edited scenes: '+result.stderr[-350:])
+        if not output.is_file() or output.stat().st_size < 1000:
+            raise RuntimeError('The montage export did not create a playable file.')
+        return any_captions
+    finally:
+        shutil.rmtree(segment_dir,ignore_errors=True)
+
+
 def background_generate(task_id, body):
     task = TASKS[task_id]
     sid = body.session_id
@@ -611,13 +670,27 @@ def background_generate(task_id, body):
         folder = source.parent / 'exports'
         folder.mkdir(parents=True, exist_ok=True)
         task['state'] = 'analyzing'
-        task['message'] = 'Finding good moments based on audio activity…'
+        task['message'] = 'Analyzing the source for useful cuts…'
         if body.mode == 'manual':
             segments = [{
                 'start': round(body.start, 2),
                 'duration': round(min(body.clip_length, data['duration'] - body.start), 2),
                 'reason': 'Custom selection'
             }]
+        elif body.mode == 'cutlist':
+            segments=[{'start':0,'duration':0,'reason':'Custom montage',
+                       'edits':parse_custom_cuts(body.cuts_text, data['duration'])}]
+        elif body.mode == 'montage':
+            desired = min(body.count, max(1, int(data['duration']/max(12., body.clip_length*.9))))
+            # Detect large scene changes in low resolution. Speech/silence is an
+            # additional heuristic; neither is equivalent to semantic AI editing.
+            scenes=scene_changes(source,data['duration'])
+            quiet=detect_silence(source,data['duration']) if data['has_audio'] and data['duration']<=420 else []
+            segments = [{
+                'start':0, 'duration':0, 'reason':'Multi-cut montage',
+                'edits':plan_montage(data['duration'],body.clip_length,scenes,quiet,
+                                     body.edit_pace,variant=i,variants=desired)
+            } for i in range(desired)]
         else:
             segments = suggested_clips(source, data['duration'], body.clip_length, body.count, data['has_audio'])
         if not segments:
@@ -640,15 +713,23 @@ def background_generate(task_id, body):
             filename = 'short_' + task_id[:8] + '_' + str(i+1).zfill(2) + '.mp4'
             output = folder / filename
             captions_path = folder / ('captions_' + task_id[:8] + '_' + str(i) + '.srt')
-            has_captions = clip_srt(cues, segment['start'], segment['duration'], captions_path) if cues else False
-            try:
-                render_clip(source, output, segment['start'], segment['duration'], body,
-                            task, i, len(segments), title_img, captions_path if has_captions else None, data['has_audio'])
-            finally:
-                captions_path.unlink(missing_ok=True)
+            if body.mode in {'montage','cutlist'}:
+                edits = segment['edits']
+                has_captions = render_montage(source,output,edits,body,task,i,len(segments),
+                                               title_img,cues,data['has_audio'])
+                length=sum(x['duration'] for x in edits)
+            else:
+                has_captions = clip_srt(cues, segment['start'], segment['duration'], captions_path) if cues else False
+                try:
+                    render_clip(source, output, segment['start'], segment['duration'], body,
+                                task, i, len(segments), title_img, captions_path if has_captions else None, data['has_audio'])
+                finally:
+                    captions_path.unlink(missing_ok=True)
+                length=segment['duration']
             clip = {
                 'file': filename, 'start': segment['start'],
-                'duration': segment['duration'], 'reason': segment['reason'],
+                'duration': round(length,2), 'reason': segment['reason'],
+                'edits':segment.get('edits',[]),
                 'resolution': f'{w}x{h}', 'captions': bool(has_captions), 'label': f'Short {len(data["clips"]) + len(created) + 1}',
             }
             created.append(clip)
@@ -687,7 +768,7 @@ def generate(body: GenerateRequest, user=Depends(user_for_request)):
         if len(ACTIVE_SESSIONS) >= 2:
             raise HTTPException(429,'Two exports are already running. Try again when one finishes.')
         task_id = uuid.uuid4().hex
-        count = 1 if body.mode == 'manual' or data['duration'] <= body.clip_length + 0.5 else body.count
+        count = 1 if body.mode in ('manual','cutlist') or (body.mode == 'auto' and data['duration'] <= body.clip_length + 0.5) else (min(body.count,max(1,int(data['duration']/max(12.,body.clip_length*.9)))) if body.mode == 'montage' else body.count)
         reserve_credits(user, task_id, count)
         ACTIVE_SESSIONS.add(body.session_id)
         TASKS[task_id] = {

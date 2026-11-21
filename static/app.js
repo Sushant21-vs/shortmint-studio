@@ -2,7 +2,7 @@
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 let project = null;
-let mode = 'auto';
+let mode = 'montage';
 let crop = 'center';
 let activeTask = null;
 let pollTimer = null;
@@ -329,19 +329,24 @@ $('#mode-choices').addEventListener('click', event => {
   const btn = event.target.closest('[data-value]'); if (!btn) return;
   mode = btn.dataset.value;
   pickButton('mode-choices','value',mode);
-  $('#count-group').style.opacity = mode === 'auto' ? '1' : '.4';
-  $('#clip-count').disabled = mode !== 'auto';
-  $('#mode-note').textContent = mode === 'auto' ? 'Suggest sections using audio activity and pauses.' : 'Cut a clip from the start point you choose in the preview.';
+  const allowMultiple = mode === 'auto' || mode === 'montage';
+  $('#count-group').style.opacity = allowMultiple ? '1' : '.4';
+  $('#clip-count').disabled = !allowMultiple;
+  $('#sm-montage-settings').classList.toggle('hidden',mode !== 'montage');
+  $('#sm-cutlist-settings').classList.toggle('hidden',mode !== 'cutlist');
+  $('#mode-note').textContent = mode === 'montage' ? 'One edited Short joins several different moments together. Real jump cuts, not a continuous segment.' : mode === 'cutlist' ? 'Paste or type your selected ranges and combine them into one edited Short.' : mode === 'auto' ? 'Classic excerpt chooses one uninterrupted section per Short.' : 'Cut one continuous clip from the playhead you choose.';
   updateGenerateButton();
 });
 $('#crop-choices').addEventListener('click', event => {
   const btn = event.target.closest('[data-value]'); if (!btn) return;
   crop = btn.dataset.value; pickButton('crop-choices','value',crop);
 });
+$('#sm-edit-pace').addEventListener('change', updateGenerateButton);
 function updateGenerateButton() {
-  const count = mode === 'auto' ? Number($('#clip-count').value) : 1;
+  const count = ['manual','cutlist'].includes(mode) ? 1 : Number($('#clip-count').value);
   const label = typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'owner' ? 'Unlimited credits' : `${count} credit${count === 1 ? '' : 's'}`;
-  $('#generate-text').textContent = `Generate ${count} Short${count === 1 ? '' : 's'} · ${label}`;
+  const kind=['montage','cutlist'].includes(mode) ? 'Edited Short' : 'Short';
+  $('#generate-text').textContent = `Generate ${count} ${kind}${count === 1 ? '' : 's'} · ${label}`;
 }
 
 function loadProject(data) {
@@ -387,7 +392,15 @@ function renderResults(clips) {
     const details = document.createElement('div'); details.className = 'result-details';
     const title = document.createElement('h3'); title.textContent = `Short ${String(idx+1).padStart(2,'0')}`;
     const meta = document.createElement('div'); meta.className = 'result-meta';
-    meta.textContent = `${fmtTime(clip.start)} – ${fmtTime(clip.start+clip.duration)} · ${clip.resolution} · ${clip.reason}`;
+    const editCount=Array.isArray(clip.edits)?clip.edits.length:0;
+    meta.textContent = editCount ? `${editCount} real cuts · ${fmtTime(clip.duration)} finished · ${clip.resolution}` : `${fmtTime(clip.start)} – ${fmtTime(clip.start+clip.duration)} · ${clip.resolution} · ${clip.reason}`;
+    if(editCount){
+      const detailsToggle=document.createElement('details');detailsToggle.className='sm-cut-list';
+      const summary=document.createElement('summary');summary.textContent=`View ${editCount} source cuts`;
+      const list=document.createElement('ol');
+      clip.edits.forEach((edit,i)=>{const row=document.createElement('li');row.textContent=`Cut ${i+1} · ${fmtTime(edit.start)} → ${fmtTime(edit.start+edit.duration)} (${edit.duration.toFixed(1)}s)`;list.append(row)});
+      detailsToggle.append(summary,list);details.append(detailsToggle);
+    }
     const actions = document.createElement('div'); actions.className = 'result-actions';
     const ready = document.createElement('span'); ready.textContent = clip.captions ? '✓ MP4 + subtitles' : '✓ YouTube-ready MP4';
     const download = document.createElement('a'); download.className = 'download-button'; download.textContent = '↓ Download MP4';
@@ -409,7 +422,10 @@ async function generateClips() {
   if (!project || activeTask) return;
   const body = {
     session_id: project.id, mode, clip_length: getShortLength(),
-    count: mode === 'auto' ? Number($('#clip-count').value) : 1,
+    count: ['manual','cutlist'].includes(mode) ? 1 : Number($('#clip-count').value),
+    cuts_text: $('#sm-cuts-text').value,
+    edit_pace: $('#sm-edit-pace').value,
+    punch_zoom: $('#sm-punch-zoom').checked,
     start: getStart(), crop_mode: crop, resolution: $('#resolution').value,
     title: $('#overlay-title').value.trim(), title_position: $('#title-position').value,
     caption_srt: $('#caption-srt').value, watermark: $('#watermark').value.trim(),
