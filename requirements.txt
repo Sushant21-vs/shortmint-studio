@@ -5,3 +5,7 @@ Pillow>=11,<13
 yt-dlp[default]>=2026.10.26,<2027
 google-auth>=2.35,<4
 psycopg[binary,pool]>=3.2,<4
+
+# ShortMint v33: 6 neural voice styles and optional cloud transcription
+edge-tts>=7.0,<9
+httpx>=0.27,<1

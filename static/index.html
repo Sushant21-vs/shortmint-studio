@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="/shortmint-cinematic-v28.css?v=28.0.0">
   <link rel="stylesheet" href="/shortmint-inner-v29.css?v=29.1.0">
   <link rel="stylesheet" href="/shortmint-settings-v30.css?v=32.0.0">
+  <link rel="stylesheet" href="/voice-studio-v33.css?v=33.0.0">
 </head>
 <body>
   <section id="auth-view" class="auth-screen hidden" aria-label="ShortMint Studio sign in">
@@ -409,9 +410,35 @@ Second channel | https://www.youtube.com/@secondchannel"></textarea>
             <div class="two-settings"><div class="setting-group"><label for="watermark">YOUR CHANNEL TAG</label><input id="watermark" type="text" maxlength="36" placeholder="@YourChannel"></div><div class="setting-group"><label>IMPROVE SOUND</label><label class="checkbox-label"><input id="normalize-audio" type="checkbox" checked> Normalize speech volume</label></div></div>
             <div class="settings-divider"></div>
             <div class="setting-group"><label for="caption-srt">SUBTITLES · SOURCE VIDEO TIMESTAMPS</label><textarea id="caption-srt" rows="5" maxlength="150000" spellcheck="false" placeholder="1&#10;00:00:02,000 --> 00:00:04,500&#10;Here's the first spoken sentence.&#10;&#10;2&#10;00:00:04,500 --> 00:00:06,800&#10;Here's the next sentence."></textarea>
-              <div class="subtitle-actions"><label class="small-btn subtitle-file-label" for="subtitle-file">↑ Load .srt file</label><input id="subtitle-file" type="file" accept=".srt,text/plain" hidden><button id="auto-caption-btn" class="small-btn" type="button">✦ Auto-transcribe video</button><button id="clear-captions" class="small-btn" type="button">Clear</button></div>
-              <p class="field-note" id="caption-note">Paste or upload SRT using timestamps from the original long video. Captions will be trimmed to each exported Short. Auto-transcription is available only when the optional speech-to-text engine is installed.</p>
+              <div class="subtitle-actions"><label class="small-btn subtitle-file-label" for="subtitle-file">↑ Load .srt file</label><input id="subtitle-file" type="file" accept=".srt,text/plain" hidden><button id="auto-caption-btn" class="small-btn" type="button">✦ Speech → Text</button><button id="clear-captions" class="small-btn" type="button">Clear</button></div>
+              <label class="sm33-auto-caption-toggle"><input id="sm33-auto-captions-export" type="checkbox"><span><strong>Auto-caption when exporting</strong><small>Optional · converts spoken video audio into subtitles; online mode sends audio to the transcription provider</small></span></label>
+              <p class="field-note" id="caption-note">Automatic speech-to-text follows the speech in your uploaded video. Review the words and timings; auto-transcription needs a configured speech engine or API key.</p>
             </div>
+            <div class="settings-divider"></div>
+            <section class="sm33-voice-panel" aria-label="AI Voice Studio">
+              <div class="sm33-voice-heading"><div><div class="sm33-kicker"><span class="sm33-pulse"></span> VOICE STUDIO · OPTIONAL</div><h3>Give your Short a voice</h3><p>Type your narration and pick from 3 female + 3 male voices.</p></div><span class="sm33-mic-icon" aria-hidden="true">◉</span></div>
+              <label class="sm33-master-toggle"><input type="checkbox" id="sm33-voice-enabled"><span><strong>Include a voiceover in my exported Short</strong><small>Off by default. Enable it only when you need narration.</small></span></label>
+              <label class="sm33-script-label" for="sm33-voice-text">VOICEOVER SCRIPT <span id="sm33-script-count">0 / 2,000</span></label>
+              <textarea id="sm33-voice-text" rows="4" maxlength="2000" placeholder="Write what you want the narrator to say…"></textarea>
+              <div class="sm33-script-actions"><button type="button" id="sm33-caption-to-script">↳ Use subtitle text</button><span>The script is spoken from the beginning of every exported Short.</span></div>
+              <div class="sm33-voice-label">CHOOSE YOUR VOICE <span>6 natural-sounding English options</span></div>
+              <div class="sm33-voice-groups">
+                <div class="sm33-gender-group"><div class="sm33-gender-title">♀ Female voices <span>03</span></div><div class="sm33-voice-grid">
+                  <button type="button" class="sm33-voice-card selected" data-sm33-voice="ava" aria-pressed="true"><span class="sm33-voice-avatar">A</span><span><strong>Ava</strong><small>Warm &amp; clear</small></span><span class="sm33-voice-check">✓</span></button>
+                  <button type="button" class="sm33-voice-card" data-sm33-voice="jenny" aria-pressed="false"><span class="sm33-voice-avatar">J</span><span><strong>Jenny</strong><small>Bright &amp; friendly</small></span><span class="sm33-voice-check">✓</span></button>
+                  <button type="button" class="sm33-voice-card" data-sm33-voice="aria" aria-pressed="false"><span class="sm33-voice-avatar">A</span><span><strong>Aria</strong><small>Expressive</small></span><span class="sm33-voice-check">✓</span></button>
+                </div></div>
+                <div class="sm33-gender-group"><div class="sm33-gender-title">♂ Male voices <span>03</span></div><div class="sm33-voice-grid">
+                  <button type="button" class="sm33-voice-card" data-sm33-voice="andrew" aria-pressed="false"><span class="sm33-voice-avatar">A</span><span><strong>Andrew</strong><small>Natural &amp; warm</small></span><span class="sm33-voice-check">✓</span></button>
+                  <button type="button" class="sm33-voice-card" data-sm33-voice="guy" aria-pressed="false"><span class="sm33-voice-avatar">G</span><span><strong>Guy</strong><small>Energetic</small></span><span class="sm33-voice-check">✓</span></button>
+                  <button type="button" class="sm33-voice-card" data-sm33-voice="brian" aria-pressed="false"><span class="sm33-voice-avatar">B</span><span><strong>Brian</strong><small>Smooth &amp; relaxed</small></span><span class="sm33-voice-check">✓</span></button>
+                </div></div>
+              </div>
+              <div class="sm33-voice-controls"><button type="button" id="sm33-voice-preview" class="sm33-voice-play">▶ Preview selected voice</button><select id="sm33-voice-mix" aria-label="Choose how narration affects original audio"><option value="replace">Replace original sound</option><option value="mix">Mix with original (22% volume)</option></select></div>
+              <audio id="sm33-voice-audio" controls preload="none" class="sm33-audio-player" hidden></audio>
+              <p id="sm33-voice-status" class="sm33-voice-status" role="status">Voice previews use an online speech service. Voiceover is included in MP4 exports only when enabled. Keep your script shorter than the Short.</p>
+              <a id="sm33-voice-download" class="sm33-download hidden" download="shortmint-narration-preview.mp3">↓ Download voice preview MP3</a>
+            </section>
             <button id="generate-button" type="button" class="generate-button"><span class="button-spark">✦</span><span id="generate-text">Generate 1 Edited Short</span><span class="button-arrow">↗</span></button><p class="generation-footnote">Export: 9:16 • H.264 MP4 • AAC audio • 30 fps • up to 3 minutes. Processing runs on the host server; higher quality takes longer.</p>
           </article>
         </div>
@@ -432,7 +459,7 @@ Second channel | https://www.youtube.com/@secondchannel"></textarea>
     </div>
   </div>
   <div class="toast hidden" id="toast" role="alert"><span id="toast-icon">!</span><div id="toast-text"></div><button id="toast-dismiss" type="button" aria-label="Dismiss">×</button></div>
-  <script src="/app.js?v=20.0.0" defer></script><script src="/dashboard.js?v=27.0.0" defer></script><script src="/premium.js?v=14.0.0" defer></script>
+  <script src="/app.js?v=33.0.0" defer></script><script src="/dashboard.js?v=27.0.0" defer></script><script src="/premium.js?v=14.0.0" defer></script>
   <script src="/spacious.js?v=15.0.0" defer></script>
   <script src="/account-safety.js?v=20.0.0" defer></script>
   <script src="/creator-experience-v21.js?v=22.0.0" defer></script>
@@ -441,5 +468,6 @@ Second channel | https://www.youtube.com/@secondchannel"></textarea>
   <script src="/sidebar-contact-v25.js?v=25.0.0" defer></script>
   <script src="/growth-v27.js?v=27.0.0" defer></script>
   <script src="/shortmint-settings-v30.js?v=30.0.0" defer></script>
+  <script src="/voice-studio-v33.js?v=33.0.0" defer></script>
 </body>
 </html>

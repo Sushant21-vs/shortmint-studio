@@ -236,8 +236,8 @@ $('#subtitle-file').addEventListener('change', async (event) => {
   event.target.value = '';
 });
 $('#clear-captions').addEventListener('click',()=>{$('#caption-srt').value='';toast('Captions cleared.',true);});
-$('#auto-caption-btn').addEventListener('click', async()=>{
-  if(!project || captionsPending){toast('Upload a video first.'); return;}
+async function sm33AutoTranscribeVideo(){
+  if(!project || captionsPending){throw new Error('Upload a video first, or let the current transcription finish.');}
   captionsPending=true;
   const button=$('#auto-caption-btn'); button.disabled=true;
   const info=$('#caption-note'); info.textContent='Preparing speech transcription…';
@@ -251,14 +251,15 @@ $('#auto-caption-btn').addEventListener('click', async()=>{
       if(state.state==='completed'){
         $('#caption-srt').value=state.caption_srt;
         toast('Automatic subtitles ready. Review them before export.',true);
-        return;
+        return state.caption_srt;
       }
       if(state.state==='failed' || state.state==='cancelled') throw new Error(state.message);
     }
     throw new Error('Speech transcription did not finish; please retry.');
-  }catch(err){info.textContent=errorMessage(err);toast(errorMessage(err));}
+  }catch(err){info.textContent=errorMessage(err);toast(errorMessage(err));throw err;}
   finally{captionsPending=false;button.disabled=false;}
-});
+}
+$('#auto-caption-btn').addEventListener('click',()=>sm33AutoTranscribeVideo().catch(()=>{}));
 
 function pickButton(group, attribute, value) {
   document.querySelectorAll(`#${group} button`).forEach(btn => btn.classList.toggle('active', btn.dataset[attribute] === value));
@@ -305,6 +306,7 @@ function loadProject(data) {
   setStep((data.clips || []).length ? 3 : 2);
   $('#editing-area').scrollIntoView({behavior:'smooth',block:'start'});
   if (typeof refreshData === 'function') refreshData();
+  if (typeof window.sm33VoiceStudioReady === 'function') window.sm33VoiceStudioReady();
 }
 async function loadSavedProject() {
   const id = localStorage.getItem('shortmint_project');
@@ -340,7 +342,7 @@ function renderResults(clips) {
       detailsToggle.append(summary,list);details.append(detailsToggle);
     }
     const actions = document.createElement('div'); actions.className = 'result-actions';
-    const ready = document.createElement('span'); ready.textContent = clip.captions ? '✓ MP4 + subtitles' : '✓ YouTube-ready MP4';
+    const ready = document.createElement('span'); ready.textContent = clip.voiceover ? '✓ MP4 + '+clip.voiceover+' voice' + (clip.captions ? ' + captions' : '') : (clip.captions ? '✓ MP4 + subtitles' : '✓ YouTube-ready MP4');
     const download = document.createElement('a'); download.className = 'download-button'; download.textContent = '↓ Download MP4';
     download.href = `/api/download/${project.id}/${encodeURIComponent(clip.file)}`;
     actions.append(ready,download);
@@ -367,7 +369,8 @@ async function generateClips() {
     start: getStart(), crop_mode: crop, resolution: $('#resolution').value,
     title: $('#overlay-title').value.trim(), title_position: $('#title-position').value,
     caption_srt: $('#caption-srt').value, watermark: $('#watermark').value.trim(),
-    focus_x: Number($('#focus-x').value), normalize_audio: $('#normalize-audio').checked
+    focus_x: Number($('#focus-x').value), normalize_audio: $('#normalize-audio').checked,
+    ...(typeof window.sm33VoiceoverFields === 'function' ? window.sm33VoiceoverFields() : {})
   };
   $('#generate-button').disabled = true;
   $('#export-panel').classList.remove('hidden');
@@ -378,6 +381,10 @@ async function generateClips() {
   $('#cancel-button').disabled = false;
   $('#export-panel').scrollIntoView({behavior:'smooth',block:'center'});
   try {
+    if ($('#sm33-auto-captions-export')?.checked && !body.caption_srt.trim()) {
+      $('#export-message').textContent = 'Transcribing the source video before exporting…';
+      body.caption_srt = await sm33AutoTranscribeVideo();
+    }
     const result = await api('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     activeTask = result.task_id;
     smPollErrors = 0;

@@ -1,3 +1,9 @@
+# ShortMint Studio v33 — Speech-to-Text & Six-Voice Narration
+
+**New:** optional automatic video captions plus 3 female and 3 male voiceover styles with audio preview, MP3 download, and narrated MP4 export. See [`UPDATE_V33_SPEECH_TO_TEXT_AND_6_VOICES.md`](UPDATE_V33_SPEECH_TO_TEXT_AND_6_VOICES.md) for setup, privacy and deployment requirements.
+
+---
+
 # ShortMint Studio v27 — Google Accounts, Promo Credits & Cloud Database
 
 **START HERE:** [SETUP_V27_GOOGLE_NEON.md](SETUP_V27_GOOGLE_NEON.md)

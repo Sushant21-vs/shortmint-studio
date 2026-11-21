@@ -1,0 +1,48 @@
+/* v33 voice tools — only within the video editor; theme-friendly and responsive */
+#editor-view .sm33-voice-panel{border:1px solid rgba(233,128,82,.34);border-radius:21px;padding:20px;margin:18px 0 22px;background:linear-gradient(150deg,rgba(255,133,77,.095),transparent 52%),var(--ui-panel,#151c28);box-shadow:0 12px 40px rgba(4,13,24,.10)}
+#editor-view .sm33-voice-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:17px}
+#editor-view .sm33-voice-heading h3{font:800 clamp(19px,2vw,24px)/1.1 Outfit,sans-serif;letter-spacing:-.7px;margin:7px 0 8px;color:var(--ui-ink,#f8f9ff)}
+#editor-view .sm33-voice-heading p{margin:0;font-size:12px;line-height:1.6;color:var(--ui-muted,#9aa6b8)}
+#editor-view .sm33-kicker{font-size:9px;letter-spacing:2px;font-weight:900;color:#fa9d74;display:flex;align-items:center;gap:7px}
+#editor-view .sm33-pulse{width:7px;height:7px;background:#ff8455;border-radius:50%;box-shadow:0 0 0 4px #ff845521}
+#editor-view .sm33-mic-icon{border:1px solid #ff976250;border-radius:14px;background:#f4763d1c;color:#f77c42;width:42px;height:42px;display:grid;place-items:center;font-size:21px;flex:none}
+#editor-view .sm33-master-toggle,#editor-view .sm33-auto-caption-toggle{display:flex;align-items:flex-start;gap:10px;cursor:pointer;border-radius:13px;padding:12px;background:rgba(255,135,89,.065);border:1px solid rgba(255,135,89,.23);margin:12px 0 18px}
+#editor-view .sm33-master-toggle input,#editor-view .sm33-auto-caption-toggle input{accent-color:#f47742;flex:none;margin:3px 0 0;transform:scale(1.14)}
+#editor-view .sm33-master-toggle span,#editor-view .sm33-auto-caption-toggle span{display:grid;gap:4px}
+#editor-view .sm33-master-toggle strong,#editor-view .sm33-auto-caption-toggle strong{font-size:12px;font-weight:800;color:var(--ui-ink,#f8f9ff)}
+#editor-view .sm33-master-toggle small,#editor-view .sm33-auto-caption-toggle small{font-size:11px;color:var(--ui-muted,#a0a9ba);line-height:1.5}
+#editor-view .sm33-script-label,#editor-view .sm33-voice-label{font-size:10px;letter-spacing:1.1px;font-weight:900;color:var(--ui-ink,#f3f7ff);display:flex;justify-content:space-between;gap:10px;margin:17px 0 8px}
+#editor-view .sm33-script-label span,#editor-view .sm33-voice-label span{color:var(--ui-muted,#9da7b8);font-size:10px;letter-spacing:0;font-weight:500}
+#editor-view #sm33-voice-text{resize:vertical;width:100%;min-height:98px;max-height:300px;border:1px solid var(--ui-line,#343f51);color:var(--ui-ink,#f6f7fb);border-radius:12px;background:var(--ui-input,#121925);padding:13px 14px;outline:0;font:500 13px/1.6 'DM Sans',system-ui,sans-serif;box-sizing:border-box}
+#editor-view #sm33-voice-text:focus{border-color:#fa7e49;box-shadow:0 0 0 3px rgba(250,126,73,.12)}
+#editor-view .sm33-script-actions{display:flex;align-items:center;gap:12px;justify-content:space-between;margin:8px 0 18px}
+#editor-view .sm33-script-actions button{border:0;background:transparent;color:#f38e64;font-size:11px;font-weight:800;cursor:pointer;padding:3px 0;white-space:nowrap}
+#editor-view .sm33-script-actions span{font-size:10px;text-align:right;line-height:1.45;color:var(--ui-muted,#9da7b8)}
+#editor-view .sm33-voice-groups{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#editor-view .sm33-gender-group{min-width:0}
+#editor-view .sm33-gender-title{font-size:12px;font-weight:800;color:var(--ui-ink,#fff);display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+#editor-view .sm33-gender-title span{font-size:9px;color:#f38e64;font-weight:800;letter-spacing:1px}
+#editor-view .sm33-voice-grid{display:grid;gap:7px}
+#editor-view .sm33-voice-card{width:100%;border:1px solid var(--ui-line,#313a4d);border-radius:11px;background:var(--ui-input,#101722);padding:9px;display:flex;align-items:center;text-align:left;gap:9px;min-height:56px;cursor:pointer;color:var(--ui-ink,#fff);transition:background .15s,border-color .15s,transform .15s}
+#editor-view .sm33-voice-card:hover{border-color:#ff9a68;transform:translateY(-1px)}
+#editor-view .sm33-voice-card.selected{border-color:#f47a45;background:rgba(240,123,67,.15);box-shadow:inset 0 0 0 1px rgba(240,123,67,.14)}
+#editor-view .sm33-voice-avatar{border-radius:10px;background:#fb936021;color:#f39162;width:35px;height:35px;display:grid;place-items:center;font-weight:900;font-size:14px;flex:none}
+#editor-view .sm33-gender-group:nth-child(2) .sm33-voice-avatar{background:#7196ff23;color:#8bafff}
+#editor-view .sm33-voice-card>span:nth-child(2){min-width:0;display:grid;gap:3px}
+#editor-view .sm33-voice-card strong{font-size:11px;font-weight:900}
+#editor-view .sm33-voice-card small{font-size:10px;color:var(--ui-muted,#a2b0c2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#editor-view .sm33-voice-check{color:#ff955f;margin-left:auto;opacity:0;font-size:13px}
+#editor-view .sm33-voice-card.selected .sm33-voice-check{opacity:1}
+#editor-view .sm33-voice-controls{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:17px}
+#editor-view #sm33-voice-preview{background:#f47743;color:#fff;border:0;border-radius:11px;padding:12px 10px;font-size:11px;font-weight:900;cursor:pointer}
+#editor-view #sm33-voice-preview:disabled{opacity:.65;cursor:wait}
+#editor-view #sm33-voice-mix{width:100%;min-width:0;border-radius:11px;background:var(--ui-input,#121925);border:1px solid var(--ui-line,#343f51);color:var(--ui-ink,#fff);font:700 11px 'DM Sans',system-ui;padding:10px 7px}
+#editor-view .sm33-audio-player{width:100%;height:39px;margin:11px 0 0}
+#editor-view .sm33-audio-player[hidden]{display:none!important}
+#editor-view .sm33-voice-status{font-size:11px;color:var(--ui-muted,#98a3b7);line-height:1.6;margin:11px 0 0}
+#editor-view .sm33-download{display:inline-block;margin-top:8px;color:#ed875c;font-weight:800;font-size:11px;text-decoration:none}
+#editor-view .sm33-download.hidden{display:none}
+@media(max-width:750px){#editor-view .sm33-voice-groups{grid-template-columns:1fr 1fr}#editor-view .sm33-voice-controls{grid-template-columns:1fr}#editor-view .sm33-voice-panel{padding:14px}}
+@media(max-width:460px){#editor-view .sm33-voice-groups{grid-template-columns:1fr}#editor-view .sm33-voice-grid{grid-template-columns:repeat(3,minmax(0,1fr))}#editor-view .sm33-voice-card{flex-direction:column;text-align:center;justify-content:center;gap:5px;padding:9px 3px}#editor-view .sm33-voice-card .sm33-voice-check{position:absolute;align-self:flex-end;margin:0 6px 29px 0}#editor-view .sm33-voice-card small{font-size:8px;white-space:normal;line-height:1.2}#editor-view .sm33-script-actions{flex-wrap:wrap}#editor-view .sm33-script-actions span{text-align:left}#editor-view .sm33-voice-label{align-items:flex-start}}
+/* Self-contained dark studio surface: readable in both website themes. */
+#editor-view .sm33-voice-panel{--ui-ink:#f3f7ff;--ui-muted:#adbaca;--ui-input:#172334;--ui-line:#3d4d61;--ui-panel:#15202e;color:#f3f7ff}

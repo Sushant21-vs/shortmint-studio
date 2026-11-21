@@ -4,6 +4,8 @@ Uses FFmpeg for editing. 'Smart picks' are audio-activity heuristics, not genera
 Runs only on 127.0.0.1 by default via launch.py.
 """
 import json
+import importlib.util
+import tempfile
 import math
 import os
 import re
@@ -18,7 +20,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from fastapi import FastAPI, File, HTTPException, UploadFile, Depends, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from PIL import Image, ImageDraw, ImageFont
@@ -28,6 +30,7 @@ from downloads import source_platform, extraction_failure_message, install_downl
 from media_runtime import javascript_runtime_options, media_runtime_status
 from montage import scene_changes, plan_montage, parse_custom_cuts
 from admin_backup import install_backup_routes
+from voice_tools import VOICES, voice_options, validate_voice, generate_voice_mp3, whisper_srt
 
 ROOT = Path(__file__).resolve().parent
 DATA_ROOT = Path(os.environ.get('SHORTMINT_STORAGE_DIR') or str(ROOT / 'storage')).resolve()
@@ -39,6 +42,9 @@ ALLOWED_EXTS = {'.mp4', '.mov', '.mkv', '.webm', '.avi', '.m4v'}
 SESSIONS = {}
 TASKS = {}
 ACTIVE_SESSIONS = set()
+VOICE_GATE = threading.BoundedSemaphore(1)
+VOICE_PREVIEW_ACTIVITY = {}  # per-account 10 requests / 15 minutes
+CLOUD_CAPTION_ACTIVITY = {}  # per-account 3 transcription jobs / hour
 LOCK = threading.RLock()
 
 app = FastAPI(title='ShortMint Studio v3', docs_url=None, redoc_url=None)
@@ -155,7 +161,10 @@ def public_manifest(data):
 
 @app.get('/api/health')
 def health():
-    return {'ok': True, 'ffmpeg': bool(shutil.which('ffmpeg')), 'ffprobe': bool(shutil.which('ffprobe')), 'auto_captions': __import__('importlib').util.find_spec('faster_whisper') is not None, 'version': '3.0', **media_runtime_status()}
+    return {'ok': True, 'ffmpeg': bool(shutil.which('ffmpeg')), 'ffprobe': bool(shutil.which('ffprobe')),
+            'auto_captions': bool(os.getenv('OPENAI_API_KEY')) or importlib.util.find_spec('faster_whisper') is not None,
+            'voiceover': importlib.util.find_spec('edge_tts') is not None,
+            'version': '3.0', 'studio_version': '33', **media_runtime_status()}
 
 
 @app.post('/api/upload')
@@ -457,17 +466,20 @@ def text_overlay(path, size, title, position, watermark=''):
 def background_transcribe(task_id, sid):
     task = TASKS[task_id]
     try:
-        from faster_whisper import WhisperModel
-        task['state'] = 'analyzing'
-        task['message'] = 'Loading on-device caption model (first use may download it)…'
-        model = WhisperModel(os.environ.get('WHISPER_MODEL', 'tiny'), device='cpu', compute_type='int8', cpu_threads=2)
         data = load_manifest(sid)
         if not data['has_audio']:
             raise ValueError('The video has no audio to transcribe.')
-        task['message'] = 'Transcribing spoken words…'
-        raw_segments, info = model.transcribe(str(source_for(data)), beam_size=1, vad_filter=True)
-        segments = list(raw_segments)
-        result = transcript_to_srt(segments)
+        if os.getenv('OPENAI_API_KEY'):
+            task['message'] = 'Preparing cloud transcription…'
+            result = whisper_srt(source_for(data), data['duration'], task, run)
+        else:
+            from faster_whisper import WhisperModel
+            task['state'] = 'analyzing'
+            task['message'] = 'Loading local caption model (first use may download it)…'
+            model = WhisperModel(os.environ.get('WHISPER_MODEL', 'tiny'), device='cpu', compute_type='int8', cpu_threads=2)
+            task['message'] = 'Transcribing spoken words locally…'
+            raw_segments, info = model.transcribe(str(source_for(data)), beam_size=1, vad_filter=True)
+            result = transcript_to_srt(list(raw_segments))
         if len(result) > 150000:
             raise ValueError('Speech transcript too long to use as subtitles; please supply a shorter SRT.')
         if task.get('cancel'):
@@ -492,16 +504,24 @@ def create_auto_captions(session_id: str, user=Depends(user_for_request)):
     data = checked_project(session_id, user)
     if not data.get('has_audio'):
         raise HTTPException(400, 'This video has no audio to transcribe.')
-    import importlib.util
-    if importlib.util.find_spec('faster_whisper') is None:
-        raise HTTPException(503, 'Automatic captions are optional. Install requirements-auto-captions.txt on the server. You can paste SRT captions now.')
+    if not os.getenv('OPENAI_API_KEY') and importlib.util.find_spec('faster_whisper') is None:
+        raise HTTPException(503, 'Auto-transcribe needs the server owner to configure OPENAI_API_KEY in Render, or install the local Whisper add-on.')
     with LOCK:
+        if os.getenv('OPENAI_API_KEY'):
+            if data['duration'] > 1800:
+                raise HTTPException(400, 'Cloud transcription supports videos up to 30 minutes. Try a shorter source.')
+            now = time.monotonic()
+            recent = [t for t in CLOUD_CAPTION_ACTIVITY.get(user['id'], []) if now-t < 3600]
+            if len(recent) >= 3:
+                raise HTTPException(429, 'Automatic captions have a limit of 3 requests per hour per account.')
         if session_id in ACTIVE_SESSIONS:
             raise HTTPException(409, 'This video is already being processed.')
         if len(ACTIVE_SESSIONS) >= 2:
             raise HTTPException(429, 'Video server is busy. Try captions again after an export finishes.')
         task_id = uuid.uuid4().hex
         ACTIVE_SESSIONS.add(session_id)
+        if os.getenv('OPENAI_API_KEY'):
+            CLOUD_CAPTION_ACTIVITY[user['id']] = recent + [now]
         TASKS[task_id] = {'state': 'queued', 'progress': 3, 'message': 'Starting captions…',
                           'caption_srt': '', 'process': None, 'cancel': False, 'user_id': user['id'], 'session_id': session_id}
     def do_work():
@@ -511,6 +531,81 @@ def create_auto_captions(session_id: str, user=Depends(user_for_request)):
             with LOCK: ACTIVE_SESSIONS.discard(session_id)
     threading.Thread(target=do_work, daemon=True).start()
     return {'task_id': task_id}
+
+
+# Voiceover endpoints are private, require a signed-in user, and never expose
+# upstream speech-service credentials or user-to-user audio access.
+class VoicePreviewRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=300)
+    voice: str = 'ava'
+
+
+@app.get('/api/voice/voices')
+def get_voices(user=Depends(user_for_request)):
+    return {'voices': voice_options(),
+            'voice_available': importlib.util.find_spec('edge_tts') is not None,
+            'transcription_available': bool(os.getenv('OPENAI_API_KEY')) or importlib.util.find_spec('faster_whisper') is not None}
+
+
+@app.post('/api/voice/preview')
+def preview_voice(body: VoicePreviewRequest, user=Depends(user_for_request)):
+    try:
+        validate_voice(body.voice)
+    except ValueError as err:
+        raise HTTPException(400, str(err))
+    if not body.text.strip():
+        raise HTTPException(400, 'Enter text to hear the voice.')
+    with LOCK:
+        now = time.monotonic()
+        recent = [t for t in VOICE_PREVIEW_ACTIVITY.get(user['id'], []) if now-t < 900]
+        if len(recent) >= 10:
+            raise HTTPException(429, 'Voice preview limit reached. Try again in 15 minutes.')
+        recent.append(now)
+        VOICE_PREVIEW_ACTIVITY[user['id']] = recent
+    if not VOICE_GATE.acquire(blocking=False):
+        raise HTTPException(429, 'Voice generator is busy. Try again shortly.')
+    try:
+        with tempfile.TemporaryDirectory(prefix='sm33-voice-') as tmp:
+            dest = Path(tmp) / 'preview.mp3'
+            try:
+                generate_voice_mp3(body.text, body.voice, dest)
+            except (ValueError, RuntimeError) as err:
+                raise HTTPException(503, str(err))
+            return Response(content=dest.read_bytes(), media_type='audio/mpeg',
+                            headers={'Cache-Control': 'no-store',
+                                     'Content-Disposition': 'attachment; filename="shortmint-voice-preview.mp3"'})
+    finally:
+        VOICE_GATE.release()
+
+
+def voiceover_mix(clip, voice_file, length, mode, task):
+    """Mux narration into final MP4 (including stitched montage/cut-list clips)."""
+    voice_duration = run(['ffprobe','-v','error','-show_entries','format=duration',
+                          '-of','default=noprint_wrappers=1:nokey=1',str(voice_file)],timeout=20)
+    if voice_duration.returncode:
+        raise ValueError('Could not read the generated voice audio.')
+    spoken_seconds = float(voice_duration.stdout.strip())
+    if spoken_seconds > length + .12:
+        raise ValueError(f'Voiceover is {spoken_seconds:.1f}s but the Short is {length:.1f}s. Shorten your narration or choose a longer Short.')
+    mixed = clip.with_name(clip.stem + '_voice_tmp.mp4')
+    try:
+        original_audio = probe_video(clip)['has_audio']
+        if mode == 'mix' and original_audio:
+            filt = (f'[0:a:0]volume=0.22[background];[1:a:0]volume=1.0,'
+                    f'apad,atrim=duration={length:.3f}[narration];'
+                    f'[background][narration]amix=inputs=2:duration=longest:normalize=0[a]')
+        else:
+            filt = f'[1:a:0]apad,atrim=duration={length:.3f}[a]'
+        task['message'] = 'Mixing voice narration into your Short…'
+        result = run(['ffmpeg','-y','-hide_banner','-loglevel','error','-nostdin',
+                     '-i',str(clip),'-i',str(voice_file),'-filter_complex',filt,
+                     '-map','0:v:0','-map','[a]', '-c:v','copy','-c:a','aac',
+                     '-b:a','160k','-t',f'{length:.3f}','-movflags','+faststart',str(mixed)],timeout=180)
+        if result.returncode or not mixed.is_file() or mixed.stat().st_size < 1000:
+            raise ValueError('Could not add narration to the MP4. ' + (result.stderr or '')[-220:])
+        mixed.replace(clip)
+    finally:
+        mixed.unlink(missing_ok=True)
 
 
 class GenerateRequest(BaseModel):
@@ -530,6 +625,10 @@ class GenerateRequest(BaseModel):
     edit_pace: str = 'fast'
     punch_zoom: bool = True
     cuts_text: str = Field(default='', max_length=1200)
+    voiceover_enabled: bool = False
+    voiceover_text: str = Field(default='', max_length=2000)
+    voiceover_voice: str = 'ava'
+    voiceover_mode: str = 'replace'
 
 
 def validate_generation(data, body):
@@ -549,6 +648,14 @@ def validate_generation(data, body):
         parse_custom_cuts(body.cuts_text, data['duration'])
     # Validate untrusted subtitle text before reserving any member credits.
     parse_srt(body.caption_srt)
+    if body.voiceover_enabled:
+        validate_voice(body.voiceover_voice)
+        if body.voiceover_mode not in ('mix', 'replace'):
+            raise ValueError('Choose mix or replace for narration audio.')
+        if not body.voiceover_text.strip():
+            raise ValueError('Enter the narration text or turn off voiceover.')
+        if importlib.util.find_spec('edge_tts') is None:
+            raise ValueError('Voice generation is unavailable. Install edge-tts on the server.')
 
 
 def output_filter(w, h, mode, use_title, focus_x=50, caption_file=None, punch=1.0):
@@ -718,6 +825,17 @@ def background_generate(task_id, body):
             title_img = folder / ('title_' + task_id[:8] + '.png')
             text_overlay(title_img, (w, h), title, body.title_position, body.watermark.strip())
         created = []
+        narration_path = None
+        if body.voiceover_enabled:
+            task['state'] = 'analyzing'
+            task['message'] = 'Generating your selected narration voice…'
+            if not VOICE_GATE.acquire(timeout=25):
+                raise RuntimeError('Narration service is busy. Please try the export again shortly.')
+            try:
+                narration_path = folder / ('voice_' + task_id[:8] + '.mp3')
+                generate_voice_mp3(body.voiceover_text, body.voiceover_voice, narration_path)
+            finally:
+                VOICE_GATE.release()
         for i, segment in enumerate(segments):
             if task.get('cancel'):
                 raise RuntimeError('Export cancelled')
@@ -739,11 +857,14 @@ def background_generate(task_id, body):
                 finally:
                     captions_path.unlink(missing_ok=True)
                 length=segment['duration']
+            if narration_path:
+                voiceover_mix(output, narration_path, length, body.voiceover_mode, task)
             clip = {
                 'file': filename, 'start': segment['start'],
                 'duration': round(length,2), 'reason': segment['reason'],
                 'edits':segment.get('edits',[]),
-                'resolution': f'{w}x{h}', 'captions': bool(has_captions), 'label': f'Short {len(data["clips"]) + len(created) + 1}',
+                'resolution': f'{w}x{h}', 'captions': bool(has_captions),
+                'voiceover': body.voiceover_voice if body.voiceover_enabled else None, 'label': f'Short {len(data["clips"]) + len(created) + 1}',
             }
             created.append(clip)
             task['results'] = created[:]
@@ -757,12 +878,15 @@ def background_generate(task_id, body):
         task['state'] = 'completed'
         task['message'] = f'{len(created)} short(s) ready to download.'
     except Exception as err:
-        for clip in task.get('results', []):
-            (STORAGE / sid / 'exports' / clip['file']).unlink(missing_ok=True)
+        # Clean the just-created but not-yet-recorded MP4 as well (e.g. if a
+        # narration is too long after video encoding has completed).
+        for file in (STORAGE / sid / 'exports').glob('short_' + task_id[:8] + '_*.mp4'):
+            file.unlink(missing_ok=True)
         finish_credit_job(task_id, False)
         task['state'] = 'cancelled' if task.get('cancel') else 'failed'
         task['message'] = str(err)[:600]
     finally:
+        (STORAGE / sid / 'exports' / ('voice_' + task_id[:8] + '.mp3')).unlink(missing_ok=True)
         task['process'] = None
         with LOCK:
             ACTIVE_SESSIONS.discard(sid)
