@@ -5,25 +5,30 @@
   <meta name="theme-color" content="#0a0d17">
   <meta name="description" content="ShortMint Studio: share a video-to-shorts workspace with friends, credit requests and private admin controls.">
   <title>ShortMint Studio — Create with clarity</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMwYTBkMTciLz48cGF0aCBkPSJNMzIgNS4yIDQwLjYgMjMuNCA1OC44IDMyIDQwLjYgNDAuNiAzMiA1OC44IDIzLjQgNDAuNiA1LjIgMzIgMjMuNCAyMy40WiIgZmlsbD0iI2ZmNzgxZiIvPjxwYXRoIGQ9Ik0yNyAyMi41IDQzLjUgMzIgMjcgNDEuNVoiIGZpbGw9IiNmZmZmZmYiLz48Y2lyY2xlIGN4PSI0OSIgY3k9IjQ5IiByPSI0IiBmaWxsPSIjNDhkN2FjIi8+PC9zdmc+">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=21.0.0">
   <link rel="stylesheet" href="/styles.css?v=9.0.1"><link rel="stylesheet" href="/dashboard.css?v=9.0.1">
   <link rel="stylesheet" href="/premium.css?v=9.0.1"><link rel="stylesheet" href="/source-studio.css?v=12.0.0">
   <link rel="stylesheet" href="/import-fixes.css?v=9.0.1"><link rel="stylesheet" href="/multi-upload.css?v=12.0.0">
   <link rel="stylesheet" href="/montage.css?v=13">
   <link rel="stylesheet" href="/spacious.css?v=20.0.0">
-  <link rel="stylesheet" href="/login-clean.css?v=16.0.0">
+  <link rel="stylesheet" href="/creator-experience-v21.css?v=21.0.0">
 </head>
 <body>
   <section id="auth-view" class="auth-screen hidden">
+    <div class="sm-auth-glow sm-auth-glow-one" aria-hidden="true"></div>
+    <div class="sm-auth-glow sm-auth-glow-two" aria-hidden="true"></div>
+    <div class="sm-auth-film" aria-hidden="true"><svg viewBox="0 0 420 480" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M-40 82C180-25 220 215 100 233S-40 350 120 455" stroke="#FD9659" stroke-width="70" opacity=".23"/><path d="M-40 82C180-25 220 215 100 233S-40 350 120 455" stroke="#FFAD79" stroke-width="58" stroke-dasharray="4 12" opacity=".35"/><path d="M-40 82C180-25 220 215 100 233S-40 350 120 455" stroke="#FFE7D8" stroke-width="2" opacity=".6"/></svg></div>
+    <div class="sm-auth-floating-clip" aria-hidden="true"><div class="sm-float-play">▶</div><span>CREATOR / 9:16</span><div class="sm-float-line"></div></div>
+    <canvas id="sm-cloud-canvas" aria-hidden="true"></canvas>
     <div class="auth-card">
-      <div class="auth-heading"><div class="auth-brand-mark">✦</div><span>Short<span>Mint</span><small>STUDIO</small></span></div>
-      <h1>Creators start here.</h1><p class="muted">A smarter workspace for turning long-form videos into Shorts.</p>
+      <div class="auth-heading"><svg class="sm-auth-brand-icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 3.5 39.8 24.2 60.5 32l-20.7 7.8L32 60.5l-7.8-20.7L3.5 32l20.7-7.8L32 3.5Z" fill="url(#authStar)"/><path d="M32 17v30M17 32h30" stroke="#FFE9D6" stroke-opacity=".65" stroke-width="1.5"/><defs><linearGradient id="authStar" x1="14" y1="8" x2="52" y2="59"><stop stop-color="#FFBF7A"/><stop offset=".5" stop-color="#FF7F39"/><stop offset="1" stop-color="#E34D1D"/></linearGradient></defs></svg><span>Short<span>Mint</span><small>STUDIO</small></span></div>
+      <div class="sm-auth-eyebrow">SHORT-FORM CREATION PLATFORM <span>✦</span> STUDIO EDITION</div><h1>Creators start here<span class="sm-auth-dot">.</span></h1><p class="muted">A smarter workspace for turning long-form videos into Shorts.</p>
       <div class="auth-switch"><button id="auth-login-tab" type="button" class="active">Sign in</button><button id="auth-register-tab" type="button">Join with invite</button></div>
       <form id="auth-form" class="stack-form">
-        <label for="auth-username">Username</label><input id="auth-username" autocomplete="username" required minlength="3" maxlength="24" placeholder="Your username">
-        <label for="auth-password">Password</label><input id="auth-password" type="password" autocomplete="current-password" required minlength="10" placeholder="Your password">
+        <label for="auth-username">Username</label><div class="sm-auth-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7.5" r="3.4"/><path d="M4.7 20v-2.2c0-3.6 3.3-5.8 7.3-5.8s7.3 2.2 7.3 5.8V20"/></svg><input id="auth-username" autocomplete="username" required minlength="3" maxlength="24" placeholder="Your username"></div>
+        <label for="auth-password">Password</label><div class="sm-auth-field sm-auth-password"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="10.5" width="13" height="10" rx="2"/><path d="M8.5 10.5V7.3a3.5 3.5 0 0 1 7 0v3.2"/></svg><input id="auth-password" type="password" autocomplete="current-password" required minlength="10" placeholder="Your password"><button type="button" id="sm-auth-reveal" aria-label="Show password" aria-pressed="false" class="sm-auth-reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.7 12S6 6.7 12 6.7s9.3 5.3 9.3 5.3S18 17.3 12 17.3 2.7 12 2.7 12Z"/><circle cx="12" cy="12" r="2.5"/></svg></button></div>
         <div id="auth-invite-wrap" class="hidden"><label for="auth-invite">Invitation code</label><input id="auth-invite" maxlength="60" placeholder="SM-XXXXXXXXXX"><p class="helper">Ask the website owner for a one-time invite code.</p></div>
-        <button id="auth-submit" type="submit" class="orange-btn wide">Sign in to your dashboard →</button>
+        <button id="auth-submit" type="submit" class="orange-btn wide"><span>Sign in to your dashboard</span><span class="sm-auth-arr" aria-hidden="true">↗</span></button>
       </form>
       <p id="auth-message" class="auth-message" aria-live="polite"></p>
       <div id="invite-contact-box" class="invite-contact-box" aria-label="Free invite code contact">
@@ -45,7 +50,7 @@
     <aside id="sm-sidebar" class="sm-sidebar" aria-label="Workspace navigation">
       <div class="sm-side-top">
         <button class="brand dashboard-brand" type="button" data-view="dashboard" aria-label="Go to ShortMint dashboard"><svg class="sm-logo" viewBox="0 0 54 54" aria-hidden="true" fill="none"><rect x="1" y="1" width="52" height="52" rx="16" fill="url(#mint-plate)" stroke="#ffb07c" stroke-opacity=".30"/><path d="M27 8 32.5 21.5 46 27 32.5 32.5 27 46 21.5 32.5 8 27 21.5 21.5 27 8Z" fill="#fff8f2"/><path d="m27 18 3.5 9L27 36l-3.5-9L27 18Z" fill="#fe752f"/><defs><linearGradient id="mint-plate" x1="0" x2="54" y1="0" y2="54"><stop stop-color="#FF9850"/><stop offset="1" stop-color="#DA3F1E"/></linearGradient></defs></svg><span class="sm-brand-type">Short<span class="brand-accent">Mint</span><small>STUDIO / CREATOR OS</small></span></button>
-        <div class="sm-side-edition"><span class="sm-edition-dot"></span> THE CREATOR WORKSPACE <b>V15</b></div>
+        <div class="sm-side-edition"><span class="sm-edition-dot"></span> THE CREATOR WORKSPACE <b>V21</b></div>
       </div>
       <div class="sm-side-label">WORKSPACE <span>CREATOR TOOLS</span></div>
       <nav class="header-nav" aria-label="Primary navigation">
@@ -134,17 +139,17 @@
         </div>
       </section>
       <section id="admin-view" class="app-page hidden">
-        <div class="page-heading"><div><span class="overline">OWNER ONLY</span><h1>Admin Dashboard <span class="wave">✦</span></h1><p>Approve requests, invite friends, and manage each member's credits.</p></div><button id="admin-refresh" class="outline-btn">↻ Refresh dashboard</button></div>
-        <div class="admin-summary"><div><span>Members</span><strong id="admin-members">0</strong></div><div><span>Pending requests</span><strong id="admin-pending">0</strong></div><div><span>Active invitations</span><strong id="admin-invites">0</strong></div></div>
-        <article class="dashboard-panel sm-data-safety-panel" aria-label="Back up your member data">
-          <span class="card-kicker">ACCOUNT DATA SAFETY</span><h2>Save your accounts &amp; credits</h2>
+        <div class="page-heading sm-admin-hero"><div class="sm-admin-hero-copy"><span class="sm-admin-status"><span class="sm-admin-dot"></span> SHORTMINT / OWNER CONTROL CENTER</span><h1>Your studio, <em>your rules.</em> <span class="wave" aria-hidden="true">✦</span></h1><p>Everything you need to manage your creators, invitations and credits in one beautiful workspace.</p><div class="sm-admin-shortcuts"><button class="sm-admin-jump" type="button" data-sm-jump="sm-admin-members-section">Members <span>↗</span></button><button class="sm-admin-jump" type="button" data-sm-jump="sm-admin-invites-section">Invites <span>↗</span></button><button class="sm-admin-jump" type="button" data-sm-jump="sm-admin-safety-section">Backups <span>↗</span></button></div></div><div class="sm-admin-hero-action"><div class="sm-admin-hero-icon" aria-hidden="true">✦</div><button id="admin-refresh" class="outline-btn">↻ Refresh data</button><small id="sm-admin-sync" aria-live="polite">Live account overview</small></div></div>
+        <div class="admin-summary sm-admin-metrics"><div><span class="sm-stat-icon">♙</span><span>Members</span><strong id="admin-members">0</strong><small>Registered creator accounts</small></div><div><span class="sm-stat-icon">⌁</span><span>Pending requests</span><strong id="admin-pending">0</strong><small>Awaiting your decision</small></div><div><span class="sm-stat-icon">✧</span><span>Active invitations</span><strong id="admin-invites">0</strong><small>Unused invite codes</small></div></div>
+        <article id="sm-admin-safety-section" class="dashboard-panel sm-data-safety-panel" aria-label="Back up your member data">
+          <span class="card-kicker">SECURE YOUR WORKSPACE <span class="sm-security-indicator">● PRIVATE BACKUP</span></span><h2>Keep your creators and credits safe.</h2>
           <p>Your current Render Free server uses temporary storage. A normal refresh does not erase members, but server restarts and redeployments can. Download a private backup after changes and restore it if needed.</p>
           <div class="sm-backup-actions"><button class="secondary-btn" type="button" id="sm-download-backup">↓ Download private backup</button>
           <label for="sm-restore-file" class="sm-restore-label">↥ Restore a backup</label><input id="sm-restore-file" type="file" accept=".sqlite3,.db,application/octet-stream" hidden></div>
           <p class="mini-caption" id="sm-backup-message">Keep your backup private: it includes member information and password hashes. Restoring replaces current member and invitation records. A persistent database is still required to prevent automatic data loss.</p>
         </article>
         <p class="sm-data-explain">These counters show the data saved on the current server. Refreshing the page does not reset them.</p>
-        <div class="admin-main-grid"><article class="dashboard-panel"><div class="admin-panel-heading"><div><span class="card-kicker">ACCESS CONTROL</span><h2>Invite a Friend</h2></div></div><p>Generate a unique one-time invite code. Share the website address and the code with your friend.</p><button id="create-invite" class="orange-btn">＋ Generate Invite Code</button><div id="invite-list" class="history-list spaced"></div></article>
+        <div class="admin-main-grid"><article id="sm-admin-invites-section" class="dashboard-panel"><div class="admin-panel-heading"><div><span class="card-kicker">ACCESS CONTROL</span><h2>Invite a Friend</h2></div></div><p>Generate a unique one-time invite code. Share the website address and the code with your friend.</p><button id="create-invite" class="orange-btn">＋ Generate Invite Code</button><div id="invite-list" class="history-list spaced"></div></article>
         <article class="dashboard-panel"><span class="card-kicker">DEFAULTS</span><h2>New Member Settings</h2><p>Choose how many free Shorts credits every newly invited member receives.</p><form id="starting-credit-form" class="stack-form"><label for="starting-credits">Starting credits per friend</label><input id="starting-credits" type="number" min="0" max="1000" value="5" required><button class="secondary-btn" type="submit">Save Starting Credits</button></form><p class="mini-caption">Existing balances will not be changed.</p></article></div>
         <div class="section-title-row"><h2>Credit Requests <span id="request-heading-count" class="count-pill">0 pending</span></h2></div>
         <div id="admin-requests" class="admin-list"><div class="empty-list">No pending credit requests yet.</div></div>
@@ -168,7 +173,7 @@
           </form>
           <p class="mini-caption">Leave blank to hide the number. Only share a phone number you want everyone to see. You still generate invite codes manually from Admin.</p>
         </article>
-        <div class="section-title-row"><h2>Member Accounts</h2><span>Grant / remove credits or disable accounts</span></div>
+        <div class="section-title-row" id="sm-admin-members-section"><h2>Member Accounts</h2><span>Grant / remove credits or disable accounts</span></div>
         <div class="dashboard-panel table-wrap"><table class="members-table"><thead><tr><th>Member</th><th>Credits</th><th>Status</th><th>Adjust balance</th><th>Account</th></tr></thead><tbody id="admin-users"></tbody></table></div>
       </section>
       <div id="editor-view" class="app-page hidden"><div class="editor-back"><button type="button" class="outline-btn" data-view="dashboard">← Back to Dashboard</button><span id="editor-credit-note">1 credit per generated Short</span></div>
@@ -238,8 +243,9 @@
     </div>
   </div>
   <div class="toast hidden" id="toast" role="alert"><span id="toast-icon">!</span><div id="toast-text"></div><button id="toast-dismiss" type="button" aria-label="Dismiss">×</button></div>
-  <script src="/app.js?v=20.0.0" defer></script><script src="/dashboard.js?v=20.0.0" defer></script><script src="/premium.js?v=14.0.0" defer></script>
+  <script src="/app.js?v=20.0.0" defer></script><script src="/dashboard.js?v=21.0.0" defer></script><script src="/premium.js?v=14.0.0" defer></script>
   <script src="/spacious.js?v=15.0.0" defer></script>
   <script src="/account-safety.js?v=20.0.0" defer></script>
+  <script src="/creator-experience-v21.js?v=21.0.0" defer></script>
 </body>
 </html>

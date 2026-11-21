@@ -111,7 +111,7 @@ function setAuthMode(next) {
   $('#auth-invite-wrap').classList.toggle('hidden',next!=='register');
   $('#auth-invite').required=next==='register';
   $('#auth-password').autocomplete=next==='login'?'current-password':'new-password';
-  $('#auth-submit').textContent=next==='login'?'Sign in to your dashboard →':'Create Friend Account →';
+  $('#auth-submit').innerHTML=next==='login'?'<span>Sign in to your dashboard</span><span class="sm-auth-arr" aria-hidden="true">↗</span>':'<span>Create Friend Account</span><span class="sm-auth-arr" aria-hidden="true">↗</span>';
   $('#auth-message').textContent='';
 }
 $('#auth-login-tab').addEventListener('click',()=>setAuthMode('login'));
