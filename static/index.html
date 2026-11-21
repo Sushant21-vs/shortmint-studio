@@ -18,6 +18,8 @@
   <link rel="stylesheet" href="/shortmint-login-cinema-v26.css?v=26.0.0">
   <link rel="stylesheet" href="/growth-v27.css?v=27.0.0">
   <link rel="stylesheet" href="/shortmint-cinematic-v28.css?v=28.0.0">
+  <link rel="stylesheet" href="/shortmint-inner-v29.css?v=29.1.0">
+  <link rel="stylesheet" href="/shortmint-settings-v30.css?v=30.0.0">
 </head>
 <body>
   <section id="auth-view" class="auth-screen hidden" aria-label="ShortMint Studio sign in">
@@ -78,7 +80,33 @@
         <div class="sm26-underline" aria-hidden="true"></div>
         <p>A smarter workspace for turning long-form videos into Shorts.</p>
       </header>
-      <div class="auth-card">
+      <div class="auth-card sm29-auth-card">
+        <div class="sm29-inside-layout">
+          <aside class="sm29-showcase" aria-label="ShortMint features">
+            <div class="sm29-showcase-head"><span class="sm29-live-dot"></span><span>THE CREATOR STUDIO</span><span class="sm29-spark" aria-hidden="true">✦</span></div>
+            <div class="sm29-showcase-title"><span>CREATE WHAT'S NEXT</span><h2>Small clips.<br><em>Big impact.</em></h2><p>Bring your footage. Find your rhythm. Make a story worth sharing.</p></div>
+            <div class="sm29-editor-art" aria-hidden="true">
+              <div class="sm29-editor-toolbar"><span class="sm29-toolbar-brand">✦ <b>Short<span>Mint</span></b></span><span>CREATOR PREVIEW</span><span class="sm29-toolbar-circle">●</span></div>
+              <div class="sm29-art-main">
+                <div class="sm29-art-ghost"><span>01</span><span>02</span><span>03</span></div>
+                <div class="sm29-art-phone">
+                  <div class="sm29-art-phone-top"><span>9:16</span><span>● REC</span></div>
+                  <div class="sm29-art-sun"></div>
+                  <div class="sm29-art-mountain sm29-art-mountain-back"></div>
+                  <div class="sm29-art-mountain sm29-art-mountain-front"></div>
+                  <div class="sm29-art-play"><svg viewBox="0 0 24 24" width="27" height="27" fill="currentColor"><path d="M8 5.4v13.2L18.7 12z"/></svg></div>
+                  <div class="sm29-art-phone-caption">MAKE EVERY<br><strong>FRAME COUNT.</strong></div>
+                </div>
+                <div class="sm29-preview-chip sm29-preview-chip-top"><span>✦</span><div><b>Portrait-ready</b><small>9:16 · MP4 video</small></div></div>
+                <div class="sm29-preview-chip sm29-preview-chip-bottom"><span>≋</span><div><b>Multi-scene edits</b><small>Sharper moments</small></div></div>
+              </div>
+              <div class="sm29-art-timeline"><div class="sm29-art-waveform"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="sm29-art-clips"><span></span><span></span><span></span><span></span><span></span></div></div>
+            </div>
+            <div class="sm29-feature-line"><span><b>01</b> Upload</span><i></i><span><b>02</b> Edit</span><i></i><span><b>03</b> Export</span></div>
+            <div class="sm29-showcase-footer"><span aria-hidden="true">✧</span><div><strong>Thoughtful edits. Beautiful results.</strong><small>Your next story begins right here.</small></div></div>
+          </aside>
+          <div class="sm29-login-side">
+            <div class="sm29-access-heading"><div class="sm29-access-overline">YOUR CREATIVE SPACE <span>✦</span></div><h2>Welcome to <em>ShortMint</em></h2><p>Sign in to continue creating, or join to get your first 5 credits.</p></div>
         <div class="auth-switch" role="group" aria-label="Account access"><button id="auth-login-tab" type="button" class="active">Sign in</button><button id="auth-register-tab" type="button">Join with invite</button></div>
         <section class="sm27-google-entrance" aria-label="Create account or sign in with Google">
           <span class="sm27-welcome-pill">NEW CREATORS · 5 FREE CREDITS</span>
@@ -111,6 +139,8 @@
           </div>
         </div>
         <p class="auth-foot">Private creator access · Your projects are visible only to your account. · <a href="/privacy.html" target="_blank" rel="noopener noreferrer" style="color:#bd642d;text-decoration:underline">Privacy</a></p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -127,6 +157,9 @@
           <button class="nav-link"  data-view="credits"><svg class="sm-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="15" rx="3"/><path d="M3 10h18M16 16h2M7 3h12"/></svg><span>My Credits</span></button>
           <button class="nav-link" id="buy-nav" data-view="buy"><svg class="sm-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h18l-2 12H5L3 8Z"/><path d="M8 9V6a4 4 0 0 1 8 0v3"/></svg><span>Buy Credits</span></button>
           <button class="nav-link hidden" id="admin-nav" data-view="admin"><svg class="sm-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 20 6v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4Z"/><path d="m9 12 2 2 4-4"/></svg><span>Admin Panel</span><span id="nav-request-count" class="mini-alert hidden">0</span></button>
+          <button class="nav-link sm30-settings-nav" type="button" data-view="settings" aria-label="Open workspace settings">
+            <svg class="sm-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M10.2 2.5h3.6l.6 2.6 2.3 1.3 2.55-.8 1.8 3.15-1.94 1.86v2.8l1.94 1.86-1.8 3.15-2.55-.8-2.3 1.3-.6 2.6h-3.6l-.6-2.6-2.3-1.3-2.55.8-1.8-3.15 1.94-1.86v-2.8L2.95 8.75l1.8-3.15 2.55.8 2.3-1.3.6-2.6Z"/></svg>
+            <span>Settings</span><span class="sm30-nav-tail">↗</span></button>
       </nav>
       <div class="sm-side-bottom">
         <section class="sm-side-contact" aria-label="ShortMint creator contact details">
@@ -146,6 +179,10 @@
         <button id="sm-menu-toggle" class="sm-icon-control sm-menu-toggle" type="button" aria-label="Open navigation" aria-controls="sm-sidebar" aria-expanded="false"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
         <div class="sm-location"><span>SHORTMINT / WORKSPACE</span><strong id="sm-current-page">Overview</strong></div>
         <button class="sm-command-launch" id="sm-command-open" type="button" aria-haspopup="dialog" aria-controls="sm-command-dialog"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><span>Quick actions...</span><kbd>Ctrl K</kbd></button>
+        <button class="sm30-settings-shortcut" type="button" data-view="settings" aria-label="Open Settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M4 12a8 8 0 0 1 .4-2.5l-1.4-1.7 2-3.4 2.2.7A8 8 0 0 1 10 3.5L10.5 1h3l.5 2.5a8 8 0 0 1 2.8 1.6l2.2-.7 2 3.4-1.4 1.7a8 8 0 0 1 0 5l1.4 1.7-2 3.4-2.2-.7a8 8 0 0 1-2.8 1.6L13.5 23h-3l-.5-2.5a8 8 0 0 1-2.8-1.6l-2.2.7-2-3.4 1.4-1.7A8 8 0 0 1 4 12Z"/></svg>
+          <span>Settings</span>
+        </button>
         <div class="header-actions"><span id="header-credit-chip" class="credit-chip">✦ ... credits</span><button id="theme-toggle" title="Toggle theme" aria-label="Toggle theme" class="icon-button">☾</button><button id="logout-button" type="button" class="logout-btn" title="Sign out">↪ <span>Logout</span></button><span id="header-avatar" class="avatar">S</span></div>
       </div>
     </header>
@@ -314,6 +351,48 @@ Second channel | https://www.youtube.com/@secondchannel"></textarea>
         <div class="section-title-row" id="sm-admin-members-section"><h2>Member Accounts</h2><span>Grant / remove credits or disable accounts</span></div>
         <div class="dashboard-panel table-wrap"><table class="members-table"><thead><tr><th>Member</th><th>Credits</th><th>Status</th><th>Adjust balance</th><th>Account</th></tr></thead><tbody id="admin-users"></tbody></table></div>
       </section>
+      <section id="settings-view" class="app-page hidden" aria-labelledby="sm30-settings-heading">
+        <div class="sm30-settings-layout">
+          <div class="sm30-page-heading">
+            <div class="sm30-overline"><span class="sm30-mini-pulse"></span> SHORTMINT / PREFERENCES</div>
+            <div class="sm30-heading-flex">
+              <div><h1 id="sm30-settings-heading">Make ShortMint <em>yours.</em></h1><p>Adjust your workspace the way you like it. A calmer workflow, one setting at a time.</p></div>
+              <span class="sm30-heading-symbol" aria-hidden="true">✦</span>
+            </div>
+          </div>
+          <div class="sm30-content-grid">
+            <section class="sm30-profile-card" aria-labelledby="sm30-profile-title">
+              <div class="sm30-card-kicker">YOUR CREATOR SPACE</div>
+              <div class="sm30-profile-top"><div class="sm30-profile-avatar" id="sm30-avatar" aria-hidden="true">S</div><div><h2 id="sm30-profile-title">Your account</h2><p id="sm30-username">Signed-in member</p></div></div>
+              <div class="sm30-profile-chips"><span id="sm30-role" class="sm30-chip">Creator</span><span id="sm30-balance" class="sm30-chip sm30-chip-glow">Credits</span></div>
+              <p class="sm30-profile-help">Your account and credit balance are stored on ShortMint's server. Appearance preferences below are saved on this device.</p>
+              <button type="button" class="sm30-profile-action" data-view="credits">View credits <span aria-hidden="true">↗</span></button>
+            </section>
+            <div class="sm30-settings-cards">
+              <section class="sm30-panel" aria-labelledby="sm30-appearance-title">
+                <div class="sm30-panel-heading"><span class="sm30-panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span><div><span class="sm30-card-kicker">DISPLAY</span><h2 id="sm30-appearance-title">Appearance</h2></div></div>
+                <p>Choose a look for your editing desk.</p>
+                <div class="sm30-theme-options" role="group" aria-label="Color theme">
+                  <button type="button" id="sm30-theme-day" class="sm30-theme-choice" aria-pressed="true"><span class="sm30-theme-preview sm30-day-preview"><i></i><i></i><i></i></span><strong>Daylight</strong><small>Soft &amp; bright</small></button>
+                  <button type="button" id="sm30-theme-night" class="sm30-theme-choice" aria-pressed="false"><span class="sm30-theme-preview sm30-night-preview"><i></i><i></i><i></i></span><strong>Midnight</strong><small>Focused &amp; dark</small></button>
+                </div>
+              </section>
+              <section class="sm30-panel" aria-labelledby="sm30-effects-title">
+                <div class="sm30-panel-heading"><span class="sm30-panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 2 1.8 7.1L21 11l-7.2 1.9L12 20l-1.8-7.1L3 11l7.2-1.9L12 2Z"/><path d="m19 17 .65 2.35L22 20l-2.35.65L19 23l-.65-2.35L16 20l2.35-.65L19 17Z"/></svg></span><div><span class="sm30-card-kicker">PERSONAL TOUCH</span><h2 id="sm30-effects-title">Motion &amp; effects</h2></div></div>
+                <div class="sm30-toggle-line"><div><strong>Cloud cursor</strong><p>Soft peach clouds follow your pointer.</p></div><label class="sm30-switch"><input id="sm30-cloud-enabled" type="checkbox" checked><span class="sm30-track"></span><span class="sr-only">Enable cloud cursor</span></label></div>
+                <div class="sm30-toggle-line"><div><strong>Reduce animations</strong><p>Limit decorative motion for a quieter experience.</p></div><label class="sm30-switch"><input id="sm30-reduce-motion" type="checkbox"><span class="sm30-track"></span><span class="sr-only">Reduce animations</span></label></div>
+                <div class="sm30-note">Changes apply immediately and are remembered in this browser.</div>
+              </section>
+              <section class="sm30-panel sm30-access-panel" aria-labelledby="sm30-access-title">
+                <div class="sm30-panel-heading"><span class="sm30-panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span><div><span class="sm30-card-kicker">ACCOUNT</span><h2 id="sm30-access-title">Privacy &amp; access</h2></div></div>
+                <p>Your workspace is private to your account. Open the privacy policy or securely end your session.</p>
+                <div class="sm30-access-actions"><a href="/privacy.html" target="_blank" rel="noopener noreferrer" class="sm30-secondary-action">Privacy policy <span aria-hidden="true">↗</span></a><button id="sm30-signout" type="button" class="sm30-danger-action">Sign out <span aria-hidden="true">→</span></button></div>
+              </section>
+            </div>
+          </div>
+          <div class="sm30-settings-footer"><span>✦ SHORTMINT STUDIO</span><span>Designed for focused creativity · Made by Sushant Hero</span></div>
+        </div>
+      </section>
       <div id="editor-view" class="app-page hidden"><div class="editor-back"><button type="button" class="outline-btn" data-view="dashboard">← Back to Dashboard</button><span id="editor-credit-note">1 credit per generated Short</span></div>
     <section class="studio" id="workspace">
       <div class="section-heading"><div><div class="eyebrow small">THE CREATOR STUDIO</div><h2>Create your next Short</h2><p>Cut, caption and export 9:16 MP4 videos for YouTube Shorts. Members spend 1 credit per Short.</p></div><span class="step-counter" id="step-counter">STEP 01 / 03</span></div>
@@ -376,7 +455,7 @@ Second channel | https://www.youtube.com/@secondchannel"></textarea>
     <div class="sm-command-shade" data-command-close="1"></div>
     <div class="sm-command-panel"><div class="sm-command-input"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="sm-command-search" type="search" placeholder="Search your workspace..." autocomplete="off" aria-label="Search quick actions"><kbd>ESC</kbd></div>
       <div class="sm-command-label" id="sm-command-title">QUICK NAVIGATION</div>
-      <div class="sm-command-items"><button type="button" data-view="dashboard" data-command-name="dashboard overview">Dashboard <span>↗</span></button><button type="button" data-view="studio" data-command-name="new project create shorts editor video">Create Shorts <span>↗</span></button><button type="button" data-view="credits" data-command-name="credits request balance">Credits & Requests <span>↗</span></button><button type="button" data-view="buy" data-command-name="buy credits contact owner">Buy Credits <span>↗</span></button><button type="button" data-view="admin" data-command-name="admin manage users">Admin Panel <span>↗</span></button></div>
+      <div class="sm-command-items"><button type="button" data-view="dashboard" data-command-name="dashboard overview">Dashboard <span>↗</span></button><button type="button" data-view="studio" data-command-name="new project create shorts editor video">Create Shorts <span>↗</span></button><button type="button" data-view="credits" data-command-name="credits request balance">Credits & Requests <span>↗</span></button><button type="button" data-view="buy" data-command-name="buy credits contact owner">Buy Credits <span>↗</span></button><button type="button" data-view="admin" data-command-name="admin manage users">Admin Panel <span>↗</span></button><button type="button" data-view="settings" data-command-name="settings preferences theme cloud">Settings <span>↗</span></button></div>
       <div class="sm-command-foot">Navigate with keyboard · <kbd>Ctrl</kbd> + <kbd>K</kbd> to open</div>
     </div>
   </div>
@@ -389,5 +468,6 @@ Second channel | https://www.youtube.com/@secondchannel"></textarea>
   <script src="/shortmint-cloud-v24.js?v=25.0.0" defer></script>
   <script src="/sidebar-contact-v25.js?v=25.0.0" defer></script>
   <script src="/growth-v27.js?v=27.0.0" defer></script>
+  <script src="/shortmint-settings-v30.js?v=30.0.0" defer></script>
 </body>
 </html>

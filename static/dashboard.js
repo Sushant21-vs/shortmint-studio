@@ -11,11 +11,14 @@ const nodes = selector => Array.from(document.querySelectorAll(selector));
 function showView(view) {
   if (!currentUser) return;
   if ((view === 'admin' && currentUser.role !== 'owner') || (view === 'buy' && currentUser.role === 'owner')) {toast('Admin access is for the site owner only.');return;}
-  for (const name of ['dashboard','credits','buy','admin','studio']) {
+  for (const name of ['dashboard','credits','buy','admin','studio','settings']) {
     const id = name === 'studio' ? 'editor-view' : name+'-view';
     document.getElementById(id).classList.toggle('hidden',view!==name);
   }
   nodes('[data-view]').forEach(b => b.classList.toggle('active',b.dataset.view===view));
+  const pageTitle=document.getElementById('sm-current-page');
+  if(pageTitle)pageTitle.textContent=({dashboard:'Overview',credits:'My Credits',buy:'Buy Credits',admin:'Admin Panel',studio:'Create Shorts',settings:'Settings'})[view]||'Overview';
+  if(view==='settings' && typeof window.sm30SyncAccount==='function')window.sm30SyncAccount(currentUser);
   window.scrollTo({top:0,behavior:'instant'});
   if (view==='admin') loadAdmin();
   if (view==='credits') loadCreditActivity();

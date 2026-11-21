@@ -10,6 +10,7 @@
   const ctx=canvas.getContext('2d',{alpha:true});
   if(!ctx){canvas.remove();return;}
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+  const effectsEnabled=()=>{try{return localStorage.getItem('shortmint_cloud_enabled')!=='off' && localStorage.getItem('shortmint_reduced_motion')!=='on';}catch{return true;}};
   const particles=[];
   const MAX_PARTICLES=85;
   const tintsLight=[[244,155,120],[255,185,140],[237,183,177]];
@@ -56,7 +57,7 @@
     activeFrame=0;
     const dt=lastFrame?Math.min(35,time-lastFrame):16.7;lastFrame=time;
     ctx.clearRect(0,0,width,height);
-    if(!visible){particles.length=0;return;}
+    if(!visible || !effectsEnabled()){particles.length=0;pointer.hasTarget=false;return;}
     // Exponential smoothing is independent of the monitor's refresh rate.
     if(pointer.hasTarget && !reduced.matches){
       const oldX=pointer.x,oldY=pointer.y;
@@ -85,7 +86,7 @@
     if(pointer.hasTarget||particles.length)requestFrame();
   }
   function pointerMove(e){
-    if(!visible || reduced.matches || e.pointerType==='touch')return;
+    if(!visible || !effectsEnabled() || reduced.matches || e.pointerType==='touch')return;
     pointer.targetX=e.clientX;pointer.targetY=e.clientY;
     if(pointer.lastEmitX===null){pointer.x=e.clientX;pointer.y=e.clientY;
       pointer.lastEmitX=pointer.x;pointer.lastEmitY=pointer.y;spawn(pointer.x,pointer.y,false);}
@@ -93,9 +94,10 @@
   }
   window.addEventListener('pointermove',pointerMove,{passive:true,capture:true});
   window.addEventListener('pointerdown',e=>{
-    if(!visible)return;
+    if(!visible || !effectsEnabled())return;
     for(let i=0;i<(reduced.matches?3:9);i++)spawn(e.clientX,e.clientY,true);
   },{passive:true,capture:true});
+  document.addEventListener('shortmint:visual-prefs',()=>{if(!effectsEnabled()){particles.length=0;pointer.hasTarget=false;pointer.lastEmitX=null;ctx.clearRect(0,0,width,height);}});
   window.addEventListener('blur',()=>{pointer.hasTarget=false;pointer.lastEmitX=null;});
   window.addEventListener('pointerout',e=>{if(!e.relatedTarget){pointer.hasTarget=false;pointer.lastEmitX=null;}});
   document.addEventListener('visibilitychange',()=>{
