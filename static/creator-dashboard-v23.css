@@ -91,7 +91,7 @@ body:has(#dashboard-view:not(.hidden)){background:#f7f3ed!important;}
 #app-view #dashboard-view .sm23-front-card b{font-size:11px;display:block;}.sm23-front-card small{font-size:9px;color:#c7d6df;display:block;margin-top:3px;}
 @keyframes sm23Float{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-9px) rotate(-4deg)}}
 /* The actual connected account statistics and actions */
-#app-view #dashboard-view .page-heading{margin:46px 0 24px!important;align-items:center;}
+#app-view #dashboard-view .page-heading{margin:23px 0 24px!important;align-items:center;}
 #app-view #dashboard-view .page-heading .overline{font-size:10px;color:#cf764c;font-weight:850;letter-spacing:2px;}
 #app-view #dashboard-view .page-heading h1{font:850 clamp(32px,3.1vw,45px)/1.05 Outfit,system-ui,sans-serif;color:var(--sm23-ink);margin:11px 0 9px;letter-spacing:-1.8px;}
 #app-view #dashboard-view .page-heading h1 span{color:#ef844f;}
@@ -192,7 +192,7 @@ body.light-theme #app-view:has(#dashboard-view:not(.hidden)) .header-actions .ic
  #app-view #dashboard-view .sm23-creative-art{min-height:312px;}
  #app-view #dashboard-view .sm23-phone-wrap{top:54%;transform:translate(-50%,-50%) scale(.71);}
  #app-view #dashboard-view .sm23-art-foot{bottom:13px;}
- #app-view #dashboard-view .page-heading{margin:35px 0 18px!important;}
+ #app-view #dashboard-view .page-heading{margin:20px 0 18px!important;}
  #app-view #dashboard-view .metric-grid{grid-template-columns:1fr 1fr;gap:10px;}
  #app-view #dashboard-view .metric-card{padding:20px;min-height:143px;}
  #app-view #dashboard-view .metric-card strong{font-size:36px;}
