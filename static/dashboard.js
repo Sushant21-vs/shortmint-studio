@@ -245,6 +245,10 @@ async function loadAdmin(){
     $('#owner-whatsapp').value=adminState.contact_whatsapp||'';
     $('#invite-phone').value=adminState.invite_phone||'';
     $('#owner-email').value=adminState.contact_email||'';
+    $('#sm25-public-email').value=adminState.public_email||'';
+    $('#sm25-public-phone').value=adminState.public_phone||'';
+    $('#sm25-public-instagram').value=adminState.public_instagram||'';
+    $('#sm25-public-youtube').value=adminState.public_youtube_channels||'';
     $('#invite-list').innerHTML=adminState.invites.length?adminState.invites.map(i=>`<div class="history-row"><div><b class="invite-code">${safe(i.code)}</b><small>${i.used_by?'Used by '+safe(i.used_by):'Unused · Share with a friend'}</small></div><div class="admin-control-group">${!i.used_by?`<button class="copy-btn" data-copy-invite="${safe(i.code)}">Copy</button><button class="copy-btn" data-revoke-invite="${safe(i.code)}">Revoke</button>`:'<span class="status-tag approved">Used</span>'}</div></div>`).join(''):'<div class="empty-list">No invitation codes yet.</div>';
     $('#admin-requests').innerHTML=pending.length?pending.map(r=>`<div class="request-row"><div><b>${safe(r.username)}</b><small>${plural(r.amount)} requested · ${safe(timeLabel(r.created_at))}</small><small>${safe(r.message||'No message')}</small></div><div class="review-actions"><label class="sr-only" for="grant-${r.id}">Credits to grant</label><input id="grant-${r.id}" type="number" min="1" max="10000" value="${r.amount}" aria-label="Credits to grant"><button class="orange-btn small-btn" data-approve-request="${r.id}">✓ Approve</button><button class="outline-btn small-btn danger" data-reject-request="${r.id}">Reject</button></div></div>`).join(''):'<div class="empty-list">All caught up! No pending requests.</div>';
     $('#admin-purchases').innerHTML=pendingPurchases.length?pendingPurchases.map(p=>`<div class="request-row"><div><b>${safe(p.username)}</b><small>${plural(p.amount)} to buy · ${safe(timeLabel(p.created_at))}</small><small>Contact: ${safe(p.contact)}</small><small>${safe(p.message||'No additional message')}</small></div><div class="review-actions"><button class="orange-btn small-btn" data-fulfill-purchase="${p.id}">✓ Mark paid & grant</button><button class="outline-btn small-btn danger" data-reject-purchase="${p.id}">Reject</button></div></div>`).join(''):'<div class="empty-list">No pending purchase inquiries.</div>';
@@ -354,6 +358,24 @@ $('#invite-phone-form').addEventListener('submit',async event=>{
     toast(invite_phone?'Login page contact number saved.':'Login page contact number hidden.',true);
     loadAdmin();
   } catch(err) { toast(errorMessage(err)); }
+});
+$('#sm25-public-contact-form').addEventListener('submit',async event=>{
+  event.preventDefault();
+  const button=event.currentTarget.querySelector('button[type="submit"]');
+  button.disabled=true;
+  try{
+    await api('/api/admin/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      public_email:$('#sm25-public-email').value.trim(),
+      public_phone:$('#sm25-public-phone').value.trim(),
+      public_instagram:$('#sm25-public-instagram').value.trim(),
+      public_youtube_channels:$('#sm25-public-youtube').value.trim()
+    })});
+    $('#sm25-contact-form-note').textContent='Saved! Your sidebar contact links will update now.';
+    document.dispatchEvent(new Event('shortmint:contact-updated'));
+    toast('Public contact information saved.',true);
+    loadAdmin();
+  }catch(err){$('#sm25-contact-form-note').textContent=errorMessage(err);toast(errorMessage(err));}
+  finally{button.disabled=false;}
 });
 $('#owner-contact-form').addEventListener('submit',async event=>{
   event.preventDefault();

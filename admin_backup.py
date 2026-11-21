@@ -115,7 +115,8 @@ def install_backup_routes(app, has_active_exports=lambda: False):
                                 VALUES (?,?,?,?,?,?,?)''',
                              (id_map[req['user_id']],req['amount'],req['contact'],req['message'],req['status'],req['reviewed_at'],req['created_at']))
             for setting in old_settings:
-                if setting['name'] not in {'starting_credits','contact_email','contact_whatsapp','invite_phone','daily_download_credits'}:
+                if setting['name'] not in {'starting_credits','contact_email','contact_whatsapp','invite_phone','daily_download_credits',
+                                           'public_email','public_phone','public_instagram','public_youtube_channels'}:
                     continue
                 live.execute('INSERT INTO settings(name,value) VALUES (?,?) ON CONFLICT(name) DO UPDATE SET value=excluded.value',
                              (setting['name'],setting['value']))

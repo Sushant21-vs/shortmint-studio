@@ -8,6 +8,7 @@ import sqlite3
 import time
 import threading
 from pathlib import Path
+from urllib.parse import urlsplit
 from fastapi import Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
@@ -88,6 +89,10 @@ def init_db():
         INSERT OR IGNORE INTO settings(name,value) VALUES ('contact_email','');
         INSERT OR IGNORE INTO settings(name,value) VALUES ('contact_whatsapp','');
         INSERT OR IGNORE INTO settings(name,value) VALUES ('invite_phone','');
+        INSERT OR IGNORE INTO settings(name,value) VALUES ('public_email','');
+        INSERT OR IGNORE INTO settings(name,value) VALUES ('public_phone','');
+        INSERT OR IGNORE INTO settings(name,value) VALUES ('public_instagram','');
+        INSERT OR IGNORE INTO settings(name,value) VALUES ('public_youtube_channels','');
         INSERT OR IGNORE INTO settings(name,value) VALUES ('daily_download_credits','5');
         ''')
         # If the app was closed during export, return reserved credits on restart.
@@ -210,6 +215,54 @@ class AdjustBody(BaseModel):
     delta: int = Field(ge=-100000, le=100000)
 
 
+def _social_profile_url(value: str, platform: str) -> str:
+    """Accept official HTTPS profile/channel links or a short @handle only."""
+    value = value.strip()
+    if not value:
+        return ''
+    if value.startswith('@'):
+        handle = value[1:]
+        if not re.fullmatch(r'[A-Za-z0-9._-]{2,70}', handle):
+            raise ValueError(f'Invalid {platform} handle.')
+        return ('https://www.instagram.com/' + handle + '/' if platform == 'Instagram'
+                else 'https://www.youtube.com/@' + handle)
+    parsed = urlsplit(value)
+    allowed = {'www.instagram.com', 'instagram.com'} if platform == 'Instagram' else {
+        'www.youtube.com','youtube.com','m.youtube.com'}
+    if parsed.scheme != 'https' or parsed.netloc.lower() not in allowed or parsed.username or parsed.password:
+        raise ValueError(f'Enter an official HTTPS {platform} profile URL (or @handle).')
+    path = parsed.path.strip('/')
+    if not path or len(value) > 250 or parsed.fragment:
+        raise ValueError(f'Enter a valid {platform} profile/channel link.')
+    if platform == 'Instagram':
+        if '/' in path or path.lower() in {'reel','p','stories','explore','accounts'}:
+            raise ValueError('Enter an Instagram profile link, not a Reel or post.')
+    elif path.split('/')[0].lower() not in {'channel','c','user'} and not path.startswith('@'):
+        raise ValueError('Enter a YouTube channel URL or @handle, not a video link.')
+    if parsed.query:
+        raise ValueError('Remove tracking/query parameters from the profile link.')
+    return value
+
+
+def _youtube_rows(value: str):
+    lines=[line.strip() for line in value.splitlines() if line.strip()]
+    if len(lines) > 5:
+        raise ValueError('Add up to five YouTube channels (one per line).')
+    rows=[]
+    for index,line in enumerate(lines,1):
+        if '|' in line:
+            label,url = (part.strip() for part in line.split('|',1))
+        else:
+            label,url = '',line
+        url=_social_profile_url(url,'YouTube')
+        if label and (len(label)>48 or any(ord(c)<32 for c in label)):
+            raise ValueError('YouTube channel names must be under 49 characters.')
+        if not label:
+            label='YouTube · '+str(index)
+        rows.append({'label':label,'url':url})
+    return rows
+
+
 def install_auth_routes(app):
     from fastapi import Response
 
@@ -296,6 +349,20 @@ def install_auth_routes(app):
     def me(user=Depends(user_for_request)):
         return {'user':public_user(user)}
 
+    @app.get('/api/sidebar-contact')
+    def sidebar_contact(user=Depends(user_for_request)):
+        # Explicitly public-within-workspace fields. Never expose private account settings.
+        with db() as con:
+            vals={r['name']:r['value'] for r in con.execute(
+                "SELECT name,value FROM settings WHERE name IN ('public_email','public_phone','public_instagram','public_youtube_channels')")}
+        yt=[]
+        try:
+            yt=_youtube_rows(vals.get('public_youtube_channels',''))
+        except ValueError:
+            pass
+        return {'email':vals.get('public_email',''), 'phone':vals.get('public_phone',''),
+                'instagram':vals.get('public_instagram',''), 'youtube_channels':yt}
+
     @app.get('/api/credits/activity')
     def credits_activity(user=Depends(user_for_request)):
         with db() as con:
@@ -360,6 +427,10 @@ def install_auth_routes(app):
                 'contact_email':settings.get('contact_email',''),
                 'contact_whatsapp':settings.get('contact_whatsapp',''),
                 'invite_phone':settings.get('invite_phone',''),
+                'public_email':settings.get('public_email',''),
+                'public_phone':settings.get('public_phone',''),
+                'public_instagram':settings.get('public_instagram',''),
+                'public_youtube_channels':settings.get('public_youtube_channels',''),
                 'daily_download_credits':int(settings.get('daily_download_credits','5'))}
 
     @app.post('/api/admin/invites')
@@ -468,7 +539,8 @@ def install_auth_routes(app):
 
     @app.post('/api/admin/settings')
     def save_settings(body:dict,user=Depends(require_owner)):
-        valid={'starting_credits','contact_email','contact_whatsapp','daily_download_credits','invite_phone'}
+        valid={'starting_credits','contact_email','contact_whatsapp','daily_download_credits','invite_phone',
+               'public_email','public_phone','public_instagram','public_youtube_channels'}
         if not body or set(body)-valid:
             raise HTTPException(400,'Invalid settings update.')
         if 'daily_download_credits' in body:
@@ -493,6 +565,30 @@ def install_auth_routes(app):
             val=body['invite_phone']
             if not isinstance(val,str) or len(val)>28 or (val.strip() and not re.fullmatch(r'\+977(?:[ -]?\d){8,10}',val.strip())):
                 raise HTTPException(400,'Enter a Nepal phone number starting +977 followed by 8–10 digits, or leave blank.')
+        if 'public_email' in body:
+            val=body['public_email']
+            if not isinstance(val,str) or len(val)>120 or (val and not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+',val.strip())):
+                raise HTTPException(400,'Enter a valid contact email or leave blank.')
+        if 'public_phone' in body:
+            val=body['public_phone']
+            if not isinstance(val,str) or (val.strip() and not re.fullmatch(r'\+?[0-9 \-()]{7,28}',val.strip())) or (val.strip() and not 7<=len(re.sub(r'\D','',val))<=15):
+                raise HTTPException(400,'Enter a phone number with country code, or leave blank.')
+        if 'public_instagram' in body:
+            val=body['public_instagram']
+            if not isinstance(val,str):
+                raise HTTPException(400,'Invalid Instagram profile.')
+            try:
+                body['public_instagram']=_social_profile_url(val,'Instagram')
+            except ValueError as err:
+                raise HTTPException(400,str(err))
+        if 'public_youtube_channels' in body:
+            val=body['public_youtube_channels']
+            if not isinstance(val,str) or len(val)>1600:
+                raise HTTPException(400,'YouTube channels list is too long.')
+            try:
+                _youtube_rows(val)
+            except ValueError as err:
+                raise HTTPException(400,str(err))
         with db() as con:
             for name, value in body.items():
                 con.execute('INSERT INTO settings(name,value) VALUES (?,?) ON CONFLICT(name) DO UPDATE SET value=excluded.value',

@@ -1,0 +1,36 @@
+/* ShortMint 25 · compact, readable contact & socials sidebar card. */
+#app-view .sm-side-contact {
+  position:relative; overflow:hidden;
+  border:1px solid #3a4759; border-radius:17px;
+  padding:16px 14px 13px;
+  background:linear-gradient(145deg,#24313f 0%,#1a2634 80%);
+  color:#f8fbff;
+  box-shadow:0 9px 25px rgba(0,0,0,.12);
+}
+#app-view .sm-side-contact::before {content:"";position:absolute;inset:-70px -70px auto auto;width:145px;height:145px;border-radius:50%;background:radial-gradient(circle,#ff9a6440,transparent 65%);pointer-events:none}
+#app-view .sm25-contact-top{display:flex;gap:8px;align-items:center;color:#ffb281;font-size:9px;font-weight:850;letter-spacing:1.6px}
+#app-view .sm25-contact-orb{display:inline-grid;place-items:center;background:#ffb08222;border:1px solid #ffac7545;border-radius:9px;width:24px;height:24px;color:#ffb381;font-size:15px;flex:none}
+#app-view .sm-side-contact h2{font-family:Outfit,system-ui,sans-serif;font-weight:800;font-size:20px;line-height:1.15;margin:11px 0 3px;letter-spacing:-.6px;color:#fff}
+#app-view .sm-side-contact h2 span{color:#ff9b71}
+#app-view .sm25-contact-intro{color:#acb9c8;font-size:10px;line-height:1.5;margin:0 0 11px}
+#app-view .sm25-contact-links{display:flex;flex-direction:column;gap:6px;min-width:0;max-height:270px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#536477 transparent}
+#app-view a.sm25-contact-link{display:flex;align-items:center;gap:9px;min-width:0;padding:8px 7px;border-radius:10px;border:1px solid #3c4858;background:#ffffff0a;color:#f2f5fb;text-decoration:none;transition:background .18s ease, border-color .18s ease,transform .18s ease}
+#app-view a.sm25-contact-link:hover,#app-view a.sm25-contact-link:focus-visible{background:#ffffff18;border-color:#ffac79;transform:translateY(-1px)}
+#app-view a.sm25-contact-link .sm25-icon{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:9px;background:#ff9d7030;color:#ffbc94}
+#app-view a.sm25-contact-link .sm25-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#app-view a.sm25-contact-link .sm25-link-copy{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}
+#app-view a.sm25-contact-link .sm25-link-copy small{font-size:8px;color:#aab8c7;font-weight:700;letter-spacing:.7px;text-transform:uppercase}
+#app-view a.sm25-contact-link .sm25-link-copy strong{font-family:inherit;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.45}
+#app-view a.sm25-contact-link .sm25-chevron{color:#ffb68e;flex:none;font-size:13px}
+#app-view .sm25-contact-empty,#app-view .sm25-contact-tip{color:#aebdcd;font-size:10px;line-height:1.55}
+#app-view .sm25-contact-tip{margin:9px 0 0;border-top:1px solid #5360724a;padding-top:9px}
+/* Sidebar remains dark in either application theme, ensuring consistent contrast. */
+body.light-theme #app-view .sm-side-contact{background:linear-gradient(145deg,#24313f 0%,#1a2634 80%);color:#f8fbff;border-color:#3a4759}
+body.light-theme #app-view .sm-side-contact h2{color:#fff}
+body.light-theme #app-view a.sm25-contact-link{background:#ffffff0a;color:#f2f5fb;border-color:#3c4858}
+body.light-theme #app-view a.sm25-contact-link:hover{background:#ffffff18;border-color:#ffac79}
+#app-view .sm25-public-contact-settings{margin-block:22px 26px}
+#app-view .sm25-public-contact-settings .stack-form{max-width:720px}
+#app-view .sm25-public-contact-settings textarea{min-height:100px;resize:vertical;white-space:pre-wrap}
+@media(max-height:780px){#app-view .sm-side-contact{padding:12px}#app-view .sm25-contact-intro{display:none}#app-view .sm-side-contact h2{font-size:18px;margin:7px 0 10px}#app-view a.sm25-contact-link{padding:5px}}
+@media(prefers-reduced-motion:reduce){#app-view a.sm25-contact-link{transition:none}#app-view a.sm25-contact-link:hover{transform:none}}

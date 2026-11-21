@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="/spacious.css?v=20.0.0">
   <link rel="stylesheet" href="/creator-experience-v21.css?v=22.0.0">
   <link rel="stylesheet" href="/creator-dashboard-v23.css?v=23.0.0">
+  <link rel="stylesheet" href="/sidebar-contact-v25.css?v=25.0.0">
   <link rel="stylesheet" href="/shortmint-cloud-v24.css?v=24.0.1">
 </head>
 <body>
@@ -62,7 +63,13 @@
           <button class="nav-link hidden" id="admin-nav" data-view="admin"><svg class="sm-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 20 6v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4Z"/><path d="m9 12 2 2 4-4"/></svg><span>Admin Panel</span><span id="nav-request-count" class="mini-alert hidden">0</span></button>
       </nav>
       <div class="sm-side-bottom">
-        <div class="sm-side-spotlight"><span>⚡ CREATIVE MODE</span><strong>Turn videos into<br>what's next.</strong><p>Smart clips, montages, captions, and tools to keep creating.</p><button type="button" data-view="studio">Start creating <span>↗</span></button></div>
+        <section class="sm-side-contact" aria-label="ShortMint creator contact details">
+          <div class="sm25-contact-top"><span class="sm25-contact-orb" aria-hidden="true">✦</span><span>CONNECT WITH US</span></div>
+          <h2>Stay connected<span>.</span></h2>
+          <p class="sm25-contact-intro">Questions, collabs or channel updates? Reach out.</p>
+          <div id="sm25-contact-links" class="sm25-contact-links" aria-live="polite"><span class="sm25-contact-empty">Loading contacts…</span></div>
+          <p id="sm25-contact-owner-tip" class="sm25-contact-tip hidden">Add your email, phone and social links in Admin → Public Contact &amp; Socials.</p>
+        </section>
         <div id="sm-engine-status" class="sm-engine-status" role="status"><i class="sm-engine-light"></i><span>Checking video engine</span><b>STATUS</b></div>
         <div class="sm-side-credit">BUILT WITH INTENT <span>·</span> SUSHANT HERO</div>
       </div>
@@ -179,6 +186,24 @@
           </article>
           <article class="dashboard-panel"><span class="card-kicker">MANUAL PAYMENTS</span><h2>You stay in control</h2><p>Members send purchase inquiries, but ShortMint never charges them. After you receive and verify payment outside the website, click <strong>Mark paid & grant</strong>. The credits are then added to their account.</p><p class="mini-caption">Never mark a request paid based only on a screenshot. Verify funds through your own payment account.</p></article>
         </div>
+        <article class="dashboard-panel sm25-public-contact-settings" id="sm25-public-contact-settings">
+          <span class="card-kicker">PUBLIC PROFILE · CONTACT &amp; SOCIALS</span>
+          <h2>Your sidebar contact details</h2>
+          <p>Set which email, phone and social accounts your signed-in users can see in the left sidebar. Blank fields stay hidden. These are separate from private account details and your Buy Credits contacts.</p>
+          <form id="sm25-public-contact-form" class="stack-form">
+            <label for="sm25-public-email">Public contact email</label>
+            <input id="sm25-public-email" type="email" maxlength="120" placeholder="hello@example.com" autocomplete="off">
+            <label for="sm25-public-phone">Public phone / call number</label>
+            <input id="sm25-public-phone" type="tel" maxlength="28" placeholder="+977 98XXXXXXXX" autocomplete="off">
+            <label for="sm25-public-instagram">Instagram profile URL or @handle</label>
+            <input id="sm25-public-instagram" type="text" maxlength="250" placeholder="https://www.instagram.com/yourhandle/" autocomplete="off">
+            <label for="sm25-public-youtube">YouTube channels (one per line, up to 5)</label>
+            <textarea id="sm25-public-youtube" rows="4" maxlength="1600" placeholder="Main channel | https://www.youtube.com/@yourchannel
+Second channel | https://www.youtube.com/@secondchannel"></textarea>
+            <button class="secondary-btn" type="submit">Save public contact links</button>
+          </form>
+          <p class="mini-caption" id="sm25-contact-form-note" role="status">Only save contact details you're comfortable sharing with everyone who signs in.</p>
+        </article>
         <article class="dashboard-panel invite-phone-admin-panel">
           <span class="card-kicker">PUBLIC LOGIN PAGE</span>
           <h2>Free Invite Code — Contact Number</h2>
@@ -265,6 +290,7 @@
   <script src="/account-safety.js?v=20.0.0" defer></script>
   <script src="/creator-experience-v21.js?v=22.0.0" defer></script>
   <script src="/creator-dashboard-v23.js?v=23.0.0" defer></script>
-  <script src="/shortmint-cloud-v24.js?v=24.0.1" defer></script>
+  <script src="/shortmint-cloud-v24.js?v=25.0.0" defer></script>
+  <script src="/sidebar-contact-v25.js?v=25.0.0" defer></script>
 </body>
 </html>
