@@ -6,6 +6,7 @@ let mode = 'montage';
 let crop = 'center';
 let activeTask = null;
 let pollTimer = null;
+let sm38ExportPreparing = false;
 let smPollErrors = 0;
 let toastTimer = null;
 let captionsPending = false;
@@ -306,7 +307,6 @@ function loadProject(data) {
   setStep((data.clips || []).length ? 3 : 2);
   $('#editing-area').scrollIntoView({behavior:'smooth',block:'start'});
   if (typeof refreshData === 'function') refreshData();
-  if (typeof window.sm33VoiceStudioReady === 'function') window.sm33VoiceStudioReady();
 }
 async function loadSavedProject() {
   const id = localStorage.getItem('shortmint_project');
@@ -369,9 +369,9 @@ async function generateClips() {
     start: getStart(), crop_mode: crop, resolution: $('#resolution').value,
     title: $('#overlay-title').value.trim(), title_position: $('#title-position').value,
     caption_srt: $('#caption-srt').value, watermark: $('#watermark').value.trim(),
-    focus_x: Number($('#focus-x').value), normalize_audio: $('#normalize-audio').checked,
-    ...(typeof window.sm33VoiceoverFields === 'function' ? window.sm33VoiceoverFields() : {})
+    focus_x: Number($('#focus-x').value), normalize_audio: $('#normalize-audio').checked
   };
+  sm38ExportPreparing = true;
   $('#generate-button').disabled = true;
   $('#export-panel').classList.remove('hidden');
   $('#export-progress-fill').style.width = '0%';
@@ -387,9 +387,11 @@ async function generateClips() {
     }
     const result = await api('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     activeTask = result.task_id;
+    sm38ExportPreparing = false;
     smPollErrors = 0;
     checkTask();
   } catch (err) {
+    sm38ExportPreparing = false;
     $('#generate-button').disabled = false;
     $('#export-panel').classList.add('hidden'); toast(errorMessage(err));
   }
@@ -440,5 +442,5 @@ $('#cancel-button').addEventListener('click',async () => {
   try { await api(`/api/cancel/${activeTask}`,{method:'POST'}); }
   catch (err) { toast(errorMessage(err)); $('#cancel-button').disabled = false; }
 });
-window.addEventListener('beforeunload', event => { if (activeTask) { event.preventDefault(); event.returnValue = ''; } });
+window.addEventListener('beforeunload', event => { if (activeTask || sm38ExportPreparing) { event.preventDefault(); event.returnValue = ''; } });
 // Sign-in and dashboard initialization are handled by dashboard.js.

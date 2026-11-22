@@ -1,0 +1,23 @@
+/* ShortMint Studio v38 — optional captions and the in-progress reminder. */
+#editor-view .sm33-auto-caption-toggle {
+  display:flex;align-items:flex-start;gap:11px;cursor:pointer;border-radius:13px;
+  padding:12px 14px;background:rgba(255,135,89,.06);
+  border:1px solid rgba(255,135,89,.24);margin:12px 0 17px;
+}
+#editor-view .sm33-auto-caption-toggle input {accent-color:#f47742;flex:none;margin:3px 0 0;transform:scale(1.14)}
+#editor-view .sm33-auto-caption-toggle span {display:grid;gap:4px}
+#editor-view .sm33-auto-caption-toggle strong {font-size:12px;font-weight:800;color:#f4f6fa}
+#editor-view .sm33-auto-caption-toggle small {font-size:11px;color:#aab5c3;line-height:1.5}
+#editor-view .sm38-processing-notice {
+  display:flex;align-items:center;gap:12px;margin:18px 0 5px;padding:15px 17px;
+  border-radius:13px;border:1px solid rgba(255,164,96,.44);
+  background:linear-gradient(115deg,rgba(255,142,77,.17),rgba(255,190,101,.06));
+  color:#ffdec2;box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+}
+#editor-view .sm38-processing-icon {
+  display:grid;place-items:center;width:28px;height:28px;flex:0 0 28px;
+  border-radius:50%;background:#fa8b50;color:#171e2a;font-weight:950;font-size:15px;
+}
+#editor-view .sm38-processing-notice strong {display:block;font-size:13px;line-height:1.5;font-weight:850;color:#fff1e2}
+#editor-view .sm38-processing-notice small {display:block;margin-top:2px;font-size:11px;line-height:1.45;color:#ebbb9d}
+@media(max-width:520px){#editor-view .sm38-processing-notice {padding:12px 13px;align-items:flex-start}}

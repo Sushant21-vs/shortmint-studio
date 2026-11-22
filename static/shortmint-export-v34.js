@@ -1,10 +1,10 @@
-/* ShortMint v34 — server-aware UHD choices and saved editor preferences. */
+/* ShortMint v36 — 540p/720p/1080p export choices and saved editor preferences. */
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
  const KEY='shortmint_editor_defaults_v34';
- const DEFAULTS=Object.freeze({quality:'1080',length:'30',count:'1',crop:'center',normalize:true,voice:'ava',mix:'replace',captions:false});
- const prefIds={quality:'sm34-quality',length:'sm34-length',count:'sm34-count',crop:'sm34-crop',normalize:'sm34-normalize',voice:'sm34-voice',mix:'sm34-mix',captions:'sm34-captions'};
+ const DEFAULTS=Object.freeze({quality:'1080',length:'30',count:'1',crop:'center',normalize:true,captions:false});
+ const prefIds={quality:'sm34-quality',length:'sm34-length',count:'sm34-count',crop:'sm34-crop',normalize:'sm34-normalize',captions:'sm34-captions'};
  let capabilities=null;
  function saved(){
    try {
@@ -31,28 +31,19 @@
  }
  function setMsg(message){$('sm34-prefs-status').textContent=message;}
  function setQualityMessage(){
-   const quality=$('resolution').value;
-   const data=capabilities?.qualities?.[quality];
-   let msg=quality==='2160'?'4K (2160 × 3840) requires a higher-memory server and can render slowly.'
-           :'1080p is recommended for most Shorts. 4K export increases file size and processing load.';
-   if(data&&!data.available)msg=data.reason;
-   msg+=' Enlarging a low-resolution source does not add real detail.';
-   $('sm34-quality-hint').textContent=msg;
+   $('sm34-quality-hint').textContent='1080p is the highest available quality. Upscaling low-resolution video cannot add real detail.';
  }
  function applyToEditor(values,showFeedback=true){
    let quality=values.quality;
-   if(capabilities?.qualities?.[quality]?.available===false){
+   if(![...$('resolution').options].some(o=>o.value===quality) || capabilities?.qualities?.[quality]?.available===false){
      quality='1080';
-     if(showFeedback)setMsg('Your stored high-resolution preference is not supported on this server. Applied 1080p instead.');
+     if(showFeedback)setMsg('Your stored quality preference is unavailable. Applied 1080p instead.');
    }
    $('resolution').value=quality;
    $('clip-length').value=values.length;
    $('clip-count').value=values.count;
    $('normalize-audio').checked=values.normalize;
    $('sm33-auto-captions-export').checked=values.captions;
-   $('sm33-voice-mix').value=values.mix;
-   const voice=document.querySelector(`[data-sm33-voice="${values.voice}"]`);
-   if(voice&&!voice.classList.contains('selected'))voice.click();
    const crop=document.querySelector(`#crop-choices button[data-value="${values.crop}"]`);
    if(crop&&!crop.classList.contains('active'))crop.click();
    $('clip-count').dispatchEvent(new Event('change',{bubbles:true}));
@@ -91,16 +82,12 @@
            if(option){option.disabled=!state.available;option.title=state.reason;}
          }
        }
-       const mem=capabilities.memory_mb;
-       const available=Object.values(capabilities.qualities||{}).filter(q=>q.available&&q.width>=2160).map(q=>q.label);
-       $('sm34-server-note').textContent=available.length
-          ?`This server supports: 1080p, ${available.join(', ')}. Reported memory: ${mem?Math.round(mem/1024*10)/10+' GB':'unknown'}. High-resolution exports are slower and may use significant storage.`
-          :`4K needs a server with at least 2 GB RAM. Current server memory: ${mem?mem+' MB':'unknown'}. 1080p remains available.`;
+       $('sm34-server-note').textContent='Available exports: 540p, 720p and 1080p (maximum). Select your preferred default above.';
        if(capabilities.qualities[$('resolution').value]?.available===false){
          $('resolution').value='1080';
        }
        setQualityMessage();
-     } catch(err){$('sm34-server-note').textContent='Unable to check high-resolution server capacity. Export may be restricted.';}
+     } catch(err){$('sm34-server-note').textContent='Unable to verify export options with the server. Standard choices are 540p, 720p and 1080p.';}
      finally{loading=null;}
    })();
    return loading;
