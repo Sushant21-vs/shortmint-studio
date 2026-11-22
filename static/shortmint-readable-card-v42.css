@@ -1,0 +1,68 @@
+/* ShortMint Studio v42 — accessible, neutral quick-start card.
+   Loaded after legacy styles to ensure all text remains legible. */
+#app-view #dashboard-view .primary-grid .highlight-panel.sm42-quick-start,
+body.light-theme #app-view #dashboard-view .primary-grid .highlight-panel.sm42-quick-start {
+  background:linear-gradient(155deg,#28384c 0%,#202e40 100%)!important;
+  border:1px solid #455a70!important;
+  color:#f8fafc!important;
+  box-shadow:0 10px 26px rgba(1,9,21,.18)!important;
+}
+#app-view #dashboard-view .primary-grid .highlight-panel.sm42-quick-start h2,
+body.light-theme #app-view #dashboard-view .primary-grid .highlight-panel.sm42-quick-start h2 {
+  color:#ffffff!important;
+  font-weight:800;
+  text-shadow:none!important;
+}
+#app-view #dashboard-view .primary-grid .highlight-panel.sm42-quick-start p,
+body.light-theme #app-view #dashboard-view .primary-grid .highlight-panel.sm42-quick-start p {
+  color:#d2deea!important;
+  opacity:1!important;
+  text-shadow:none!important;
+}
+#app-view #dashboard-view .primary-grid .highlight-panel.sm42-quick-start .card-kicker,
+body.light-theme #app-view #dashboard-view .primary-grid .highlight-panel.sm42-quick-start .card-kicker {
+  color:#ffae7f!important;
+  font-weight:800;
+  letter-spacing:1.65px;
+}
+#app-view #dashboard-view .sm42-quick-content {width:100%;}
+#app-view #dashboard-view .sm42-refresh-notice {
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  background:#33445a;
+  border:1px solid #53657a;
+  border-radius:11px;
+  margin-top:18px;
+  padding:12px 13px;
+  color:#eaf0f6!important;
+  font-size:12px;
+  font-weight:500;
+  line-height:1.6;
+}
+#app-view #dashboard-view .sm42-refresh-notice strong {color:#fff; font-weight:800;}
+#app-view #dashboard-view .sm42-notice-icon {
+  display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;min-width:20px;border-radius:50%;
+  color:#2a3543;background:#ffc58f;
+  font-size:13px;font-weight:900;line-height:1;
+  margin-top:1px;
+}
+#app-view #dashboard-view .primary-grid .highlight-panel.sm42-quick-start .orange-btn,
+body.light-theme #app-view #dashboard-view .primary-grid .highlight-panel.sm42-quick-start .orange-btn {
+  background:#f46a38!important;
+  color:#ffffff!important;
+  border:1px solid #fa8b61!important;
+  border-radius:12px;
+  font-weight:800;
+  box-shadow:0 9px 22px rgba(0,0,0,.16)!important;
+}
+#app-view #dashboard-view .primary-grid .highlight-panel.sm42-quick-start .orange-btn:hover {
+  background:#df5827!important;
+}
+#app-view #dashboard-view .primary-grid .highlight-panel.sm42-quick-start .orange-btn:focus-visible {
+  outline:3px solid #ffffff;outline-offset:3px;
+}
+@media (max-width:620px) {
+  #app-view #dashboard-view .sm42-refresh-notice {font-size:11.5px;padding:11px;}
+}

@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="/shortmint-export-v34.css?v=34.0.0">
   <link rel="stylesheet" href="/shortmint-brand-v37.css?v=37.0.0">
   <link rel="stylesheet" href="/shortmint-google-migration-v41.css?v=41.0.0">
+<link rel="stylesheet" href="/shortmint-readable-card-v42.css?v=42.0.0">
 </head>
 <body>
   <section id="auth-view" class="auth-screen hidden" aria-label="ShortMint Studio sign in">
@@ -235,7 +236,18 @@
         </div>
         <div class="sm23-section-kicker"><span>THE NEXT STEP</span><span>MAKE IT YOURS ↗</span></div>
         <div class="primary-grid">
-          <article class="dashboard-panel highlight-panel"><div><span class="card-kicker">QUICK START</span><h2>Create New Project</h2><p>Upload your video, shape the best moments, and export a polished vertical Short.</p></div><button id="dashboard-new-project" type="button" class="orange-btn wide">＋ &nbsp; New Project <span>→</span></button></article>
+          <article class="dashboard-panel highlight-panel sm42-quick-start">
+            <div class="sm42-quick-content">
+              <span class="card-kicker">QUICK START</span>
+              <h2>Create New Project</h2>
+              <p>Upload your video, shape the best moments, and export a polished vertical Short.</p>
+              <div class="sm42-refresh-notice" role="note" aria-label="Temporary video storage notice">
+                <span class="sm42-notice-icon" aria-hidden="true">!</span>
+                <span><strong>Videos are temporarily stored.</strong> Uploaded files and unsaved work may be lost after refreshing or leaving this page. Download your finished Shorts before leaving.</span>
+              </div>
+            </div>
+            <button id="dashboard-new-project" type="button" class="orange-btn wide">＋ &nbsp; New Project <span>→</span></button>
+          </article>
           <article class="dashboard-panel"><div><span class="card-kicker muted-orange">ACCOUNT & ACCESS</span><h2 id="access-heading">Manage Credits</h2><p id="access-description">Keep creating with credits approved by the owner.</p></div><div class="panel-actions"><button id="dashboard-manage-credits" class="secondary-btn wide">View Credit Balance</button><button id="dashboard-secondary-action" class="gray-btn wide">Buy Credits / Contact Owner</button></div></article>
         </div>
         <div class="section-title-row"><h2>Tips & inspiration <span class="little-flare">✦</span></h2><span>Better Shorts, one video at a time</span></div>
