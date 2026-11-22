@@ -171,6 +171,22 @@ DDL = [
     )''',
     'CREATE INDEX IF NOT EXISTS idx_migration_checks_ip ON account_migration_checks(ip_hash,created_at)',
     'CREATE INDEX IF NOT EXISTS idx_migration_checks_email ON account_migration_checks(email_hash,created_at)',
+    '''CREATE TABLE IF NOT EXISTS order_threads (
+        id BIGSERIAL PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES users(id),
+        kind TEXT NOT NULL CHECK(kind IN ('order','question','support')),
+        subject TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'new'
+          CHECK(status IN ('new','in_progress','completed')),
+        created_at BIGINT NOT NULL, updated_at BIGINT NOT NULL,
+        client_read_id BIGINT NOT NULL DEFAULT 0, owner_read_id BIGINT NOT NULL DEFAULT 0
+    )''',
+    '''CREATE TABLE IF NOT EXISTS order_messages (
+        id BIGSERIAL PRIMARY KEY, thread_id BIGINT NOT NULL REFERENCES order_threads(id),
+        sender_id BIGINT NOT NULL REFERENCES users(id),
+        body TEXT NOT NULL, created_at BIGINT NOT NULL
+    )''',
+    'CREATE INDEX IF NOT EXISTS idx_orders_user_updated ON order_threads(user_id,updated_at)',
+    'CREATE INDEX IF NOT EXISTS idx_order_messages_thread ON order_messages(thread_id,id)',
+    'CREATE INDEX IF NOT EXISTS idx_order_messages_sender_time ON order_messages(sender_id,created_at)',
 ]
 
 DEFAULT_SETTINGS = {

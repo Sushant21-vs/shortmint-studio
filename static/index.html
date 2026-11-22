@@ -28,6 +28,7 @@
   <link rel="stylesheet" href="/shortmint-google-migration-v41.css?v=41.0.0">
 <link rel="stylesheet" href="/shortmint-readable-card-v42.css?v=42.0.0">
   <link rel="stylesheet" href="/shortmint-upload-contrast-v43.css?v=43.0.0">
+  <link rel="stylesheet" href="/shortmint-orders-v44.css?v=44.0.0">
 </head>
 <body>
   <section id="auth-view" class="auth-screen hidden" aria-label="ShortMint Studio sign in">
@@ -190,6 +191,10 @@
           <button class="nav-link"  data-view="studio"><svg class="sm-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3V9Z"/></svg><span>Create Shorts</span></button>
           <button class="nav-link"  data-view="credits"><svg class="sm-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="15" rx="3"/><path d="M3 10h18M16 16h2M7 3h12"/></svg><span>My Credits</span></button>
           <button class="nav-link" id="buy-nav" data-view="buy"><svg class="sm-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h18l-2 12H5L3 8Z"/><path d="M8 9V6a4 4 0 0 1 8 0v3"/></svg><span>Buy Credits</span></button>
+          <button class="nav-link" id="sm44-nav" data-view="orders" type="button">
+            <svg class="sm-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v12H9l-5 4V5Z"/><path d="M8 9h8m-8 4h5"/></svg>
+            <span>Orders &amp; Messages</span><span id="sm44-unread-badge" class="mini-alert hidden">0</span>
+          </button>
           <button class="nav-link hidden" id="admin-nav" data-view="admin"><svg class="sm-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 20 6v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4Z"/><path d="m9 12 2 2 4-4"/></svg><span>Admin Panel</span><span id="nav-request-count" class="mini-alert hidden">0</span></button>
           <button class="nav-link sm30-settings-nav" type="button" data-view="settings" aria-label="Open workspace settings">
             <svg class="sm-nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M10.2 2.5h3.6l.6 2.6 2.3 1.3 2.55-.8 1.8 3.15-1.94 1.86v2.8l1.94 1.86-1.8 3.15-2.55-.8-2.3 1.3-.6 2.6h-3.6l-.6-2.6-2.3-1.3-2.55.8-1.8-3.15 1.94-1.86v-2.8L2.95 8.75l1.8-3.15 2.55.8 2.3-1.3.6-2.6Z"/></svg>
@@ -286,8 +291,51 @@
           <article class="dashboard-panel"><span class="card-kicker">YOUR PURCHASE INQUIRIES</span><h2>Request Status</h2><div id="purchase-history" class="history-list"></div></article>
         </div>
       </section>
+      <section id="orders-view" class="app-page hidden" aria-labelledby="sm44-page-title">
+        <div class="sm44-hero">
+          <div><span class="sm44-eyebrow">SHORTMINT / PRIVATE MESSAGING</span><h1 id="sm44-page-title">Orders <em>&amp; messages.</em></h1>
+          <p>Send a custom order or ask the owner directly. Your conversations are private and connected to your ShortMint account.</p></div>
+          <div class="sm44-hero-mark" aria-hidden="true">✦</div>
+        </div>
+        <div class="sm44-layout">
+          <aside class="sm44-sidebar" aria-label="Your conversations">
+            <div class="sm44-sidebar-top"><div><strong id="sm44-inbox-title">Your conversations</strong><small id="sm44-inbox-subtitle">Private, account-linked messages</small></div><button type="button" id="sm44-new-button" class="sm44-new">+ New</button></div>
+            <div id="sm44-thread-list" class="sm44-list" role="list"><p class="sm44-muted">Loading conversations…</p></div>
+            <button id="sm44-refresh" class="sm44-refresh" type="button">↻ Refresh inbox</button>
+          </aside>
+          <div class="sm44-main">
+            <div id="sm44-new-panel" class="sm44-panel">
+              <span class="sm44-eyebrow">SEND A REQUEST</span><h2>Message the owner</h2>
+              <p>Describe what you need. The owner can reply here; no external app is required.</p>
+              <form id="sm44-new-form" class="sm44-form">
+                <label for="sm44-kind">Message type</label><select id="sm44-kind" required>
+                  <option value="order">Custom video order</option><option value="question">General question</option><option value="support">Account or technical support</option>
+                </select>
+                <label for="sm44-subject">Subject</label><input id="sm44-subject" maxlength="100" minlength="3" required placeholder="e.g. Create Shorts for my channel">
+                <label for="sm44-message">Describe your request</label><textarea id="sm44-message" rows="6" minlength="5" maxlength="2000" required placeholder="What would you like? Include video length, quantity, deadline or questions if relevant."></textarea>
+                <p class="sm44-hint">A request does not charge you. Confirm any pricing or payment directly with the owner.</p>
+                <button class="sm44-send" id="sm44-send-request" type="submit">Send to owner <span aria-hidden="true">↗</span></button>
+              </form>
+            </div>
+            <div id="sm44-chat-panel" class="sm44-panel hidden">
+              <div class="sm44-chat-head"><button id="sm44-back" type="button" class="sm44-back">← Inbox</button>
+                <div><span class="sm44-eyebrow" id="sm44-chat-type">DIRECT MESSAGE</span><h2 id="sm44-chat-title">Conversation</h2><p id="sm44-chat-meta"></p></div>
+                <span id="sm44-status-tag" class="sm44-status" data-status="new">New</span></div>
+              <div id="sm44-owner-status" class="sm44-owner-status hidden"><label for="sm44-status-select">Order status</label><select id="sm44-status-select"><option value="new">New</option><option value="in_progress">In progress</option><option value="completed">Completed</option></select><button type="button" id="sm44-update-status">Save status</button></div>
+              <div id="sm44-message-feed" class="sm44-feed" role="log" aria-live="polite"><p class="sm44-muted">Loading messages…</p></div>
+              <form id="sm44-reply-form" class="sm44-reply-form"><label class="sr-only" for="sm44-reply">Your reply</label><textarea id="sm44-reply" rows="3" maxlength="2000" required placeholder="Write a reply…"></textarea><button type="submit" id="sm44-reply-send" class="sm44-send">Send reply ↗</button></form>
+            </div>
+            <div id="sm44-empty-panel" class="sm44-panel sm44-empty hidden"><span aria-hidden="true">✉</span><h2>Select a conversation</h2><p>Open an order or message from the left to read and reply.</p></div>
+          </div>
+        </div>
+        <p id="sm44-feedback" class="sm44-feedback" role="status" aria-live="polite"></p>
+      </section>
       <section id="admin-view" class="app-page hidden">
         <div class="page-heading sm-admin-hero"><div class="sm-admin-hero-copy"><span class="sm-admin-status"><span class="sm-admin-dot"></span> SHORTMINT / OWNER CONTROL CENTER</span><h1>Your studio, <em>your rules.</em> <span class="wave" aria-hidden="true">✦</span></h1><p>Everything you need to manage your creators, invitations and credits in one beautiful workspace.</p><div class="sm-admin-shortcuts"><button class="sm-admin-jump" type="button" data-sm-jump="sm-admin-members-section">Members <span>↗</span></button><button class="sm-admin-jump" type="button" data-sm-jump="sm-admin-invites-section">Invites <span>↗</span></button><button class="sm-admin-jump" type="button" data-sm-jump="sm-admin-safety-section">Backups <span>↗</span></button></div></div><div class="sm-admin-hero-action"><div class="sm-admin-hero-icon" aria-hidden="true">✦</div><button id="admin-refresh" class="outline-btn">↻ Refresh data</button><small id="sm-admin-sync" aria-live="polite">Live account overview</small></div></div>
+        <article class="dashboard-panel sm44-admin-banner" id="sm44-admin-orders">
+          <div><span class="card-kicker">CUSTOMER ENQUIRIES</span><h2>Orders &amp; direct messages</h2><p>Read customer requests, reply directly and manage order status in your private owner inbox.</p></div>
+          <button type="button" class="sm44-send" data-view="orders">Open owner inbox <span id="sm44-admin-unread">↗</span></button>
+        </article>
         <div class="admin-summary sm-admin-metrics"><div><span class="sm-stat-icon">♙</span><span>Members</span><strong id="admin-members">0</strong><small>Registered creator accounts</small></div><div><span class="sm-stat-icon">⌁</span><span>Pending requests</span><strong id="admin-pending">0</strong><small>Awaiting your decision</small></div><div><span class="sm-stat-icon">✧</span><span>Active invitations</span><strong id="admin-invites">0</strong><small>Unused invite codes</small></div></div>
         <article id="sm-admin-safety-section" class="dashboard-panel sm-data-safety-panel" aria-label="Back up your member data">
           <span class="card-kicker">SECURE YOUR WORKSPACE <span class="sm-security-indicator">● PRIVATE BACKUP</span></span><h2>Keep your creators and credits safe.</h2>
@@ -501,11 +549,12 @@ Second channel | https://www.youtube.com/@secondchannel"></textarea>
     <div class="sm-command-shade" data-command-close="1"></div>
     <div class="sm-command-panel"><div class="sm-command-input"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="sm-command-search" type="search" placeholder="Search your workspace..." autocomplete="off" aria-label="Search quick actions"><kbd>ESC</kbd></div>
       <div class="sm-command-label" id="sm-command-title">QUICK NAVIGATION</div>
-      <div class="sm-command-items"><button type="button" data-view="dashboard" data-command-name="dashboard overview">Dashboard <span>↗</span></button><button type="button" data-view="studio" data-command-name="new project create shorts editor video">Create Shorts <span>↗</span></button><button type="button" data-view="credits" data-command-name="credits request balance">Credits & Requests <span>↗</span></button><button type="button" data-view="buy" data-command-name="buy credits contact owner">Buy Credits <span>↗</span></button><button type="button" data-view="admin" data-command-name="admin manage users">Admin Panel <span>↗</span></button><button type="button" data-view="settings" data-command-name="settings preferences theme cloud">Settings <span>↗</span></button></div>
+      <div class="sm-command-items"><button type="button" data-view="dashboard" data-command-name="dashboard overview">Dashboard <span>↗</span></button><button type="button" data-view="studio" data-command-name="new project create shorts editor video">Create Shorts <span>↗</span></button><button type="button" data-view="credits" data-command-name="credits request balance">Credits & Requests <span>↗</span></button><button type="button" data-view="buy" data-command-name="buy credits contact owner">Buy Credits <span>↗</span></button><button type="button" data-view="orders" data-command-name="orders messages inbox direct contact owner custom requests">Orders &amp; Messages <span>↗</span></button><button type="button" data-view="admin" data-command-name="admin manage users">Admin Panel <span>↗</span></button><button type="button" data-view="settings" data-command-name="settings preferences theme cloud">Settings <span>↗</span></button></div>
       <div class="sm-command-foot">Navigate with keyboard · <kbd>Ctrl</kbd> + <kbd>K</kbd> to open</div>
     </div>
   </div>
   <div class="toast hidden" id="toast" role="alert"><span id="toast-icon">!</span><div id="toast-text"></div><button id="toast-dismiss" type="button" aria-label="Dismiss">×</button></div>
+  <script src="/shortmint-orders-v44.js?v=44.0.0" defer></script>
   <script src="/app.js?v=40.0.0" defer></script><script src="/dashboard.js?v=39.0.0" defer></script><script src="/shortmint-migration-v41.js?v=41.0.0" defer></script><script src="/premium.js?v=14.0.0" defer></script>
   <script src="/spacious.js?v=15.0.0" defer></script>
   <script src="/account-safety.js?v=20.0.0" defer></script>

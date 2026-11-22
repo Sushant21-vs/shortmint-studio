@@ -11,19 +11,21 @@ const nodes = selector => Array.from(document.querySelectorAll(selector));
 function showView(view) {
   if (!currentUser) return;
   if ((view === 'admin' && currentUser.role !== 'owner') || (view === 'buy' && currentUser.role === 'owner')) {toast('Admin access is for the site owner only.');return;}
-  for (const name of ['dashboard','credits','buy','admin','studio','settings']) {
+  for (const name of ['dashboard','credits','buy','admin','studio','settings','orders']) {
     const id = name === 'studio' ? 'editor-view' : name+'-view';
     document.getElementById(id).classList.toggle('hidden',view!==name);
   }
   nodes('[data-view]').forEach(b => b.classList.toggle('active',b.dataset.view===view));
   const pageTitle=document.getElementById('sm-current-page');
-  if(pageTitle)pageTitle.textContent=({dashboard:'Overview',credits:'My Credits',buy:'Buy Credits',admin:'Admin Panel',studio:'Create Shorts',settings:'Settings'})[view]||'Overview';
+  if(pageTitle)pageTitle.textContent=({dashboard:'Overview',credits:'My Credits',buy:'Buy Credits',admin:'Admin Panel',studio:'Create Shorts',settings:'Settings',orders:'Orders & Messages'})[view]||'Overview';
   if(view==='settings' && typeof window.sm30SyncAccount==='function')window.sm30SyncAccount(currentUser);
   window.scrollTo({top:0,behavior:'instant'});
   if (view==='admin') loadAdmin();
   if (view==='credits') loadCreditActivity();
   if (view==='buy') loadBuyCredits();
   if (view==='dashboard') refreshData();
+  if (view==='orders' && typeof window.sm44LoadInbox==='function') window.sm44LoadInbox();
+  if (view==='admin' && typeof window.sm44RefreshBadge==='function') window.sm44RefreshBadge();
 }
 function updateUser() {
   if (!currentUser) return;
@@ -94,6 +96,7 @@ async function loadPublicInvitePhone() {
   } catch { renderPublicInvitePhone(''); }
 }
 function showLogin() {
+  if(typeof window.sm44ClearSession==='function')window.sm44ClearSession();
   currentUser=null;
   $('#app-view').classList.add('hidden');
   $('#auth-view').classList.remove('hidden');
@@ -106,6 +109,7 @@ function showApp(user) {
   $('#app-view').classList.remove('hidden');
   updateUser();
   showView('dashboard');
+  if(typeof window.sm44RefreshBadge==='function') window.sm44RefreshBadge();
   if(typeof window.sm34RefreshCapabilities==='function')window.sm34RefreshCapabilities();
 }
 function setAuthMode(next) {
@@ -153,6 +157,7 @@ $('#logout-button').addEventListener('click',async()=>{
   if(activeTask && !confirm('An export is running. Logging out will not stop the export. Continue?'))return;
   try{await api('/api/auth/logout',{method:'POST'});}catch{}
   project=null;activeTask=null;lastProjects=[];
+  if(typeof window.sm44ClearSession==='function')window.sm44ClearSession();
   showLogin();
 });
 

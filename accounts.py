@@ -204,6 +204,26 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_migration_checks_ip ON account_migration_checks(ip_hash,created_at);
         CREATE INDEX IF NOT EXISTS idx_migration_checks_email ON account_migration_checks(email_hash,created_at);
         ''')
+        # v44 private order enquiries and direct messages.
+        con.executescript('''
+        CREATE TABLE IF NOT EXISTS order_threads (
+            id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id),
+            kind TEXT NOT NULL CHECK(kind IN ('order','question','support')),
+            subject TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'new'
+                CHECK(status IN ('new','in_progress','completed')),
+            created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL,
+            client_read_id INTEGER NOT NULL DEFAULT 0,
+            owner_read_id INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE TABLE IF NOT EXISTS order_messages (
+            id INTEGER PRIMARY KEY, thread_id INTEGER NOT NULL REFERENCES order_threads(id),
+            sender_id INTEGER NOT NULL REFERENCES users(id),
+            body TEXT NOT NULL, created_at INTEGER NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_orders_user_updated ON order_threads(user_id,updated_at);
+        CREATE INDEX IF NOT EXISTS idx_order_messages_thread ON order_messages(thread_id,id);
+        CREATE INDEX IF NOT EXISTS idx_order_messages_sender_time ON order_messages(sender_id,created_at);
+        ''')
         # If the app was closed during export, return reserved credits on restart.
         con.execute('BEGIN IMMEDIATE')
         con.execute("UPDATE daily_downloads SET status='refunded' WHERE status='active'")

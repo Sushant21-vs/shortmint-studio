@@ -1,0 +1,69 @@
+/* ShortMint v44 — Order enquiry and private inbox. Accessible dark slate design. */
+#app-view #orders-view {color:#eef4ff;max-width:1220px;margin-inline:auto}
+#app-view .sm44-hero {position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:30px 34px;margin-bottom:23px;border-radius:22px;background:linear-gradient(125deg,#213247 0%,#17283b 67%,#493329 100%);border:1px solid #40536a;box-shadow:0 20px 55px #050a1630}
+#app-view .sm44-hero::after {content:"";position:absolute;width:350px;height:350px;border-radius:50%;right:-190px;top:-170px;border:1px solid #ff995c55;pointer-events:none}
+#app-view .sm44-eyebrow {display:block;color:#ffa774;letter-spacing:2px;text-transform:uppercase;font-weight:850;font-size:11px;margin-bottom:9px}
+#app-view .sm44-hero h1 {font-size:clamp(29px,3.4vw,46px);letter-spacing:-1.5px;line-height:1.12;margin:0 0 10px;color:#fff;font-weight:850}
+#app-view .sm44-hero h1 em{font-style:normal;color:#ff9462}
+#app-view .sm44-hero p {color:#c9d6e6;margin:0;max-width:700px;line-height:1.6;font-size:14px}
+#app-view .sm44-hero-mark{font-size:66px;color:#ff9a60;text-shadow:0 0 30px #ff854a55;flex-shrink:0}
+#app-view .sm44-layout{display:grid;grid-template-columns:minmax(260px,335px) minmax(0,1fr);gap:20px;align-items:start;min-height:570px}
+#app-view .sm44-sidebar,#app-view .sm44-panel {background:#1d2b3c;border:1px solid #43536b;border-radius:19px;box-shadow:0 12px 24px #050a141f;color:#eaf0fb}
+#app-view .sm44-sidebar{display:flex;flex-direction:column;min-height:580px;overflow:hidden}
+#app-view .sm44-sidebar-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 18px 14px;border-bottom:1px solid #35475d}
+#app-view .sm44-sidebar-top strong{font-size:16px;color:#fff}
+#app-view .sm44-sidebar-top small{display:block;font-size:11px;color:#b5c9db;margin-top:4px}
+#app-view .sm44-new,#app-view .sm44-send{border:0;border-radius:12px;cursor:pointer;background:#ff7a43;color:#101d2c;font-weight:850;padding:13px 17px;font-size:13px;transition:background .15s,transform .15s;white-space:nowrap}
+#app-view .sm44-new:hover,#app-view .sm44-send:hover{background:#ff9b65;transform:translateY(-1px)}
+#app-view .sm44-new:disabled,#app-view .sm44-send:disabled{opacity:.6;cursor:wait}
+#app-view .sm44-list{overflow-y:auto;max-height:575px;min-height:365px;flex:1;padding:12px}
+#app-view .sm44-list-item{display:block;width:100%;text-align:left;background:#223348;color:#edf4ff;border:1px solid #42566f;border-radius:13px;padding:14px;margin-bottom:9px;cursor:pointer;transition:background .14s,border .14s}
+#app-view .sm44-list-item:hover,#app-view .sm44-list-item.active{background:#314158;border-color:#ff995f}
+#app-view .sm44-list-top{display:flex;justify-content:space-between;gap:7px;align-items:center;font-size:10px;letter-spacing:.6px;color:#a6c4e0;text-transform:uppercase}
+#app-view .sm44-list-item strong{display:block;font-size:14px;margin:8px 0 4px;color:white;overflow-wrap:anywhere}
+#app-view .sm44-list-item .sm44-preview{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#cad7e7;font-size:12px}
+#app-view .sm44-list-item .sm44-list-foot{margin-top:7px;display:flex;align-items:center;justify-content:space-between;gap:8px;color:#c0cfdf;font-size:10px}
+#app-view .sm44-pill{color:#ffbe8d;background:#533b34;border:1px solid #a76d53;border-radius:999px;padding:2px 7px;font-weight:800;font-size:10px}
+#app-view .sm44-refresh{border:0;border-top:1px solid #36495d;color:#cad8e9;background:#1b2a3e;padding:15px;cursor:pointer;font-weight:700}
+#app-view .sm44-refresh:hover{background:#283b52}
+#app-view .sm44-panel{min-height:490px;padding:25px 29px}
+#app-view .sm44-panel h2{font-size:25px;color:white;letter-spacing:-.8px;margin:3px 0 8px}
+#app-view .sm44-panel p{color:#c9d6e6;line-height:1.55;font-size:13px}
+#app-view .sm44-form{display:flex;flex-direction:column;gap:9px;margin-top:18px}
+#app-view .sm44-form label,#app-view .sm44-owner-status label{display:block;color:#f0f6ff;font-size:12px;font-weight:800;margin-top:8px}
+#app-view .sm44-form input,#app-view .sm44-form textarea,#app-view .sm44-form select,#app-view .sm44-reply-form textarea,#app-view .sm44-owner-status select{width:100%;background:#142337!important;border:1px solid #61738a!important;color:#fff!important;border-radius:11px!important;padding:12px 13px!important;font:inherit!important;font-size:14px!important;outline:none;box-sizing:border-box}
+#app-view .sm44-form :is(input,textarea,select):focus,#app-view .sm44-reply-form textarea:focus,#app-view .sm44-owner-status select:focus{border-color:#ff965f!important;box-shadow:0 0 0 2px #ff965f25}
+#app-view .sm44-form :is(input,textarea)::placeholder,#app-view .sm44-reply-form textarea::placeholder{color:#aebed1;opacity:1}
+#app-view .sm44-form .sm44-hint{font-size:12px;line-height:1.5;color:#c3d0df;margin:3px 0 9px}
+#app-view .sm44-chat-head{display:flex;align-items:start;gap:15px;flex-wrap:wrap;border-bottom:1px solid #394b60;padding-bottom:14px}
+#app-view .sm44-chat-head>div{flex:1;min-width:160px}
+#app-view .sm44-chat-head h2{margin:0 0 2px;font-size:23px;overflow-wrap:anywhere}
+#app-view .sm44-chat-head p{margin:0}
+#app-view .sm44-back{border:1px solid #536982;border-radius:10px;background:#273b53;color:#fff;padding:9px;font-size:12px;cursor:pointer}
+#app-view .sm44-status{padding:6px 11px;font-size:11px;font-weight:800;white-space:nowrap;border-radius:100px;background:#443d2d;color:#ffce9e;border:1px solid #867048}
+#app-view .sm44-status[data-status="in_progress"]{background:#223e52;color:#b8e2ff;border-color:#5c90b8}
+#app-view .sm44-status[data-status="completed"]{background:#234a3a;color:#b8f4d5;border-color:#4d9672}
+#app-view .sm44-owner-status{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 0 0}
+#app-view .sm44-owner-status label{margin:0}
+#app-view .sm44-owner-status select{width:auto!important;min-width:140px}
+#app-view .sm44-owner-status button{border:1px solid #60758a;border-radius:10px;padding:10px 13px;color:#fff;background:#304158;cursor:pointer;font-weight:700}
+#app-view .sm44-feed{display:flex;flex-direction:column;gap:13px;max-height:455px;min-height:240px;overflow-y:auto;padding:20px 4px;margin-top:14px}
+#app-view .sm44-msg{max-width:82%;display:flex;flex-direction:column;align-self:flex-start;background:#2c3c53;border:1px solid #496076;border-radius:15px 15px 15px 3px;padding:11px 14px;min-width:140px}
+#app-view .sm44-msg.mine{align-self:flex-end;background:#534035;border-color:#976244;border-radius:15px 15px 3px 15px}
+#app-view .sm44-msg-header{display:flex;justify-content:space-between;gap:15px;font-size:11px;color:#c7d6e7;margin-bottom:5px}
+#app-view .sm44-msg-body{font-size:14px;color:#fff;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55}
+#app-view .sm44-reply-form{border-top:1px solid #394b60;display:flex;flex-direction:column;gap:11px;padding-top:17px}
+#app-view .sm44-reply-form button{align-self:flex-end}
+#app-view .sm44-muted{padding:18px;color:#c3d2e2;font-size:13px}
+#app-view .sm44-empty{text-align:center;padding-top:140px}
+#app-view .sm44-empty>span{color:#ff955e;font-size:47px}
+#app-view .sm44-feedback{font-size:12px;color:#ffce9b;min-height:18px;margin:12px 0}
+#app-view .sm44-admin-banner{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:22px;background:linear-gradient(115deg,#202f44,#293b4e)!important;color:#eef5ff!important;border:1px solid #51667e!important}
+#app-view .sm44-admin-banner h2{color:#fff!important}
+#app-view .sm44-admin-banner p{color:#c9d8e8!important}
+#app-view .sm44-admin-banner .sm44-send{flex-shrink:0}
+#app-view #sm44-nav .mini-alert{margin-left:auto}
+body.light-theme #app-view #orders-view .sm44-panel,body.light-theme #app-view #orders-view .sm44-sidebar{background:#213247;color:#f6faff}
+#app-view :is(.sm44-form,.sm44-reply-form) :is(input,textarea,select):focus-visible,#app-view .sm44-list-item:focus-visible{outline:2px solid #ffae7b;outline-offset:2px}
+@media(max-width:850px){#app-view .sm44-layout{grid-template-columns:1fr}#app-view .sm44-sidebar{min-height:0}#app-view .sm44-list{max-height:240px;min-height:120px}#app-view .sm44-panel{min-height:320px}#app-view .sm44-admin-banner{flex-wrap:wrap}}
+@media(max-width:550px){#app-view .sm44-hero{padding:23px 21px}#app-view .sm44-hero-mark{font-size:40px}#app-view .sm44-panel{padding:21px 17px}#app-view .sm44-msg{max-width:92%}#app-view .sm44-chat-head{gap:12px}}

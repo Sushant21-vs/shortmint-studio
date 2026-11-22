@@ -1061,6 +1061,8 @@ def hosting_storage_status():
             'video_storage_persistent': False}
 
 install_auth_routes(app)
+from direct_messages import install_routes as install_message_routes
+install_message_routes(app)
 from account_migration import install_migration_routes
 install_migration_routes(app)
 from growth import install_growth_routes
