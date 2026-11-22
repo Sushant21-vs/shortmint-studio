@@ -25,6 +25,7 @@
   <link rel="stylesheet" href="/shortmint-processing-v38.css?v=40.0.0">
   <link rel="stylesheet" href="/shortmint-export-v34.css?v=34.0.0">
   <link rel="stylesheet" href="/shortmint-brand-v37.css?v=37.0.0">
+  <link rel="stylesheet" href="/shortmint-google-migration-v41.css?v=41.0.0">
 </head>
 <body>
   <section id="auth-view" class="auth-screen hidden" aria-label="ShortMint Studio sign in">
@@ -132,6 +133,31 @@
           <button id="auth-submit" type="submit" class="orange-btn wide"><span>Sign in to your dashboard</span><span class="sm-auth-arr" aria-hidden="true">→</span></button>
         </form>
         <p id="auth-message" class="auth-message" aria-live="polite"></p>
+        <div class="sm41-migration-entry" id="sm41-migration-entry">
+          <button type="button" id="sm41-migrate-open" class="sm41-migrate-link">Previously used Google sign-in? <strong>Recover your account ↗</strong></button>
+        </div>
+        <section class="sm41-migration-panel hidden" id="sm41-migration-panel" aria-label="Recover a previous Google account">
+          <div class="sm41-migration-icon" aria-hidden="true">✦</div>
+          <h3>Welcome back to ShortMint.</h3>
+          <p>Use the Gmail address you previously signed in with. We'll email a one-time code to verify your account.</p>
+          <form id="sm41-migration-request" class="stack-form">
+            <label for="sm41-migration-email">Previous Gmail address</label>
+            <input type="email" id="sm41-migration-email" autocomplete="email" maxlength="254" placeholder="yourname@gmail.com" required>
+            <button class="orange-btn wide" type="submit" id="sm41-request-btn">Send verification code →</button>
+          </form>
+          <form id="sm41-migration-confirm" class="stack-form hidden">
+            <p id="sm41-migration-destination" class="sm41-migration-destination"></p>
+            <label for="sm41-migration-code">6-digit email code</label>
+            <input type="text" id="sm41-migration-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required>
+            <label for="sm41-migration-password">Create your new password</label>
+            <input type="password" id="sm41-migration-password" minlength="10" maxlength="128" autocomplete="new-password" placeholder="At least 10 characters" required>
+            <button class="orange-btn wide" type="submit" id="sm41-confirm-btn">Verify and restore account →</button>
+            <button class="sm41-change-email" type="button" id="sm41-migration-change">Wrong email? Start again</button>
+          </form>
+          <p class="sm41-migration-message" id="sm41-migration-message" aria-live="polite"></p>
+          <p class="sm41-migration-note">Your old credits and projects stay on the same account. No new invite code or IP registration is required. If you cannot access your old Gmail, contact ShortMint support.</p>
+          <button type="button" id="sm41-migration-back" class="sm41-migration-back">← Back to sign in</button>
+        </section>
         <div id="invite-contact-box" class="invite-contact-box" aria-label="Free invite code contact">
           <span class="invite-contact-spark" aria-hidden="true">✦</span>
           <div class="invite-contact-content">
@@ -467,7 +493,7 @@ Second channel | https://www.youtube.com/@secondchannel"></textarea>
     </div>
   </div>
   <div class="toast hidden" id="toast" role="alert"><span id="toast-icon">!</span><div id="toast-text"></div><button id="toast-dismiss" type="button" aria-label="Dismiss">×</button></div>
-  <script src="/app.js?v=40.0.0" defer></script><script src="/dashboard.js?v=39.0.0" defer></script><script src="/premium.js?v=14.0.0" defer></script>
+  <script src="/app.js?v=40.0.0" defer></script><script src="/dashboard.js?v=39.0.0" defer></script><script src="/shortmint-migration-v41.js?v=41.0.0" defer></script><script src="/premium.js?v=14.0.0" defer></script>
   <script src="/spacious.js?v=15.0.0" defer></script>
   <script src="/account-safety.js?v=20.0.0" defer></script>
   <script src="/creator-experience-v21.js?v=22.0.0" defer></script>

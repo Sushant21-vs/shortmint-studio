@@ -18,3 +18,11 @@ services:
         sync: false
       - key: OWNER_PASSWORD
         sync: false
+
+      # v41: verified-email migration for previous Google-only users
+      - key: RESEND_API_KEY
+        sync: false
+      - key: SHORTMINT_FROM_EMAIL
+        sync: false
+      - key: SHORTMINT_RECOVERY_SECRET
+        generateValue: true

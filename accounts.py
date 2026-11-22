@@ -185,6 +185,25 @@ def init_db():
             PRIMARY KEY (code,user_id)
         );
         ''')
+        con.executescript('''
+        CREATE TABLE IF NOT EXISTS account_migration_codes (
+            user_id INTEGER PRIMARY KEY REFERENCES users(id),
+            code_hash TEXT NOT NULL, expires_at INTEGER NOT NULL,
+            attempts INTEGER NOT NULL DEFAULT 0, sent_at INTEGER NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS account_migration_requests (
+            id INTEGER PRIMARY KEY, ip_hash TEXT NOT NULL,
+            email_hash TEXT NOT NULL, created_at INTEGER NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_migration_requests_ip ON account_migration_requests(ip_hash,created_at);
+        CREATE INDEX IF NOT EXISTS idx_migration_requests_email ON account_migration_requests(email_hash,created_at);
+        CREATE TABLE IF NOT EXISTS account_migration_checks (
+            id INTEGER PRIMARY KEY, ip_hash TEXT NOT NULL,
+            email_hash TEXT NOT NULL, created_at INTEGER NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_migration_checks_ip ON account_migration_checks(ip_hash,created_at);
+        CREATE INDEX IF NOT EXISTS idx_migration_checks_email ON account_migration_checks(email_hash,created_at);
+        ''')
         # If the app was closed during export, return reserved credits on restart.
         con.execute('BEGIN IMMEDIATE')
         con.execute("UPDATE daily_downloads SET status='refunded' WHERE status='active'")

@@ -1,3 +1,13 @@
+# ShortMint Studio v41 — Existing Google Account Migration
+
+**Latest update:** [UPDATE_V41_GOOGLE_ACCOUNT_MIGRATION.md](UPDATE_V41_GOOGLE_ACCOUNT_MIGRATION.md). Previous Google-only users can verify their saved email and set a local password, without losing the original account/credits. Email sending requires Resend and three secure Render environment variables. Google login remains disabled.
+
+---
+
+# ShortMint Studio v40 — Automatic Downloads
+
+**Latest:** see [UPDATE_V40_AUTO_DOWNLOAD.md](UPDATE_V40_AUTO_DOWNLOAD.md).
+
 # ShortMint Studio v39 — Promo/Invite Registration + IP Signup Guard
 
 **Start here:** [UPDATE_V39_CODE_ONLY_LOGIN_AND_IP_GUARD.md](UPDATE_V39_CODE_ONLY_LOGIN_AND_IP_GUARD.md)

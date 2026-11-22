@@ -154,6 +154,23 @@ DDL = [
     'ALTER TABLE users ADD COLUMN IF NOT EXISTS signup_ip_hash TEXT',
     "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_one_signup_per_ip ON users(signup_ip_hash) WHERE role='member' AND signup_ip_hash IS NOT NULL",
     'CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub)',
+    '''CREATE TABLE IF NOT EXISTS account_migration_codes (
+        user_id BIGINT PRIMARY KEY REFERENCES users(id), code_hash TEXT NOT NULL,
+        expires_at BIGINT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0,
+        sent_at BIGINT NOT NULL
+    )''',
+    '''CREATE TABLE IF NOT EXISTS account_migration_requests (
+        id BIGSERIAL PRIMARY KEY, ip_hash TEXT NOT NULL,
+        email_hash TEXT NOT NULL, created_at BIGINT NOT NULL
+    )''',
+    'CREATE INDEX IF NOT EXISTS idx_migration_requests_ip ON account_migration_requests(ip_hash,created_at)',
+    'CREATE INDEX IF NOT EXISTS idx_migration_requests_email ON account_migration_requests(email_hash,created_at)',
+    '''CREATE TABLE IF NOT EXISTS account_migration_checks (
+        id BIGSERIAL PRIMARY KEY, ip_hash TEXT NOT NULL,
+        email_hash TEXT NOT NULL, created_at BIGINT NOT NULL
+    )''',
+    'CREATE INDEX IF NOT EXISTS idx_migration_checks_ip ON account_migration_checks(ip_hash,created_at)',
+    'CREATE INDEX IF NOT EXISTS idx_migration_checks_email ON account_migration_checks(email_hash,created_at)',
 ]
 
 DEFAULT_SETTINGS = {
