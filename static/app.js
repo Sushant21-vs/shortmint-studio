@@ -10,6 +10,13 @@ let sm38ExportPreparing = false;
 let smPollErrors = 0;
 let toastTimer = null;
 let captionsPending = false;
+// Automatic downloads are requested once per new export, not when reopening old projects.
+const sm40DownloadedTaskIds = new Set();
+const sm40AutoDownloadToggle = document.getElementById('sm40-auto-download');
+try { sm40AutoDownloadToggle.checked = localStorage.getItem('shortmint_auto_download') !== 'off'; } catch { sm40AutoDownloadToggle.checked = true; }
+sm40AutoDownloadToggle.addEventListener('change', () => {
+  try { localStorage.setItem('shortmint_auto_download', sm40AutoDownloadToggle.checked ? 'on' : 'off'); } catch {}
+});
 
 function fmtTime(seconds) {
   seconds = Math.max(0, Math.floor(Number(seconds) || 0));
@@ -358,6 +365,41 @@ function renderResults(clips) {
   });
 }
 
+
+// Use the new export's task result list so old Shorts are not downloaded again.
+function sm40RequestAutomaticDownload(taskId, resultClips, projectId) {
+  const status = document.getElementById('sm40-download-status');
+  const message = document.getElementById('sm40-download-message');
+  const retry = document.getElementById('sm40-download-retry');
+  const clips = Array.isArray(resultClips) ? resultClips : [];
+  if (!/^[a-f0-9]{32}$/.test(taskId) || !clips.length || !projectId) return;
+  if (sm40DownloadedTaskIds.has(taskId)) return;
+  sm40DownloadedTaskIds.add(taskId);
+  const file = String(clips[0]?.file || '');
+  if (clips.length === 1 && !/^short_[a-f0-9]{8}_[0-9]{2}\.mp4$/.test(file)) return;
+  const url = clips.length === 1
+    ? `/api/download/${encodeURIComponent(projectId)}/${encodeURIComponent(file)}`
+    : `/api/download-generated/${encodeURIComponent(projectId)}/${encodeURIComponent(taskId)}`;
+  retry.href = url;
+  retry.textContent = clips.length === 1 ? 'Download MP4 manually' : 'Download ZIP manually';
+  status.classList.remove('hidden');
+  if (!sm40AutoDownloadToggle.checked) {
+    message.textContent = 'Your Shorts are ready. Automatic download is turned off.';
+    return;
+  }
+  // An attachment response triggers the browser's download handling while
+  // preserving the editor and its preview. Browsers may still ask permission.
+  message.textContent = 'Your ' + (clips.length === 1 ? 'MP4' : 'ZIP') + ' download was requested automatically. If it does not start, use the link here.';
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = clips.length === 1 ? file : `ShortMint_Shorts_${taskId.slice(0, 8)}.zip`;
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  try { link.click(); } catch {
+    message.textContent = 'The automatic download was blocked. Please use the manual link below.';
+  } finally { link.remove(); }
+}
+
 async function generateClips() {
   if (!project || activeTask) return;
   const body = {
@@ -374,6 +416,7 @@ async function generateClips() {
   sm38ExportPreparing = true;
   $('#generate-button').disabled = true;
   $('#export-panel').classList.remove('hidden');
+  $('#sm40-download-status').classList.add('hidden');
   $('#export-progress-fill').style.width = '0%';
   $('#export-percent').textContent = '0%';
   $('#export-message').textContent = 'Preparing video…';
@@ -405,6 +448,7 @@ async function checkTask() {
     $('#export-percent').textContent = `${task.progress}%`;
     $('#export-message').textContent = task.message;
     if (task.state === 'completed') {
+      const finishedTaskId = activeTask;
       activeTask = null;
       $('#generate-button').disabled = false;
       $('#export-panel').classList.add('hidden');
@@ -412,7 +456,8 @@ async function checkTask() {
       renderResults(project.clips);
       setStep(3);
       $('#results-area').scrollIntoView({behavior:'smooth',block:'start'});
-      toast('Your Shorts are ready to download!',true);
+      sm40RequestAutomaticDownload(finishedTaskId, task.results, project.id);
+      toast('Your Shorts are ready!' + (sm40AutoDownloadToggle.checked ? ' Download requested.' : ''),true);
       if (typeof refreshData === 'function') refreshData();
       return;
     }

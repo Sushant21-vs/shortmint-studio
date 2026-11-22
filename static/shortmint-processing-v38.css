@@ -21,3 +21,18 @@
 #editor-view .sm38-processing-notice strong {display:block;font-size:13px;line-height:1.5;font-weight:850;color:#fff1e2}
 #editor-view .sm38-processing-notice small {display:block;margin-top:2px;font-size:11px;line-height:1.45;color:#ebbb9d}
 @media(max-width:520px){#editor-view .sm38-processing-notice {padding:12px 13px;align-items:flex-start}}
+
+/* v40: automatic-download setting and browser-safe retry notice. */
+.sm40-auto-download-toggle{display:flex;align-items:center;gap:12px;margin:13px 0 4px;padding:12px 14px;border:1px solid rgba(255,155,81,.27);border-radius:11px;background:rgba(255,153,77,.065);cursor:pointer}
+.sm40-auto-download-toggle input{width:18px;height:18px;flex-shrink:0;accent-color:#ff9d65;cursor:pointer}
+.sm40-auto-download-toggle span{display:grid;gap:3px}
+.sm40-auto-download-toggle strong{font-size:12px;color:#f8dcc6;font-weight:750}
+.sm40-auto-download-toggle small{color:#acb8c9;font-size:10px;line-height:1.5}
+.sm40-download-status{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;margin-bottom:20px;background:rgba(39,126,107,.13);border:1px solid rgba(107,231,190,.33);border-radius:12px;color:#b9efd9;font-size:12px;line-height:1.5}
+.sm40-download-status.hidden{display:none!important}
+.sm40-download-retry{font-weight:800;color:#f5a56e;text-decoration:underline;text-underline-offset:3px}
+body.light-theme .sm40-auto-download-toggle{background:#fff5ed;border-color:#ebbd97}
+body.light-theme .sm40-auto-download-toggle strong{color:#503327}
+body.light-theme .sm40-auto-download-toggle small{color:#65584f}
+body.light-theme .sm40-download-status{background:#e9f8f0;border-color:#9bcdb6;color:#245a45}
+body.light-theme .sm40-download-retry{color:#a64e1c}

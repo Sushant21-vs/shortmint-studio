@@ -159,10 +159,8 @@ def public_manifest(data):
     return result
 
 
-# v35: Optional 4K is guarded by the server's memory quota.
-# Render's free tier cannot safely encode 4K using libx264.
-QUALITY_LABELS = {'540':'540p','720':'720p','1080':'1080p','2160':'4K'}
-HIGH_RES_MEMORY_MB = {'2160': 2048}
+# v36: The Shorts editor exports up to 1080p. 4K and 8K are not available.
+QUALITY_LABELS = {'540':'540p','720':'720p','1080':'1080p'}
 
 
 def _server_memory_limit_mb():
@@ -187,18 +185,12 @@ def _server_memory_limit_mb():
 
 
 def quality_availability():
-    memory = _server_memory_limit_mb()
     result = {}
     for width, label in QUALITY_LABELS.items():
-        minimum = HIGH_RES_MEMORY_MB.get(width, 0)
-        supported = not minimum or (memory is not None and memory >= minimum)
-        reason = ('Ready to export on this server.' if supported else
-                  f'{label} requires at least {minimum // 1024} GB server RAM for reliable encoding. '
-                  f'This server reports {memory or "unknown"} MB. Upgrade the Render instance or use 1080p.')
-        result[width] = {'label':label,'width':int(width),'height':int(width)*16//9,
-                         'available':supported,'reason':reason}
-    return {'memory_mb':memory,'qualities':result,
-            'note':'4K requires sufficient server resources. Enlarging a low-resolution source does not create missing detail.'}
+        result[width] = {'label': label, 'width': int(width), 'height': int(width)*16//9,
+                         'available': True, 'reason': 'Ready to export on this server.'}
+    return {'memory_mb': _server_memory_limit_mb(), 'qualities': result,
+            'note': '1080p is the maximum export quality. Upscaling a source does not restore detail.'}
 
 
 @app.get('/api/export/capabilities')
@@ -211,7 +203,7 @@ def health():
     return {'ok': True, 'ffmpeg': bool(shutil.which('ffmpeg')), 'ffprobe': bool(shutil.which('ffprobe')),
             'auto_captions': bool(os.getenv('OPENAI_API_KEY')) or importlib.util.find_spec('faster_whisper') is not None,
             'voiceover': importlib.util.find_spec('edge_tts') is not None,
-            'version': '3.0', 'studio_version': '35', **media_runtime_status()}
+            'version': '3.0', 'studio_version': '36', **media_runtime_status()}
 
 
 @app.post('/api/upload')
@@ -361,6 +353,36 @@ def download_all(session_id: str, user=Depends(user_for_request)):
             if path.exists():
                 out.write(path, arcname=clip['file'])
     return FileResponse(dest, media_type='application/zip', filename='ShortMint_Shorts.zip')
+
+
+@app.get('/api/download-generated/{session_id}/{task_id}')
+def download_generated(session_id: str, task_id: str, user=Depends(user_for_request)):
+    """Download only the Shorts produced by one finished export task.
+
+    Generated file names include the task's 8-character prefix. We verify both
+    project ownership and membership in its saved manifest before zipping.
+    """
+    data = checked_project(session_id, user)
+    if not re.fullmatch(r'[a-f0-9]{32}', task_id):
+        raise HTTPException(400, 'Invalid export ID')
+    prefix = f'short_{task_id[:8]}_'
+    batch = [clip['file'] for clip in data['clips']
+             if re.fullmatch(re.escape(prefix) + r'[0-9]{2}\.mp4', clip.get('file', ''))]
+    if not batch:
+        raise HTTPException(404, 'This export has no completed Shorts')
+    folder = session_folder(session_id)
+    output_dir = folder / 'exports'
+    files = [output_dir / name for name in batch]
+    if any(not f.is_file() for f in files):
+        raise HTTPException(404, 'A completed Short is no longer available')
+    destination = folder / f'shortmint_batch_{task_id}.zip'
+    # A separate filename for each task prevents a download from being silently
+    # overwritten by another batch from the same project.
+    with zipfile.ZipFile(destination, 'w', compression=zipfile.ZIP_STORED) as archive:
+        for filename, source in zip(batch, files):
+            archive.write(source, arcname=filename)
+    return FileResponse(destination, media_type='application/zip',
+                        filename=f'ShortMint_Shorts_{task_id[:8]}.zip')
 
 
 def detect_silence(path, duration):
@@ -744,8 +766,8 @@ def render_clip(source, output, start, length, body, task, total_progress_base, 
     command.extend([
         '-filter_complex', output_filter(w, h, body.crop_mode, bool(title_img), body.focus_x, caption_file, punch),
         '-map', '[out]', '-map', '0:a?',
-        '-c:v', 'libx264', '-preset', 'superfast' if w >= 2160 else 'veryfast',
-        '-crf', '19' if w >= 2160 else '22', '-threads', '2',
+        '-c:v', 'libx264', '-preset', 'veryfast',
+        '-crf', '22', '-threads', '2',
         '-r', '30',
         '-pix_fmt', 'yuv420p', '-movflags', '+faststart',
         '-c:a', 'aac', '-b:a', '160k',
@@ -954,11 +976,6 @@ def generate(body: GenerateRequest, user=Depends(user_for_request)):
             raise HTTPException(409, 'An export is already running for this video.')
         if len(ACTIVE_SESSIONS) >= 2:
             raise HTTPException(429,'Two exports are already running. Try again when one finishes.')
-        # Resource-intensive UHD jobs run alone to avoid exhausting Render memory.
-        if body.resolution in HIGH_RES_MEMORY_MB and ACTIVE_SESSIONS:
-            raise HTTPException(429, '4K exports need exclusive server capacity. Finish the running export first.')
-        if any(t.get('resolution') in HIGH_RES_MEMORY_MB and t.get('state') not in ('completed','failed','cancelled') for t in TASKS.values()):
-            raise HTTPException(429, 'A high-resolution export is running. Please finish it before starting another export.')
         task_id = uuid.uuid4().hex
         count = 1 if body.mode in ('manual','cutlist') or (body.mode == 'auto' and data['duration'] <= body.clip_length + 0.5) else (min(body.count,max(1,int(data['duration']/max(12.,body.clip_length*.9)))) if body.mode == 'montage' else body.count)
         reserve_credits(user, task_id, count)
