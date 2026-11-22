@@ -1,5 +1,5 @@
 # ShortMint v27: PostgreSQL is mandatory for hosted user/credit persistence.
-# Set DATABASE_URL and GOOGLE_CLIENT_ID in Render Environment BEFORE deploying.
+# Set DATABASE_URL in Render Environment BEFORE deploying.
 # Render Free storage still does NOT preserve uploaded videos or exported MP4s.
 services:
   - type: web
@@ -13,10 +13,6 @@ services:
       - key: REQUIRE_PERSISTENT_DB
         value: '1'
       - key: DATABASE_URL
-        sync: false
-      - key: GOOGLE_CLIENT_ID
-        sync: false
-      - key: OWNER_GOOGLE_EMAIL
         sync: false
       - key: OWNER_USERNAME
         sync: false

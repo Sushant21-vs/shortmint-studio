@@ -1,5 +1,6 @@
 """Persistent identity, invitations, credit ledger, and role permissions for ShortMint."""
 import hashlib
+import ipaddress
 import json
 import hmac
 import os
@@ -20,6 +21,59 @@ COOKIE = 'shortmint_session'
 SESSION_AGE = 7 * 24 * 60 * 60
 LOGIN_FAILURES = {}
 LOGIN_LOCK = threading.Lock()
+
+# Cloudflare's published reverse-proxy ranges (https://www.cloudflare.com/ips/),
+# checked 2026-11-22. Update if the provider changes them.
+CLOUDFLARE_NETWORKS = tuple(ipaddress.ip_network(value) for value in (
+    '173.245.48.0/20','103.21.244.0/22','103.22.200.0/22',
+    '103.31.4.0/22','141.101.64.0/18','108.162.192.0/18',
+    '190.93.240.0/20','188.114.96.0/20','197.234.240.0/22',
+    '198.41.128.0/17','162.158.0.0/15','104.16.0.0/13',
+    '104.24.0.0/14','172.64.0.0/13','131.0.72.0/22',
+    '2400:cb00::/32','2606:4700::/32','2803:f800::/32',
+    '2405:b500::/32','2405:8100::/32','2a06:98c0::/29',
+    '2c0f:f248::/32',
+))
+
+
+def signup_ip_for_request(request: Request) -> str:
+    """Canonical client address as validated by ASGI server's trusted-proxy policy.
+
+    Do not read X-Forwarded-For inside the application; Uvicorn must be
+    configured to trust only the hosting platform's reverse proxy.
+    """
+    host = (request.client.host if request.client else '').strip()
+    if not host:
+        raise HTTPException(503, 'Unable to determine your network address. Try again later.')
+    try:
+        address = ipaddress.ip_address(host)
+        # Map IPv4-mapped IPv6 to the equivalent IPv4 address.
+        if isinstance(address, ipaddress.IPv6Address) and address.ipv4_mapped:
+            address = address.ipv4_mapped
+        # Render commonly fronts its apps with Cloudflare. Only when the
+        # reverse-proxy-resolved peer is verified as a Cloudflare IP can the
+        # Cloudflare-managed client header be used for IP restrictions.
+        # Never trust arbitrary X-Forwarded-For or CF headers from non-CF IPs.
+        cf_ip = (request.headers.get('CF-Connecting-IP') or '').strip()
+        if cf_ip and any(address in net for net in CLOUDFLARE_NETWORKS):
+            try:
+                actual = ipaddress.ip_address(cf_ip)
+                if isinstance(actual, ipaddress.IPv6Address) and actual.ipv4_mapped:
+                    actual = actual.ipv4_mapped
+                if actual.is_global:
+                    address = actual
+            except ValueError:
+                pass
+        normalized = address.compressed
+    except ValueError:
+        # ASGI's local TestClient uses a hostname ("testclient") instead of an IP.
+        # Reject non-IP network identities in production.
+        if host != 'testclient' or os.environ.get('REQUIRE_PERSISTENT_DB') == '1':
+            raise HTTPException(503, 'Unable to verify your network address. Try again later.')
+        normalized = host
+    # Hash rather than store raw addresses. This hash remains a personal-data
+    # identifier and is described as such in the privacy notice.
+    return hashlib.sha256(('ShortMint-signup-IP-v1:' + normalized).encode()).hexdigest()
 
 
 
@@ -112,6 +166,9 @@ def init_db():
             con.execute('ALTER TABLE users ADD COLUMN google_sub TEXT')
         if 'email' not in columns:
             con.execute('ALTER TABLE users ADD COLUMN email TEXT')
+        if 'signup_ip_hash' not in columns:
+            con.execute('ALTER TABLE users ADD COLUMN signup_ip_hash TEXT')
+        con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_one_signup_per_ip ON users(signup_ip_hash) WHERE role='member' AND signup_ip_hash IS NOT NULL")
         con.executescript('''
         CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub);
         CREATE TABLE IF NOT EXISTS promo_codes (
@@ -192,8 +249,7 @@ def public_user(row):
     return {'id':row['id'], 'username':row['username'], 'role':row['role'],
             'credits': None if row['role']=='owner' else row['credits'],
             'disabled': bool(row['disabled']), 'created_at':row['created_at'],
-            'email':row['email'] if 'email' in row.keys() else None,
-            'google_connected':bool(row['google_sub']) if 'google_sub' in row.keys() else False}
+            'email':row['email'] if 'email' in row.keys() else None}
 
 
 def user_for_request(request: Request):
@@ -223,7 +279,8 @@ class Credentials(BaseModel):
 
 
 class Register(Credentials):
-    invite_code: str = Field(min_length=5, max_length=60)
+    invite_code: str = Field(default='', max_length=60)
+    promo_code: str = Field(default='', max_length=60)
 
 
 class CreditRequestBody(BaseModel):
@@ -342,34 +399,76 @@ def install_auth_routes(app):
         return {'user':public_user(u)}
 
     @app.post('/api/auth/register')
-    def register(body: Register):
+    def register(body: Register, request: Request):
+        """Sign up with *one* owner-issued invite or promo code.
+
+        Codes grant access, not ongoing authentication. Returning members
+        still use their username and private password. The unique database
+        index atomically enforces one newly registered member per public IP.
+        """
         try:
             username = clean_username(body.username)
             pwd = hash_password(body.password)
         except ValueError as err:
-            raise HTTPException(400,str(err))
+            raise HTTPException(400, str(err))
         invite = body.invite_code.strip().upper()
+        promo = body.promo_code.strip().upper()
+        if not bool(invite) ^ bool(promo):
+            raise HTTPException(400, 'Enter either an invitation code or a promo code.')
+        if promo and not re.fullmatch(r'[A-Z0-9_-]{5,32}',promo):
+            raise HTTPException(400, 'Enter a valid promo code.')
+        ip_hash = signup_ip_for_request(request)
+        now = int(time.time())
         con = db()
         try:
             con.execute('BEGIN IMMEDIATE')
-            row = con.execute('SELECT code FROM invites WHERE code=? AND used_by IS NULL', (invite,)).fetchone()
-            if not row:
-                raise HTTPException(400,'Invalid or already-used invitation code. Ask the owner for a new one.')
+            # An explicit check provides a useful message; the UNIQUE index
+            # remains authoritative if simultaneous requests race.
+            if con.execute("SELECT 1 FROM users WHERE signup_ip_hash=? AND role='member'",(ip_hash,)).fetchone():
+                raise HTTPException(409,'Only one ShortMint account can be created from this IP address. If this is a shared network, contact the owner.')
             if con.execute('SELECT 1 FROM users WHERE username=?',(username,)).fetchone():
                 raise HTTPException(409,'This username is already in use.')
+            if invite:
+                row = con.execute('SELECT code FROM invites WHERE code=? AND used_by IS NULL',(invite,)).fetchone()
+                if not row:
+                    raise HTTPException(400,'Invalid or already-used invitation code. Ask the owner for a new one.')
+            else:
+                suffix = ' FOR UPDATE' if os.environ.get('DATABASE_URL','').strip() else ''
+                row = con.execute('SELECT * FROM promo_codes WHERE code=?'+suffix,(promo,)).fetchone()
+                if not row or not row['active'] or (row['expires_at'] is not None and row['expires_at']<=now):
+                    raise HTTPException(400,'This promo code is invalid or expired.')
+                if row['used_count'] >= row['max_uses']:
+                    raise HTTPException(400,'This promo code has reached its usage limit.')
             initial = int(con.execute("SELECT value FROM settings WHERE name='starting_credits'").fetchone()['value'])
-            uid = con.execute("INSERT INTO users(username,password_hash,role,credits,created_at) VALUES (?,?,'member',?,?)",
-                              (username,pwd,initial,int(time.time()))).lastrowid
-            con.execute('UPDATE invites SET used_by=?,used_at=? WHERE code=?',(uid,int(time.time()),invite))
+            initial = max(0,min(initial,1000))
+            bonus = int(row['credits']) if promo else 0
+            uid = con.execute("INSERT INTO users(username,password_hash,role,credits,created_at,signup_ip_hash) VALUES (?,?,'member',?,?,?)",
+                              (username,pwd,initial+bonus,now,ip_hash)).lastrowid
+            if invite:
+                con.execute('UPDATE invites SET used_by=?,used_at=? WHERE code=?',(uid,now,invite))
+            else:
+                con.execute('UPDATE promo_codes SET used_count=used_count+1 WHERE code=?',(promo,))
+                con.execute('INSERT INTO promo_redemptions(code,user_id,credits,redeemed_at) VALUES (?,?,?,?)',
+                            (promo,uid,bonus,now))
+                con.execute('INSERT INTO credit_log(user_id,amount,reason,created_at) VALUES (?,?,?,?)',
+                            (uid,bonus,'Registration promo '+promo,now))
             con.execute('INSERT INTO credit_log(user_id,amount,reason,created_at) VALUES (?,?,?,?)',
-                        (uid,initial,'Welcome credits',int(time.time())))
+                        (uid,initial,'Welcome credits',now))
             con.commit()
-        except Exception:
+        except HTTPException:
             con.rollback()
+            raise
+        except Exception as err:
+            con.rollback()
+            # SQLite and PostgreSQL both enforce the unique IP index.
+            # Generic constraint violations must never expose SQL or PII.
+            if 'unique' in str(err).lower() or 'idx_users_one_signup_per_ip' in str(err):
+                raise HTTPException(409,'A member already exists for this IP or username. Contact the owner.') from None
             raise
         finally:
             con.close()
-        return {'ok':True,'message':'Account created. Sign in to make Shorts.'}
+        return {'ok':True,'message':'Account created. Sign in with your username and password.',
+                'welcome_credits':initial,'promo_credits':bonus}
 
     @app.post('/api/auth/logout')
     def logout(request:Request,response:Response):

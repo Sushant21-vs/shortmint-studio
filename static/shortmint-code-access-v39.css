@@ -1,0 +1,12 @@
+/* v39: code-only registration, no Google widget */
+#auth-view .sm39-access-banner{display:flex;gap:12px;align-items:center;padding:12px 15px;border:1px solid #f4c6a6;border-radius:15px;background:linear-gradient(120deg,#fff6eb,#ffeadc);margin:10px 0 16px;color:#1c2940}
+#auth-view .sm39-access-mark{display:grid;place-items:center;flex:none;width:34px;height:34px;border-radius:11px;background:#ff874b;color:white;font-size:22px;box-shadow:0 6px 12px #f9703040}
+#auth-view .sm39-access-banner strong{font:800 14px Outfit,system-ui,sans-serif;display:block;color:#18233a}
+#auth-view .sm39-access-banner small{display:block;margin-top:4px;font-size:11px;line-height:1.45;color:#7d5a4b}
+#auth-view #auth-invite-wrap{display:grid;gap:7px;margin:8px 0 16px}
+#auth-view #auth-invite-wrap.hidden{display:none!important}
+#auth-view #auth-invite-wrap label{margin-top:4px}
+#auth-view #auth-access-type{width:100%;min-height:43px;border:1px solid #f1baa1;border-radius:12px;background:#fff;padding:9px 12px;color:#1c2a3c;font:600 13px Outfit,system-ui,sans-serif}
+#auth-view #auth-access-type:focus{outline:3px solid #ff9b754d}
+#auth-view .sm39-ip-note{font-size:11px;color:#855e4a;line-height:1.55;margin:3px 0 0}
+@media(max-width:540px){#auth-view .sm39-access-banner{padding:11px;gap:9px}}

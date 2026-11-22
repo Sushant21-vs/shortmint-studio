@@ -115,17 +115,24 @@ function setAuthMode(next) {
   $('#auth-invite-wrap').classList.toggle('hidden',next!=='register');
   $('#auth-invite').required=next==='register';
   $('#auth-password').autocomplete=next==='login'?'current-password':'new-password';
-  $('#auth-submit').innerHTML=next==='login'?'<span>Sign in to your dashboard</span><span class="sm-auth-arr" aria-hidden="true">↗</span>':'<span>Create Friend Account</span><span class="sm-auth-arr" aria-hidden="true">↗</span>';
+  $('#auth-submit').innerHTML=next==='login'?'<span>Sign in to your dashboard</span><span class="sm-auth-arr" aria-hidden="true">↗</span>':'<span>Create Account</span><span class="sm-auth-arr" aria-hidden="true">↗</span>';
   $('#auth-message').textContent='';
 }
 $('#auth-login-tab').addEventListener('click',()=>setAuthMode('login'));
 $('#auth-register-tab').addEventListener('click',()=>setAuthMode('register'));
+$('#auth-access-type').addEventListener('change',()=>{
+  const promo=$('#auth-access-type').value==='promo';
+  $('#sm39-code-label').textContent=promo?'Promo code':'Invitation code';
+  $('#auth-invite').placeholder=promo?'WELCOME10':'SM-XXXXXXXXXX';
+  $('#sm39-code-helper').textContent=promo?'Use a valid owner-issued promo to create your account and receive bonus credits.':'Ask the owner for a one-time invitation.';
+  $('#auth-invite').value='';
+});
 $('#auth-form').addEventListener('submit',async event=>{
   event.preventDefault();
   const username=$('#auth-username').value.trim();
   const password=$('#auth-password').value;
   const body={username,password};
-  if(authMode==='register')body.invite_code=$('#auth-invite').value.trim();
+  if(authMode==='register')body[$('#auth-access-type').value==='promo'?'promo_code':'invite_code']=$('#auth-invite').value.trim();
   const btn=$('#auth-submit');btn.disabled=true;
   $('#auth-message').textContent='';
   try {

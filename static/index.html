@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="/shortmint-cloud-v24.css?v=24.0.1">
   <link rel="stylesheet" href="/shortmint-login-cinema-v26.css?v=26.0.0">
   <link rel="stylesheet" href="/growth-v27.css?v=27.0.0">
+  <link rel="stylesheet" href="/shortmint-code-access-v39.css?v=39.0.0">
   <link rel="stylesheet" href="/shortmint-cinematic-v28.css?v=28.0.0">
   <link rel="stylesheet" href="/shortmint-inner-v29.css?v=29.1.0">
   <link rel="stylesheet" href="/shortmint-settings-v30.css?v=32.0.0">
@@ -110,23 +111,24 @@
             <div class="sm29-showcase-footer"><span aria-hidden="true">✧</span><div><strong>Thoughtful edits. Beautiful results.</strong><small>Your next story begins right here.</small></div></div>
           </aside>
           <div class="sm29-login-side">
-            <div class="sm29-access-heading"><div class="sm29-access-overline">YOUR CREATIVE SPACE <span>✦</span></div><h2>Welcome to <em>ShortMint</em></h2><p>Sign in to continue creating, or join to get your first 5 credits.</p></div>
-        <div class="auth-switch" role="group" aria-label="Account access"><button id="auth-login-tab" type="button" class="active">Sign in</button><button id="auth-register-tab" type="button">Join with invite</button></div>
-        <section class="sm27-google-entrance" aria-label="Create account or sign in with Google">
-          <span class="sm27-welcome-pill">NEW CREATORS · 5 FREE CREDITS</span>
-          <div class="sm27-google-heading"><strong>Start with your Google account</strong><small>One account. Your Shorts and credit balance.</small></div>
-          <label class="sm27-promo-signup-label" for="sm27-google-promo">Have a promo code? Add it for bonus credits</label>
-          <input type="text" id="sm27-google-promo" autocomplete="off" maxlength="32" placeholder="Optional code · e.g. WELCOME10">
-          <div id="sm27-google-button" class="sm27-google-button" aria-live="polite">Loading Google sign-in…</div>
-          <p id="sm27-google-status" class="sm27-google-status" role="status" aria-live="polite"></p>
-          <div class="sm27-divider"><span>OR USE AN EXISTING SHORTMINT LOGIN</span></div>
+            <div class="sm29-access-heading"><div class="sm29-access-overline">YOUR CREATIVE SPACE <span>✦</span></div><h2>Welcome to <em>ShortMint</em></h2><p>Sign in securely, or create your account with a promo or invite code.</p></div>
+        <div class="auth-switch" role="group" aria-label="Account access"><button id="auth-login-tab" type="button" class="active">Sign in</button><button id="auth-register-tab" type="button">Join with code</button></div>
+        <section class="sm39-access-banner" aria-label="Private code-based access">
+          <span class="sm39-access-mark" aria-hidden="true">✦</span>
+          <div><strong>Private creator access</strong><small>No Google login · Create one account with an invite or promo code.</small></div>
         </section>
         <form id="auth-form" class="stack-form">
           <label for="auth-username">Username</label>
           <div class="sm-auth-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7.5" r="3.4"/><path d="M4.7 20v-2.2c0-3.6 3.3-5.8 7.3-5.8s7.3 2.2 7.3 5.8V20"/></svg><input id="auth-username" autocomplete="username" required minlength="3" maxlength="24" placeholder="Your username"></div>
           <label for="auth-password">Password</label>
           <div class="sm-auth-field sm-auth-password"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="10.5" width="13" height="10" rx="2"/><path d="M8.5 10.5V7.3a3.5 3.5 0 0 1 7 0v3.2"/></svg><input id="auth-password" type="password" autocomplete="current-password" required minlength="10" placeholder="Your password"><button type="button" id="sm-auth-reveal" aria-label="Show password" aria-pressed="false" class="sm-auth-reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.7 12S6 6.7 12 6.7s9.3 5.3 9.3 5.3S18 17.3 12 17.3 2.7 12 2.7 12Z"/><circle cx="12" cy="12" r="2.5"/></svg></button></div>
-          <div id="auth-invite-wrap" class="hidden"><label for="auth-invite">Invitation code</label><input id="auth-invite" maxlength="60" placeholder="SM-XXXXXXXXXX"><p class="helper">Ask the website owner for a one-time invite code.</p></div>
+          <div id="auth-invite-wrap" class="hidden">
+            <label for="auth-access-type">Access code type</label>
+            <select id="auth-access-type" class="sm39-code-type" aria-label="Choose your code type"><option value="invite">Invitation code</option><option value="promo">Promo code</option></select>
+            <label for="auth-invite" id="sm39-code-label">Invitation code</label><input id="auth-invite" maxlength="60" placeholder="SM-XXXXXXXXXX" autocomplete="off">
+            <p class="helper" id="sm39-code-helper">An invitation can be used once. A promo code grants its configured bonus credits.</p>
+            <p class="sm39-ip-note">One newly registered account per public IP address. Shared Wi-Fi users may need owner assistance.</p>
+          </div>
           <button id="auth-submit" type="submit" class="orange-btn wide"><span>Sign in to your dashboard</span><span class="sm-auth-arr" aria-hidden="true">→</span></button>
         </form>
         <p id="auth-message" class="auth-message" aria-live="polite"></p>
@@ -134,7 +136,7 @@
           <span class="invite-contact-spark" aria-hidden="true">✦</span>
           <div class="invite-contact-content">
             <strong>Have an invite code?</strong>
-            <p id="invite-contact-copy">Google signup is free. For a legacy ShortMint account, request an invitation from Sushant Hero.</p>
+            <p id="invite-contact-copy">Ask the owner for an invitation or promo code to create your ShortMint account.</p>
             <div class="invite-contact-actions hidden" id="invite-contact-actions">
               <a id="invite-contact-number" class="invite-contact-number" href="#" aria-label="Call ShortMint owner">Call owner <span id="invite-contact-phone">+977</span></a>
               <a id="invite-contact-whatsapp" class="invite-contact-whatsapp" href="#" target="_blank" rel="noopener noreferrer" aria-label="Message ShortMint owner on WhatsApp">WhatsApp <span aria-hidden="true">↗</span></a>
@@ -258,7 +260,7 @@
         <p class="sm-data-explain">These counters show the data saved on the current server. Refreshing the page does not reset them.</p>
         <div class="sm27-admin-growth-grid">
           <article id="sm27-promos-panel" class="dashboard-panel sm27-promo-admin">
-            <span class="card-kicker">MEMBER GROWTH</span><h2>Promo code generator</h2><p>Create a reusable promo with a controlled credit reward and total usage limit.</p>
+            <span class="card-kicker">MEMBER GROWTH</span><h2>Promo code generator</h2><p>Create a reusable promo with a credit reward and use limit. Valid promo codes also allow one-time account registration per public IP.</p>
             <form id="sm27-create-promo" class="stack-form">
               <label for="sm27-promo-name">Promo code (optional, blank = auto-generate)</label><input id="sm27-promo-name" maxlength="32" placeholder="WELCOME10">
               <div class="sm27-admin-fields">
@@ -465,14 +467,14 @@ Second channel | https://www.youtube.com/@secondchannel"></textarea>
     </div>
   </div>
   <div class="toast hidden" id="toast" role="alert"><span id="toast-icon">!</span><div id="toast-text"></div><button id="toast-dismiss" type="button" aria-label="Dismiss">×</button></div>
-  <script src="/app.js?v=38.0.0" defer></script><script src="/dashboard.js?v=27.0.0" defer></script><script src="/premium.js?v=14.0.0" defer></script>
+  <script src="/app.js?v=38.0.0" defer></script><script src="/dashboard.js?v=39.0.0" defer></script><script src="/premium.js?v=14.0.0" defer></script>
   <script src="/spacious.js?v=15.0.0" defer></script>
   <script src="/account-safety.js?v=20.0.0" defer></script>
   <script src="/creator-experience-v21.js?v=22.0.0" defer></script>
   <script src="/creator-dashboard-v23.js?v=23.0.0" defer></script>
   <script src="/shortmint-cloud-v24.js?v=25.0.0" defer></script>
   <script src="/sidebar-contact-v25.js?v=25.0.0" defer></script>
-  <script src="/growth-v27.js?v=27.0.0" defer></script>
+  <script src="/growth-v27.js?v=39.0.0" defer></script>
   <script src="/shortmint-settings-v30.js?v=30.0.0" defer></script>
   <script src="/shortmint-export-v34.js?v=38.0.0" defer></script>
 </body>

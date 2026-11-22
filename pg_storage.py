@@ -97,7 +97,7 @@ DDL = [
         password_hash TEXT NOT NULL, role TEXT NOT NULL CHECK(role IN ('owner','member')),
         credits INTEGER NOT NULL DEFAULT 0, disabled INTEGER NOT NULL DEFAULT 0,
         created_at BIGINT NOT NULL,
-        google_sub TEXT UNIQUE, email TEXT
+        google_sub TEXT UNIQUE, email TEXT, signup_ip_hash TEXT
     )''',
     '''CREATE TABLE IF NOT EXISTS sessions (
         token_hash TEXT PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES users(id),
@@ -151,6 +151,8 @@ DDL = [
     )''',
     'ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sub TEXT',
     'ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT',
+    'ALTER TABLE users ADD COLUMN IF NOT EXISTS signup_ip_hash TEXT',
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_one_signup_per_ip ON users(signup_ip_hash) WHERE role='member' AND signup_ip_hash IS NOT NULL",
     'CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub)',
 ]
 

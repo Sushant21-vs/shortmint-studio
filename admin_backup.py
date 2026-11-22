@@ -70,7 +70,12 @@ def install_backup_routes(app, has_active_exports=lambda: False):
                 with sqlite3.connect(f'file:{stage}?mode=ro',uri=True) as source:
                     source.row_factory = sqlite3.Row
                     previous_owner_id = _check_snapshot(source, user['username'])
-                    old_members = [dict(r) for r in source.execute("SELECT id,username,password_hash,credits,disabled,created_at FROM users WHERE role='member' ORDER BY id")]
+                    user_cols={r[1] for r in source.execute('PRAGMA table_info(users)')}
+                    ip_field='signup_ip_hash' if 'signup_ip_hash' in user_cols else 'NULL AS signup_ip_hash'
+                    old_members = [dict(r) for r in source.execute(f"SELECT id,username,password_hash,credits,disabled,created_at,{ip_field} FROM users WHERE role='member' ORDER BY id")]
+                    tables={r[0] for r in source.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+                    old_promos=[dict(r) for r in source.execute('SELECT code,credits,max_uses,used_count,expires_at,active,created_at FROM promo_codes')] if 'promo_codes' in tables else []
+                    old_redemptions=[dict(r) for r in source.execute('SELECT code,user_id,credits,redeemed_at FROM promo_redemptions')] if 'promo_redemptions' in tables else []
                     old_invites = [dict(r) for r in source.execute('SELECT code,created_at,used_by,used_at FROM invites')]
                     old_logs = [dict(r) for r in source.execute('SELECT user_id,amount,reason,created_at FROM credit_log ORDER BY id')]
                     old_requests = [dict(r) for r in source.execute('SELECT user_id,amount,message,status,granted,reviewed_at,created_at FROM credit_requests ORDER BY id')]
@@ -98,19 +103,29 @@ def install_backup_routes(app, has_active_exports=lambda: False):
             live.execute('DELETE FROM credit_requests')
             live.execute('DELETE FROM purchase_requests')
             live.execute('DELETE FROM invites')
+            live.execute('DELETE FROM promo_redemptions')
+            live.execute('DELETE FROM promo_codes')
             live.execute("DELETE FROM sessions WHERE user_id IN (SELECT id FROM users WHERE role='member')")
             live.execute("DELETE FROM users WHERE role='member'")
             id_map={previous_owner_id:new_owner_id}
             for member in old_members:
-                cur=live.execute('''INSERT INTO users(username,password_hash,role,credits,disabled,created_at)
-                                    VALUES (?,?,'member',?,?,?)''',
-                                 (member['username'],member['password_hash'],member['credits'],member['disabled'],member['created_at']))
+                cur=live.execute('''INSERT INTO users(username,password_hash,role,credits,disabled,created_at,signup_ip_hash)
+                                    VALUES (?,?,'member',?,?,?,?)''',
+                                 (member['username'],member['password_hash'],member['credits'],member['disabled'],member['created_at'],member['signup_ip_hash']))
                 id_map[member['id']]=cur.lastrowid
             for invite in old_invites:
                 user_id=id_map.get(invite['used_by']) if invite['used_by'] is not None else None
                 if invite['used_by'] is not None and user_id is None: raise ValueError('Invalid invite member reference.')
                 live.execute('INSERT INTO invites(code,created_at,used_by,used_at) VALUES (?,?,?,?)',
                              (invite['code'],invite['created_at'],user_id,invite['used_at']))
+            for promo in old_promos:
+                live.execute('''INSERT INTO promo_codes(code,credits,max_uses,used_count,expires_at,active,created_at)
+                                VALUES (?,?,?,?,?,?,?)''',
+                             (promo['code'],promo['credits'],promo['max_uses'],promo['used_count'],promo['expires_at'],promo['active'],promo['created_at']))
+            for redemption in old_redemptions:
+                if redemption['user_id'] not in id_map: continue
+                live.execute('INSERT INTO promo_redemptions(code,user_id,credits,redeemed_at) VALUES (?,?,?,?)',
+                             (redemption['code'],id_map[redemption['user_id']],redemption['credits'],redemption['redeemed_at']))
             for log in old_logs:
                 live.execute('INSERT INTO credit_log(user_id,amount,reason,created_at) VALUES (?,?,?,?)',
                              (id_map[log['user_id']],log['amount'],log['reason'],log['created_at']))

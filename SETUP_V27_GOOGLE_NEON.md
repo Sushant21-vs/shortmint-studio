@@ -1,3 +1,9 @@
+# Archived instructions — Google access removed in v39
+
+The Google OAuth instructions below apply to historical v27 builds **only**. Do not enable Google sign-in on ShortMint v39. Follow `UPDATE_V39_CODE_ONLY_LOGIN_AND_IP_GUARD.md` for current setup. PostgreSQL/Neon setup remains relevant.
+
+---
+
 # ShortMint Studio v27 · 100+ Creator Launch
 
 ## Read before deploying

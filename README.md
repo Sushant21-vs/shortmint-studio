@@ -1,3 +1,11 @@
+# ShortMint Studio v39 — Promo/Invite Registration + IP Signup Guard
+
+**Start here:** [UPDATE_V39_CODE_ONLY_LOGIN_AND_IP_GUARD.md](UPDATE_V39_CODE_ONLY_LOGIN_AND_IP_GUARD.md)
+
+Google sign-in is disabled; new creators register with a single-use invite or an owner-issued promo code plus a username and password. One **new** member can register per recorded public IP. This does not retroactively restrict existing members, and cannot guarantee a unique human. For hosted deployment, preserve `DATABASE_URL` for users and credits. Existing Google-only accounts require a migration plan before sign-out; do not create replacement accounts expecting automatic credit/project transfer.
+
+---
+
 # ShortMint Studio v33 — Speech-to-Text & Six-Voice Narration
 
 **New:** optional automatic video captions plus 3 female and 3 male voiceover styles with audio preview, MP3 download, and narrated MP4 export. See [`UPDATE_V33_SPEECH_TO_TEXT_AND_6_VOICES.md`](UPDATE_V33_SPEECH_TO_TEXT_AND_6_VOICES.md) for setup, privacy and deployment requirements.
@@ -29,3 +37,6 @@ See `README_V14_REMOVE_DOWNLOADER.md` for update instructions. Earlier version n
 
 ## v16 clean login update
 See `README_V16_CLEAN_LOGIN.md`.
+
+## Latest update — v36
+The Shorts editor maximum export quality is 1080p. 4K and 8K have been removed from the editor, Settings and backend. See UPDATE_V36_MAX_1080P.md.

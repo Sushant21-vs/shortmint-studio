@@ -1,58 +1,8 @@
 'use strict';
-/* ShortMint Growth: verified Google accounts, promo codes and owner prices.
+/* ShortMint Growth: promo codes and owner prices.
    No credits are granted client-side: the server validates every action. */
 (() => {
   const el = id => document.getElementById(id);
-  const googleSlot = el('sm27-google-button');
-  if (!googleSlot) return;
-  let googleLoading = false;
-  let googleConfig = null;
-  const submitGoogleCredential = async response => {
-    if (googleLoading) return;
-    googleLoading = true;
-    const message = el('sm27-google-status');
-    if (message) message.textContent = 'Checking your Google account securely…';
-    try {
-      const promo_code = (el('sm27-google-promo').value || '').trim();
-      const result = await api('/api/auth/google', {
-        method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({credential: response.credential, promo_code})
-      });
-      showApp(result.user);
-      if (result.created) toast(`Welcome! ${result.user.credits ?? 5} starter credits are ready.`, true);
-      else if (result.promo_awarded) toast(`Promo applied: +${result.promo_awarded} credits.`, true);
-      if (result.promo_error) toast('Promo code: ' + result.promo_error);
-    } catch (err) {
-      if (message) message.textContent = errorMessage(err);
-    } finally { googleLoading = false; }
-  };
-  const initGoogle = async () => {
-    try {
-      googleConfig = await api('/api/auth/google-config');
-      if (!googleConfig.enabled || !googleConfig.client_id) {
-        googleSlot.textContent = 'Google sign-in will appear once the owner finishes Google setup.';
-        googleSlot.classList.add('sm27-google-disabled');
-        return;
-      }
-      const script = document.createElement('script');
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        if (!window.google?.accounts?.id) {googleSlot.textContent='Google sign-in could not load.'; return;}
-        google.accounts.id.initialize({client_id:googleConfig.client_id, callback:submitGoogleCredential,auto_select:false});
-        googleSlot.textContent = '';
-        google.accounts.id.renderButton(googleSlot,{
-          type:'standard',theme:'outline',size:'large',shape:'pill',
-          text:'continue_with',logo_alignment:'left',width:Math.max(220,Math.min(350,googleSlot.clientWidth||320))
-        });
-      };
-      script.onerror = () => {googleSlot.textContent='Google sign-in is unavailable right now. Try again later.';};
-      document.head.appendChild(script);
-    } catch {googleSlot.textContent='Unable to load Google sign-in.';}
-  };
-  initGoogle();
-
   const redeemForm=el('sm27-redeem-form');
   if (redeemForm) redeemForm.addEventListener('submit',async event=>{
     event.preventDefault();
