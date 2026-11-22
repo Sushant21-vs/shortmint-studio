@@ -1,0 +1,73 @@
+/* ShortMint Studio v43 — visually consistent, accessible device-upload panel.
+   Intentionally loaded last to override obsolete pale and theme-variable styles. */
+#app-view .studio .sm-upload-focus,
+body.light-theme #app-view .studio .sm-upload-focus {
+  background:linear-gradient(115deg,#26374a 0%,#1d2b3d 100%)!important;
+  border:1px solid #52657c!important;
+  border-radius:16px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05)!important;
+  color:#f8fafc!important;
+}
+#app-view .studio .sm-upload-focus strong,
+body.light-theme #app-view .studio .sm-upload-focus strong {
+  color:#f8fafc!important;
+  opacity:1!important;
+  text-shadow:none!important;
+  font-weight:800!important;
+}
+#app-view .studio .sm-upload-focus>div span,
+body.light-theme #app-view .studio .sm-upload-focus>div span {
+  color:#d4e0ed!important;
+  opacity:1!important;
+  text-shadow:none!important;
+}
+#app-view .studio .sm-upload-focus .sm-upload-focus-label,
+body.light-theme #app-view .studio .sm-upload-focus .sm-upload-focus-label {
+  color:#ffb98d!important;
+  opacity:1!important;
+  font-weight:900!important;
+  letter-spacing:1px;
+}
+#app-view .studio .sm-upload-focus .sm-upload-focus-icon,
+body.light-theme #app-view .studio .sm-upload-focus .sm-upload-focus-icon {
+  background:#42352f!important;
+  border:1px solid #765542!important;
+  color:#ffa56e!important;
+  box-shadow:none!important;
+}
+/* The actual drag/drop target was also pale under old v20 overrides. */
+#app-view .studio #dropzone.dropzone,
+body.light-theme #app-view .studio #dropzone.dropzone {
+  background:linear-gradient(145deg,#1c2b3d 0%,#182739 100%)!important;
+  border:2px dashed #7288a0!important;
+  border-radius:18px!important;
+  color:#eef4fc!important;
+  box-shadow:none!important;
+}
+#app-view .studio #dropzone.dropzone:is(:hover,:focus-visible,.dragging),
+body.light-theme #app-view .studio #dropzone.dropzone:is(:hover,:focus-visible,.dragging) {
+  background:linear-gradient(145deg,#273951,#213147)!important;
+  border-color:#ff9e69!important;
+}
+#app-view .studio #dropzone.dropzone h4,
+body.light-theme #app-view .studio #dropzone.dropzone h4 {color:#ffffff!important;opacity:1!important;}
+#app-view .studio #dropzone.dropzone p,
+body.light-theme #app-view .studio #dropzone.dropzone p {color:#d3deec!important;opacity:1!important;}
+#app-view .studio #dropzone.dropzone p span,
+body.light-theme #app-view .studio #dropzone.dropzone p span {color:#ffad7a!important;opacity:1!important;text-decoration:underline;}
+#app-view .studio #dropzone.dropzone small,
+body.light-theme #app-view .studio #dropzone.dropzone small {color:#bccce0!important;opacity:1!important;}
+#app-view .studio #dropzone.dropzone .upload-symbol,
+body.light-theme #app-view .studio #dropzone.dropzone .upload-symbol {
+  background:#354358!important;
+  border:1px solid #5b7088!important;
+  color:#ffa56f!important;
+  box-shadow:none!important;
+}
+#app-view .studio .sm-supported-file-types,
+body.light-theme #app-view .studio .sm-supported-file-types {color:#c6d4e3!important;opacity:1!important;}
+@media(max-width:600px){
+  #app-view .studio .sm-upload-focus {padding:13px 14px!important;}
+  #app-view .studio .sm-upload-focus strong {font-size:13px!important;}
+  #app-view .studio .sm-upload-focus>div span{font-size:11px!important;}
+}
