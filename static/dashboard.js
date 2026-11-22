@@ -321,24 +321,54 @@ $('#starting-credit-form').addEventListener('submit',async event=>{
   try{await api('/api/admin/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({starting_credits:value})});toast('Welcome credits setting saved.',true);loadAdmin();}catch(err){toast(errorMessage(err));}
 });
 
-// Buy credits is a manual owner-contact workflow. No online payment is taken.
-async function loadBuyCredits(){
+// Credit purchases remain manual owner-approved inquiries; this is not a payment gateway.
+// Contact URLs come only from the owner-managed settings exposed to the signed-in client.
+function sm45SafeInstagramProfile(raw) {
+  if (typeof raw !== 'string' || !raw) return '';
+  try {
+    const url = new URL(raw);
+    if (url.protocol !== 'https:' || !['instagram.com','www.instagram.com'].includes(url.hostname.toLowerCase())) return '';
+    if (!url.pathname.split('/').filter(Boolean).length) return '';
+    return url.href;
+  } catch { return ''; }
+}
+function sm45ShowCreditFollowup(shop, purchase) {
+  const panel=$('#sm45-credit-followup');
+  if(!panel)return;
+  if(!purchase || purchase.status!=='pending') {
+    panel.classList.add('hidden');
+    return;
+  }
+  panel.classList.remove('hidden');
+  $('#sm45-order-reference').textContent=`Order #${purchase.id} · ${plural(purchase.amount)} · Pending payment confirmation`;
+  const contactButtons=$('#sm45-contact-buttons');
+  contactButtons.replaceChildren();
+  const msg=`Hello ShortMint Studio! I placed credit order #${purchase.id} for ${purchase.amount} credits. My username is ${currentUser.username}. Please guide me through payment and activation.`;
+  function addContact(label, href, external=true) {
+    const a=document.createElement('a');
+    a.className='sm45-contact-button';a.href=href;a.textContent=label;
+    if(external){a.target='_blank';a.rel='noopener noreferrer';}
+    contactButtons.append(a);
+  }
+  const whatsapp=typeof shop.whatsapp==='string'?shop.whatsapp.replace(/\D/g,''):'';
+  if(whatsapp.length>=7 && whatsapp.length<=15) addContact('WhatsApp ↗',`https://wa.me/${whatsapp}?text=${encodeURIComponent(msg)}`);
+  const email=typeof shop.email==='string'?shop.email.trim():'';
+  if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) addContact('Gmail / Email ↗',`mailto:${email}?subject=${encodeURIComponent('ShortMint credit order #'+purchase.id)}&body=${encodeURIComponent(msg)}`,false);
+  const instagram=sm45SafeInstagramProfile(shop.instagram);
+  if(instagram) addContact('Instagram ↗',instagram);
+  if(!contactButtons.children.length) {
+    const note=document.createElement('span');note.className='sm45-contact-unset';note.textContent='The owner has not set external contact links yet. Continue using private messages below.';contactButtons.append(note);
+  }
+  const inbox=document.createElement('button');inbox.type='button';inbox.className='sm45-contact-button sm45-message-link';inbox.textContent='Message owner in ShortMint ↗';inbox.addEventListener('click',()=>showView('orders'));contactButtons.append(inbox);
+}
+async function loadBuyCredits({scrollToFollowup=false}={}){
   if(currentUser?.role!=='member')return;
   try{
     const data=await api('/api/credits/shop');
-    $('#purchase-history').innerHTML=data.purchases.length?data.purchases.map(p=>`<div class="history-row"><div><b>${plural(p.amount)} requested</b><small>${safe(timeLabel(p.created_at))}</small></div><span class="status-tag ${p.status==='fulfilled'?'approved':p.status==='rejected'?'rejected':''}">${p.status==='fulfilled'?'Paid · Credited':safe(p.status)}</span></div>`).join(''):'<div class="empty-list">No purchase inquiries yet.</div>';
-    const links=[];
-    const amount=Number($('#buy-amount').value)||25;
-    const message=`Hello! I'm ${currentUser.username} on ShortMint Studio. I want to buy ${amount} Shorts credits. Please tell me the price and how to pay.`;
-    if(data.whatsapp){
-      const digits=data.whatsapp.replace(/\D/g,'');
-      if(digits)links.push(`<a target="_blank" rel="noopener noreferrer" class="secondary-btn" href="https://wa.me/${digits}?text=${encodeURIComponent(message)}">Chat with owner on WhatsApp ↗</a>`);
-    }
-    if(data.email){
-      links.push(`<a class="outline-btn" href="mailto:${encodeURIComponent(data.email)}?subject=${encodeURIComponent('ShortMint credit purchase')}&body=${encodeURIComponent(message)}">Email owner ↗</a>`);
-    }
-    $('#owner-contact-links').innerHTML=links.join('');
-    $('#owner-contact-links').classList.toggle('hidden',links.length===0);
+    $('#purchase-history').innerHTML=data.purchases.length?data.purchases.map(p=>`<div class="history-row"><div><b>${plural(p.amount)} requested</b><small>Order #${p.id} · ${safe(timeLabel(p.created_at))}</small></div><span class="status-tag ${p.status==='fulfilled'?'approved':p.status==='rejected'?'rejected':''}">${p.status==='fulfilled'?'Paid · Credited':safe(p.status)}</span></div>`).join(''):'<div class="empty-list">No purchase inquiries yet.</div>';
+    const pending=data.purchases.find(p=>p.status==='pending');
+    sm45ShowCreditFollowup(data,pending);
+    if(scrollToFollowup && pending) $('#sm45-credit-followup').scrollIntoView({behavior:'smooth',block:'center'});
   }catch(err){toast('Unable to load credit store: '+errorMessage(err));}
 }
 $('#shop-packs').addEventListener('click',event=>{
@@ -360,7 +390,7 @@ $('#purchase-form').addEventListener('submit',async event=>{
   const message=$('#buy-note').value.trim();
   try{
     const res=await api('/api/credits/purchase-request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount,contact,message})});
-    toast(res.message,true);$('#buy-note').value='';loadBuyCredits();
+    toast('Credit order request submitted. Follow the next steps below.',true);$('#buy-note').value='';await loadBuyCredits({scrollToFollowup:true});
   }catch(err){toast(errorMessage(err));}
 });
 $('#invite-phone-form').addEventListener('submit',async event=>{

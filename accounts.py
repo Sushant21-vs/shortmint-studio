@@ -560,12 +560,13 @@ def install_auth_routes(app):
     def shop_info(user=Depends(user_for_request)):
         with db() as con:
             settings = {r['name']: r['value'] for r in con.execute(
-                "SELECT name,value FROM settings WHERE name IN ('contact_email','contact_whatsapp','credit_prices_json')")}
+                "SELECT name,value FROM settings WHERE name IN ('contact_email','contact_whatsapp','public_email','public_instagram','credit_prices_json')")}
             purchases = [dict(r) for r in con.execute(
                 '''SELECT id,amount,contact,message,status,created_at,reviewed_at
                    FROM purchase_requests WHERE user_id=? ORDER BY id DESC LIMIT 30''',(user['id'],)).fetchall()]
-        return {'packages':[10,25,50,100], 'email':settings.get('contact_email',''),
+        return {'packages':[10,25,50,100], 'email':settings.get('contact_email','') or settings.get('public_email',''),
                 'whatsapp':settings.get('contact_whatsapp',''),
+                'instagram':settings.get('public_instagram',''),
                 'prices':json.loads(settings.get('credit_prices_json','{}') or '{}'), 'purchases':purchases}
 
     @app.post('/api/credits/purchase-request')

@@ -29,6 +29,7 @@
 <link rel="stylesheet" href="/shortmint-readable-card-v42.css?v=42.0.0">
   <link rel="stylesheet" href="/shortmint-upload-contrast-v43.css?v=43.0.0">
   <link rel="stylesheet" href="/shortmint-orders-v44.css?v=44.0.0">
+  <link rel="stylesheet" href="/shortmint-credit-followup-v45.css?v=45.0.0">
 </head>
 <body>
   <section id="auth-view" class="auth-screen hidden" aria-label="ShortMint Studio sign in">
@@ -286,7 +287,14 @@
               <label for="buy-contact">Your WhatsApp number or email</label><input id="buy-contact" type="text" minlength="5" maxlength="120" placeholder="e.g. +97798... or your@email.com" required>
               <label for="buy-note">Message (optional)</label><textarea id="buy-note" maxlength="300" rows="3" placeholder="Hi! I'd like to know the price and how to pay."></textarea>
               <button type="submit" class="orange-btn">Contact Owner — Send Request →</button>
-            </form><p class="mini-caption">Submitting a request does not charge you or add credits.</p><div id="owner-contact-links" class="shop-direct-links hidden"></div>
+            </form><p class="mini-caption">Submitting a request does not charge you or add credits.</p>
+            <div id="sm45-credit-followup" class="sm45-followup hidden" role="status" aria-live="polite" aria-labelledby="sm45-followup-title">
+              <div class="sm45-followup-head"><span class="sm45-check" aria-hidden="true">✓</span><div><span class="sm45-kicker">ORDER REQUEST RECEIVED</span><h3 id="sm45-followup-title">Next steps for your credits</h3></div></div>
+              <div id="sm45-order-reference" class="sm45-order-reference"></div>
+              <p id="sm45-followup-description">Your request is pending. Contact the owner to confirm the price, payment method and your order reference. Credits will be added after payment is verified.</p>
+              <div id="sm45-contact-buttons" class="sm45-contact-buttons"></div>
+              <p class="sm45-security-note">Please include your order reference when messaging. Do not share passwords or card details. Submitting this request does not make a payment.</p>
+            </div>
           </article>
           <article class="dashboard-panel"><span class="card-kicker">YOUR PURCHASE INQUIRIES</span><h2>Request Status</h2><div id="purchase-history" class="history-list"></div></article>
         </div>
@@ -378,7 +386,7 @@
         <div class="section-title-row"><h2>Purchase Inquiries <span id="purchase-heading-count" class="count-pill">0 pending</span></h2><span>Only confirm after verifying payment yourself</span></div>
         <div id="admin-purchases" class="admin-list"><div class="empty-list">No purchase inquiries yet.</div></div>
         <div class="admin-main-grid shop-admin-grid">
-          <article class="dashboard-panel"><span class="card-kicker">DIRECT CONTACT</span><h2>How members can contact you</h2><p>Optional WhatsApp number and email shown to signed-in members on the Buy Credits page. Keep them blank to use in-app requests only.</p>
+          <article class="dashboard-panel"><span class="card-kicker">DIRECT CONTACT</span><h2>How members can contact you</h2><p>Your WhatsApp number and email appear after a member submits a credit order request. Instagram uses the Public Contact &amp; Socials setting below. Leave fields blank to offer in-app messages only.</p>
             <form id="owner-contact-form" class="stack-form"><label for="owner-whatsapp">WhatsApp number (with country code)</label><input type="tel" id="owner-whatsapp" placeholder="+97798XXXXXXXX" maxlength="25">
               <label for="owner-email">Contact email</label><input type="email" id="owner-email" maxlength="120" placeholder="contact@example.com"><button type="submit" class="secondary-btn">Save Contact Details</button></form>
           </article>
@@ -387,7 +395,7 @@
         <article class="dashboard-panel sm25-public-contact-settings" id="sm25-public-contact-settings">
           <span class="card-kicker">PUBLIC PROFILE · CONTACT &amp; SOCIALS</span>
           <h2>Your sidebar contact details</h2>
-          <p>Set which email, phone and social accounts your signed-in users can see in the left sidebar. Blank fields stay hidden. These are separate from private account details and your Buy Credits contacts.</p>
+          <p>Set which email, phone and social accounts your signed-in users can see in the left sidebar. Your Instagram link also appears in the next steps after a credit order. Blank fields stay hidden. These are separate from private account details and your Buy Credits contacts.</p>
           <form id="sm25-public-contact-form" class="stack-form">
             <label for="sm25-public-email">Public contact email</label>
             <input id="sm25-public-email" type="email" maxlength="120" placeholder="hello@example.com" autocomplete="off">
@@ -555,7 +563,7 @@ Second channel | https://www.youtube.com/@secondchannel"></textarea>
   </div>
   <div class="toast hidden" id="toast" role="alert"><span id="toast-icon">!</span><div id="toast-text"></div><button id="toast-dismiss" type="button" aria-label="Dismiss">×</button></div>
   <script src="/shortmint-orders-v44.js?v=44.0.0" defer></script>
-  <script src="/app.js?v=40.0.0" defer></script><script src="/dashboard.js?v=39.0.0" defer></script><script src="/shortmint-migration-v41.js?v=41.0.0" defer></script><script src="/premium.js?v=14.0.0" defer></script>
+  <script src="/app.js?v=40.0.0" defer></script><script src="/dashboard.js?v=45.0.0" defer></script><script src="/shortmint-migration-v41.js?v=41.0.0" defer></script><script src="/premium.js?v=14.0.0" defer></script>
   <script src="/spacious.js?v=15.0.0" defer></script>
   <script src="/account-safety.js?v=20.0.0" defer></script>
   <script src="/creator-experience-v21.js?v=22.0.0" defer></script>
