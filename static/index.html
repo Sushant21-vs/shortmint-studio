@@ -31,6 +31,8 @@
   <link rel="stylesheet" href="/shortmint-orders-v44.css?v=44.0.0">
   <link rel="stylesheet" href="/shortmint-credit-followup-v45.css?v=45.0.0">
   <link rel="stylesheet" href="/shortmint-unified-ui-v46.css?v=46.0.0">
+  <link rel="stylesheet" href="/shortmint-toast-v47.css?v=47.0.0">
+  <link rel="stylesheet" href="/shortmint-ui-v48.css?v=48.0.0">
 </head>
 <body>
   <section id="auth-view" class="auth-screen hidden" aria-label="ShortMint Studio sign in">
@@ -219,7 +221,7 @@
       <div class="shell header-inner">
         <button id="sm-menu-toggle" class="sm-icon-control sm-menu-toggle" type="button" aria-label="Open navigation" aria-controls="sm-sidebar" aria-expanded="false"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
         <div class="sm-location"><span>SHORTMINT / WORKSPACE</span><strong id="sm-current-page">Overview</strong></div>
-        <button class="sm-command-launch" id="sm-command-open" type="button" aria-haspopup="dialog" aria-controls="sm-command-dialog"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><span>Quick actions...</span><kbd>Ctrl K</kbd></button>
+        <button class="sm-command-launch" id="sm-command-open" type="button" aria-haspopup="dialog" aria-controls="sm-command-dialog"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><span>Search workspace actions...</span><kbd>Ctrl K</kbd></button>
         <button class="sm30-settings-shortcut" type="button" data-view="settings" aria-label="Open Settings">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M4 12a8 8 0 0 1 .4-2.5l-1.4-1.7 2-3.4 2.2.7A8 8 0 0 1 10 3.5L10.5 1h3l.5 2.5a8 8 0 0 1 2.8 1.6l2.2-.7 2 3.4-1.4 1.7a8 8 0 0 1 0 5l1.4 1.7-2 3.4-2.2-.7a8 8 0 0 1-2.8 1.6L13.5 23h-3l-.5-2.5a8 8 0 0 1-2.8-1.6l-2.2.7-2-3.4 1.4-1.7A8 8 0 0 1 4 12Z"/></svg>
           <span>Settings</span>
@@ -229,11 +231,15 @@
     </header>
     <main class="shell main-shell">
       <section id="dashboard-view" class="app-page">
+<div class="sm48-hero"><div class="sm48-hero-copy"><span class="sm48-eyebrow">WELCOME TO SHORTMINT STUDIO</span><h2>Create Viral Shorts in Minutes <span class="sm48-glint" aria-hidden="true">✦</span></h2><p>Turn your footage into engaging vertical clips for YouTube Shorts, Instagram Reels, and TikTok.</p><div class="sm48-hero-actions"><button type="button" class="sm48-primary-button" data-view="studio">▶ &nbsp; Create New Project</button><details class="sm48-help"><summary>ⓘ &nbsp; How it works</summary><p>Upload your video, choose your clip settings, generate Shorts, then download the finished MP4 files. Each exported Short uses one credit unless your account has unlimited access.</p></details></div></div><div class="sm48-hero-art" aria-hidden="true"><div class="sm48-orbit"></div>
+<div class="sm48-video-tile sm48-tile-mountain"><img src="/sm48-mountain.svg" alt="" loading="lazy"><span>▶</span></div>
+<div class="sm48-video-tile sm48-tile-sunset"><img src="/sm48-sunset.svg" alt="" loading="lazy"><span>▶</span></div>
+<div class="sm48-video-tile sm48-tile-food"><img src="/sm48-food.svg" alt="" loading="lazy"><span>▶</span></div></div></div>
       <div class="sm23-intro-row">
         <div><span class="sm23-intro-orbit">✦</span><span class="sm23-intro-label">THE CREATOR DESK</span><span class="sm23-intro-slash">/</span><span class="sm23-intro-label sm23-intro-muted">YOUR HOME</span></div>
         <div class="sm23-live"><span></span> SHORTMINT STUDIO <b>CREATOR DESK</b></div>
       </div>
-        <div class="page-heading"><div><span class="overline">WORKSPACE OVERVIEW</span><h1>Creative overview <span class="wave">✦</span></h1><p id="welcome-copy">Welcome back. Your next great Short starts here.</p></div><div class="header-person"><span class="avatar large" id="welcome-avatar">S</span><div><b id="welcome-user">Creator</b><small id="welcome-role">Creator account</small></div></div></div>
+        <div class="page-heading"><div><span class="overline">WORKSPACE OVERVIEW</span><h1>Overview</h1><p id="welcome-copy">Welcome back. Your next great Short starts here.</p></div><div class="header-person"><span class="avatar large" id="welcome-avatar">S</span><div><b id="welcome-user">Creator</b><small id="welcome-role">Creator account</small></div></div></div>
         <div id="metric-grid" class="metric-grid" aria-label="Account statistics">
           <div class="metric-card"><div class="metric-label">Credits <span class="metric-glyph">▣</span></div><strong id="metric-credits">–</strong><small id="metric-credits-desc">available</small></div>
           <div class="metric-card"><div class="metric-label">Total projects <span class="metric-glyph">▣</span></div><strong id="metric-projects">0</strong><small>video projects</small></div>
@@ -249,6 +255,7 @@
               <span class="card-kicker">QUICK START</span>
               <h2>Create New Project</h2>
               <p>Upload your video, shape the best moments, and export a polished vertical Short.</p>
+              <div class="sm48-start-upload" role="group" aria-label="Open video upload studio"><div class="sm48-upload-cloud" aria-hidden="true">☁</div><strong>Ready to start your next Short?</strong><p>Upload a video from your device in the editor.</p><button type="button" data-view="studio">Open Upload Studio ↗</button></div>
               <div class="sm42-refresh-notice" role="note" aria-label="Temporary video storage notice">
                 <span class="sm42-notice-icon" aria-hidden="true">!</span>
                 <span><strong>Videos are temporarily stored.</strong> Uploaded files and unsaved work may be lost after refreshing or leaving this page. Download your finished Shorts before leaving.</span>
@@ -256,14 +263,19 @@
             </div>
             <button id="dashboard-new-project" type="button" class="orange-btn wide">＋ &nbsp; New Project <span>→</span></button>
           </article>
+          <article class="dashboard-panel sm48-processing-card"><div class="sm48-card-top"><span class="sm48-card-icon">ϟ</span><h2>Processing &amp; Status</h2></div><p class="sm48-card-description">Track video generation in your editing workspace. The status and results are displayed as your Shorts process.</p><div class="sm48-status-row"><span class="sm48-status-light" aria-hidden="true"></span><div><strong>Video processing workspace</strong><small>Open Create Shorts to view active jobs and downloads.</small></div></div><button type="button" class="sm48-outline-button" data-view="studio">Open Processing Workspace ↗</button></article>
           <article class="dashboard-panel"><div><span class="card-kicker muted-orange">ACCOUNT & ACCESS</span><h2 id="access-heading">Manage Credits</h2><p id="access-description">Keep creating with credits approved by the owner.</p></div><div class="panel-actions"><button id="dashboard-manage-credits" class="secondary-btn wide">View Credit Balance</button><button id="dashboard-secondary-action" class="gray-btn wide">Buy Credits / Contact Owner</button></div></article>
         </div>
-        <div class="section-title-row"><h2>Tips & inspiration <span class="little-flare">✦</span></h2><span>Better Shorts, one video at a time</span></div>
-        <div class="tips-grid"><article class="tip-card"><span>STRONGER HOOKS</span><h3>Make your first 3 seconds count</h3><p>Start with a question, surprising result, or the most interesting line.</p><button type="button" data-view="studio">Create a Short ↗</button></article><article class="tip-card"><span>VERTICAL CONTENT</span><h3>Turn landscape into 9:16</h3><p>Pick center-crop or blur to make your long video fit a vertical format.</p><button type="button" data-view="studio">Open the Studio ↗</button></article><article class="tip-card"><span>SMARTER EDITING</span><h3>Find your best moments</h3><p>Use activity-based picks, then review every clip before you publish.</p><button type="button" data-view="studio">Explore tools ↗</button></article></div>
+<div class="sm48-lower-grid">
         <div class="sm23-project-section"><div class="section-title-row project-heading"><h2>Your Projects</h2><button type="button" class="text-btn" id="refresh-projects">↻ Refresh</button></div>
         <div id="project-list" class="project-list"><div class="empty-list">Your videos will appear here after you upload them.</div></div></div>
+<div class="sm48-tips-column">        <div class="section-title-row"><h2>Tips & inspiration <span class="little-flare">✦</span></h2><span>Better Shorts, one video at a time</span></div>
+        <div class="tips-grid"><article class="tip-card"><span>STRONGER HOOKS</span><h3>Make your first 3 seconds count</h3><p>Start with a question, surprising result, or the most interesting line.</p><button type="button" data-view="studio">Create a Short ↗</button></article><article class="tip-card"><span>VERTICAL CONTENT</span><h3>Turn landscape into 9:16</h3><p>Pick center-crop or blur to make your long video fit a vertical format.</p><button type="button" data-view="studio">Open the Studio ↗</button></article><article class="tip-card"><span>SMARTER EDITING</span><h3>Find your best moments</h3><p>Use activity-based picks, then review every clip before you publish.</p><button type="button" data-view="studio">Explore tools ↗</button></article></div>
+</div>
+</div>
       </section>
       <section id="credits-view" class="app-page hidden">
+<div class="sm48-hero"><div class="sm48-hero-copy"><span class="sm48-eyebrow">YOUR ACCOUNT</span><h2>My Credits <span class="sm48-glint" aria-hidden="true">✦</span></h2><p>View your real credit balance, activity, and requests.</p></div><div class="sm48-hero-emblem" aria-hidden="true">✦</div></div>
         <div class="page-heading"><div><span class="overline">YOUR ACCOUNT</span><h1>Credits & Requests</h1><p>Keep track of Shorts credits and ask the owner for more.</p></div></div>
         <div class="credits-layout"><article class="dashboard-panel balance-card"><span class="card-kicker">CURRENT BALANCE</span><strong id="big-credit-count">–</strong><p id="balance-info">1 credit = 1 exported Short. Credits are returned if an export fails or is cancelled.</p></article><article id="request-credit-panel" class="dashboard-panel"><span class="card-kicker">NEED MORE?</span><h2>Request Credits</h2><p>Submit a request here. The owner can approve or reject it in their admin dashboard.</p><form id="request-credit-form" class="stack-form"><label for="request-amount">Credits needed</label><input id="request-amount" type="number" min="1" max="500" value="10" required><label for="request-message">Message to the owner (optional)</label><textarea id="request-message" maxlength="300" rows="3" placeholder="I need more credits for my upcoming videos"></textarea><button type="submit" class="orange-btn">Send Credit Request →</button></form></article><article id="owner-info-panel" class="dashboard-panel hidden"><span class="card-kicker">OWNER ACCESS</span><h2>Unlimited Shorts</h2><p>As the site owner, you never spend credits. Manage friend accounts and their requests in your private admin panel.</p><button type="button" class="orange-btn" data-view="admin">Open Admin Panel →</button></article></div>
         <article class="dashboard-panel sm27-redeem-card">
@@ -273,6 +285,7 @@
         <div class="history-grid"><article class="dashboard-panel"><h2>Credit Activity</h2><div id="credit-history" class="history-list"></div></article><article class="dashboard-panel"><h2>Your Requests</h2><div id="my-requests" class="history-list"></div></article></div>
       </section>
       <section id="buy-view" class="app-page hidden">
+<div class="sm48-hero"><div class="sm48-hero-copy"><span class="sm48-eyebrow">SHORTMINT CREDIT STORE</span><h2>Buy Credits <span class="sm48-glint" aria-hidden="true">✦</span></h2><p>Choose a credit package and request it from the owner. Credits are added after payment verification.</p></div><div class="sm48-hero-emblem" aria-hidden="true">✦</div></div>
         <div class="page-heading"><div><span class="overline">SHORTMINT CREDIT STORE</span><h1>Buy Credits <span class="wave">✦</span></h1><p>Choose a pack, contact the owner, and get credits added manually after payment is confirmed.</p></div></div>
         <div class="shop-hero dashboard-panel"><div><span class="card-kicker">HOW IT WORKS</span><h2>More Shorts. Your choice.</h2><p>Each credit exports one Short. Select a pack and send an inquiry. You and the owner arrange the price and payment directly. <strong>No online payments are collected on this website.</strong></p></div><div class="shop-hero-icon">✦</div></div>
         <div class="section-title-row"><h2>Choose a credit pack</h2><span>Prices confirmed by owner</span></div>
@@ -302,7 +315,7 @@
       </section>
       <section id="orders-view" class="app-page hidden" aria-labelledby="sm44-page-title">
         <div class="sm44-hero">
-          <div><span class="sm44-eyebrow">SHORTMINT / PRIVATE MESSAGING</span><h1 id="sm44-page-title">Orders <em>&amp; messages.</em></h1>
+          <div><span class="sm44-eyebrow">SHORTMINT / PRIVATE MESSAGING</span><h1 id="sm44-page-title">Orders &amp; Messages <span class="sm48-glint" aria-hidden="true">✦</span></h1>
           <p>Send a custom order or ask the owner directly. Your conversations are private and connected to your ShortMint account.</p></div>
           <div class="sm44-hero-mark" aria-hidden="true">✦</div>
         </div>
@@ -340,7 +353,7 @@
         <p id="sm44-feedback" class="sm44-feedback" role="status" aria-live="polite"></p>
       </section>
       <section id="admin-view" class="app-page hidden">
-        <div class="page-heading sm-admin-hero"><div class="sm-admin-hero-copy"><span class="sm-admin-status"><span class="sm-admin-dot"></span> SHORTMINT / OWNER CONTROL CENTER</span><h1>Your studio, <em>your rules.</em> <span class="wave" aria-hidden="true">✦</span></h1><p>Everything you need to manage your creators, invitations and credits in one beautiful workspace.</p><div class="sm-admin-shortcuts"><button class="sm-admin-jump" type="button" data-sm-jump="sm-admin-members-section">Members <span>↗</span></button><button class="sm-admin-jump" type="button" data-sm-jump="sm-admin-invites-section">Invites <span>↗</span></button><button class="sm-admin-jump" type="button" data-sm-jump="sm-admin-safety-section">Backups <span>↗</span></button></div></div><div class="sm-admin-hero-action"><div class="sm-admin-hero-icon" aria-hidden="true">✦</div><button id="admin-refresh" class="outline-btn">↻ Refresh data</button><small id="sm-admin-sync" aria-live="polite">Live account overview</small></div></div>
+        <div class="page-heading sm-admin-hero"><div class="sm-admin-hero-copy"><span class="sm-admin-status"><span class="sm-admin-dot"></span> SHORTMINT / OWNER CONTROL CENTER</span><h1>Admin Panel <span class="sm48-glint" aria-hidden="true">✦</span></h1><p>Everything you need to manage your creators, invitations and credits in one beautiful workspace.</p><div class="sm-admin-shortcuts"><button class="sm-admin-jump" type="button" data-sm-jump="sm-admin-members-section">Members <span>↗</span></button><button class="sm-admin-jump" type="button" data-sm-jump="sm-admin-invites-section">Invites <span>↗</span></button><button class="sm-admin-jump" type="button" data-sm-jump="sm-admin-safety-section">Backups <span>↗</span></button></div></div><div class="sm-admin-hero-action"><div class="sm-admin-hero-icon" aria-hidden="true">✦</div><button id="admin-refresh" class="outline-btn">↻ Refresh data</button><small id="sm-admin-sync" aria-live="polite">Live account overview</small></div></div>
         <article class="dashboard-panel sm44-admin-banner" id="sm44-admin-orders">
           <div><span class="card-kicker">CUSTOMER ENQUIRIES</span><h2>Orders &amp; direct messages</h2><p>Read customer requests, reply directly and manage order status in your private owner inbox.</p></div>
           <button type="button" class="sm44-send" data-view="orders">Open owner inbox <span id="sm44-admin-unread">↗</span></button>
@@ -430,7 +443,7 @@ Second channel | https://www.youtube.com/@secondchannel"></textarea>
           <div class="sm30-page-heading">
             <div class="sm30-overline"><span class="sm30-mini-pulse"></span> SHORTMINT / PREFERENCES</div>
             <div class="sm30-heading-flex">
-              <div><h1 id="sm30-settings-heading">Make ShortMint <em>yours.</em></h1><p>Adjust your workspace the way you like it. A calmer workflow, one setting at a time.</p></div>
+              <div><h1 id="sm30-settings-heading">Settings <span class="sm48-glint" aria-hidden="true">✦</span></h1><p>Adjust your workspace the way you like it. A calmer workflow, one setting at a time.</p></div>
               <span class="sm30-heading-symbol" aria-hidden="true">✦</span>
             </div>
           </div>
@@ -495,6 +508,10 @@ Second channel | https://www.youtube.com/@secondchannel"></textarea>
       </section>
       <div id="editor-view" class="app-page hidden"><div class="editor-back"><button type="button" class="outline-btn" data-view="dashboard">← Back to Dashboard</button><span id="editor-credit-note">1 credit per generated Short</span></div>
     <section class="studio" id="workspace">
+<div class="sm48-hero"><div class="sm48-hero-copy"><span class="sm48-eyebrow">SHORTMINT STUDIO</span><h2>Create Shorts <span class="sm48-glint" aria-hidden="true">✦</span></h2><p>Create polished 9:16 video clips using your own footage and the ShortMint editing tools.</p><div class="sm48-hero-actions"><button type="button" class="sm48-primary-button" id="sm48-select-video">▶ &nbsp; Choose Video Files</button><details class="sm48-help"><summary>ⓘ &nbsp; How it works</summary><p>Upload your video, choose your clip settings, generate Shorts, then download the finished MP4 files. Each exported Short uses one credit unless your account has unlimited access.</p></details></div></div><div class="sm48-hero-art" aria-hidden="true"><div class="sm48-orbit"></div>
+<div class="sm48-video-tile sm48-tile-mountain"><img src="/sm48-mountain.svg" alt="" loading="lazy"><span>▶</span></div>
+<div class="sm48-video-tile sm48-tile-sunset"><img src="/sm48-sunset.svg" alt="" loading="lazy"><span>▶</span></div>
+<div class="sm48-video-tile sm48-tile-food"><img src="/sm48-food.svg" alt="" loading="lazy"><span>▶</span></div></div></div>
       <div class="section-heading"><div><div class="eyebrow small">THE CREATOR STUDIO</div><h2>Create your next Short</h2><p>Cut, caption and export 9:16 MP4 videos for YouTube Shorts. Members spend 1 credit per Short.</p></div><span class="step-counter" id="step-counter">STEP 01 / 03</span></div>
       <div class="steps"><div class="step active" data-step="1"><span>01</span> Add your video</div><div class="step-line"></div><div class="step" data-step="2"><span>02</span> Customize</div><div class="step-line"></div><div class="step" data-step="3"><span>03</span> Download Shorts</div></div>
       <div class="upload-panel" id="upload-panel">
@@ -574,5 +591,6 @@ Second channel | https://www.youtube.com/@secondchannel"></textarea>
   <script src="/growth-v27.js?v=39.0.0" defer></script>
   <script src="/shortmint-settings-v30.js?v=30.0.0" defer></script>
   <script src="/shortmint-export-v34.js?v=38.0.0" defer></script>
+  <script src="/shortmint-ui-v48.js?v=48.0.0" defer></script>
 </body>
 </html>
