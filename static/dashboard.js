@@ -30,6 +30,8 @@ function showView(view) {
 function updateUser() {
   if (!currentUser) return;
   const owner = currentUser.role === 'owner';
+  const sideButton=document.getElementById('sm49-side-action');
+  if(sideButton){sideButton.dataset.view=owner?'admin':'buy';sideButton.textContent=owner?'Open Admin Panel →':'Buy Credits →';}
   const letter = currentUser.username.charAt(0).toUpperCase();
   $('#welcome-user').textContent = currentUser.username;
   $('#welcome-copy').textContent = `Hello, ${currentUser.username}. Let's make something worth sharing.`;
@@ -206,6 +208,8 @@ async function refreshData(){
     $('#metric-week').textContent=projects.stats.this_week;
     $('#metric-month').textContent=projects.stats.this_month;
     $('#metric-shorts').textContent=projects.stats.total_shorts;
+    if(typeof window.sm49RenderProjects==='function') window.sm49RenderProjects(lastProjects);
+    if(typeof window.sm49LoadMessages==='function') window.sm49LoadMessages();
     const list=$('#project-list');
     if(!lastProjects.length){list.innerHTML='<div class="empty-list">No projects yet. Click New Project to create your first Short.</div>';return;}
     list.innerHTML=lastProjects.map(p=>`<div class="project-row"><div class="project-square">▣</div><div class="project-description"><b>${safe(p.filename)}</b><small>${safe(timeLabel(p.created_at))} · ${safe(fmtTime(p.duration))} · ${p.shorts} Shorts generated</small></div><div class="project-row-actions"><button type="button" class="small-btn" data-open-project="${p.id}">Open →</button><button type="button" class="small-btn danger" data-delete-project="${p.id}">Delete</button></div></div>`).join('');
