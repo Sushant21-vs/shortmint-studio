@@ -1,0 +1,273 @@
+/* ShortMint Studio v50: readable, spacious UI over v49.
+ * The v49 layout deliberately used 9–11px type and short fixed-height cards.
+ * This stylesheet repairs that without transforming/zooming the page or changing app logic.
+ */
+#app-view {
+  font-size: 15px !important;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+/* Sidebar and workspace header */
+#app-view .sm-sidebar {
+  width: 252px !important;
+  min-width: 252px !important;
+}
+#app-view .sm-side-top {padding: 19px 16px 18px !important;}
+#app-view .sm-brand-type {font-size: 20px !important;letter-spacing: -.035em !important;}
+#app-view .sm-brand-type small {font-size: 13px !important;}
+#app-view .header-nav {gap: 7px !important;padding: 17px 13px !important;}
+#app-view .header-nav .nav-link {
+  font-size: 15px !important;
+  min-height: 49px !important;
+  padding: 0 14px !important;
+  gap: 13px !important;
+}
+#app-view .header-nav .nav-link svg {height: 22px !important;width: 22px !important;}
+#app-view .sm-side-bottom {padding: 10px 16px 22px !important;}
+#app-view .sm-side-contact {padding: 19px !important;}
+#app-view .sm-side-contact h2 {font-size: 20px !important;}
+#app-view .sm-side-contact .sm25-contact-intro,
+#app-view .sm-side-contact:after {font-size: 13px !important;line-height: 1.55 !important;}
+#app-view .sm49-sidebar-action {min-height: 42px !important;font-size: 14px !important;}
+#app-view .site-header,
+#app-view .header-inner {height: 68px !important;min-height: 68px !important;}
+#app-view .header-inner {padding: 0 24px !important;gap: 16px !important;}
+#app-view .sm-location {min-width: 195px !important;}
+#app-view .sm-location>span {font-size: 11px !important;}
+#app-view .sm-location strong {font-size: 17px !important;}
+#app-view .sm-command-launch {height: 43px !important;min-height: 43px !important;max-width: 510px !important;}
+#app-view .sm-command-launch span {font-size: 14px !important;}
+#app-view .header-actions {gap: 12px !important;}
+#app-view #header-credit-chip {font-size: 13px !important;min-height: 40px !important;padding: 8px 14px !important;}
+#app-view #logout-button {font-size: 13px !important;min-height: 41px !important;padding: 9px 13px !important;}
+#app-view .sm30-settings-shortcut {height: 41px !important;width: 41px !important;min-width: 41px !important;}
+#app-view .sm49-notification {height: 41px !important;min-width: 41px !important;}
+#app-view #header-avatar {height: 40px !important;width: 40px !important;min-width: 40px !important;}
+#app-view .main-shell {width: calc(100% - 48px) !important;max-width: 1880px !important;padding: 20px 0 60px !important;}
+/* Feature hero banners */
+#app-view .sm49-hero,
+#app-view .sm48-hero,
+#app-view #orders-view .sm44-hero,
+#app-view #settings-view .sm30-page-heading,
+#app-view #admin-view .sm-admin-hero {
+  min-height: 202px !important;
+  padding: 26px 40px !important;
+  border-radius: 19px !important;
+  margin-bottom: 18px !important;
+}
+#app-view .sm49-hero-copy {max-width: 750px !important;}
+#app-view .sm49-kicker,
+#app-view .sm48-eyebrow {font-size: 13px !important;letter-spacing: .10em !important;}
+#app-view .sm49-hero h1 {font-size: clamp(30px, 2.9vw, 43px) !important;margin-bottom: 8px !important;line-height: 1.15 !important;}
+#app-view .sm49-hero p,
+#app-view .sm48-hero p,
+#app-view #orders-view .sm44-hero p,
+#app-view #settings-view .sm30-page-heading p {font-size: 16px !important;line-height: 1.55 !important;}
+#app-view .sm49-hero-actions {gap: 14px !important;margin-top: 18px !important;}
+#app-view .sm49-btn {font-size: 15px !important;min-height: 47px !important;padding: 11px 24px !important;border-radius: 11px !important;}
+#app-view .sm49-hero-help {font-size: 14px !important;max-width: 310px !important;}
+#app-view .sm49-hero-help summary {min-height: 47px !important;padding: 12px 18px !important;}
+/* Dashboard metrics */
+#app-view .sm49-metrics,
+#app-view .sm49-three-columns {gap: 16px !important;}
+#app-view .sm49-metrics,
+#app-view .sm49-top-grid,
+#app-view .sm49-bottom-grid {margin-bottom: 16px !important;}
+#app-view .sm49-metric {min-height: 108px !important;padding: 17px 20px !important;gap: 16px !important;border-radius: 16px !important;}
+#app-view .sm49-metric-icon {width: 54px !important;height: 54px !important;font-size: 33px !important;border-radius: 14px !important;}
+#app-view .sm49-metric div {gap: 3px !important;}
+#app-view .sm49-metric small {font-size: 14px !important;}
+#app-view .sm49-metric strong {font-size: 32px !important;line-height: 1.08 !important;}
+#app-view .sm49-metric div>span {font-size: 12px !important;line-height: 1.45 !important;}
+/* Content cards: no tiny hard-capped text or clipped card bodies */
+#app-view .sm49-card {padding: 20px 21px !important;border-radius: 16px !important;}
+#app-view .sm49-card-title {gap: 12px !important;margin-bottom: 13px !important;}
+#app-view .sm49-line-icon {font-size: 27px !important;width: 31px !important;}
+#app-view .sm49-card-title h2 {font-size: 20px !important;line-height: 1.25 !important;letter-spacing: -.02em !important;}
+#app-view .sm49-card-title p {font-size: 13px !important;line-height: 1.45 !important;margin-top: 4px !important;}
+#app-view .sm49-card-title-line {padding-bottom: 13px !important;margin-bottom: 12px !important;}
+#app-view .sm49-text-button {font-size: 13px !important;padding: 8px 1px !important;}
+#app-view .sm49-top-grid>.sm49-card {height: auto !important;min-height: 265px !important;overflow: visible !important;}
+#app-view .sm49-bottom-grid>.sm49-card {height: auto !important;min-height: 236px !important;overflow: visible !important;}
+#app-view .sm49-card-body,
+#app-view #project-list,
+#app-view #sm49-messages-list {max-height: 205px !important;overflow-y: auto !important;}
+#app-view .sm49-empty-status,
+#app-view .sm49-empty,
+#app-view .sm49-recent-card .empty-list {font-size: 14px !important;line-height: 1.5 !important;padding: 20px 10px !important;}
+/* New-project upload card */
+#app-view .sm49-upload-callout {min-height: 155px !important;padding: 14px 12px !important;gap: 4px !important;}
+#app-view .sm49-upload-symbol {font-size: 35px !important;margin-bottom: 3px !important;}
+#app-view .sm49-upload-callout strong {font-size: 14px !important;line-height: 1.5 !important;}
+#app-view .sm49-upload-callout small {font-size: 12px !important;line-height: 1.45 !important;margin: 3px 0 7px !important;}
+#app-view .sm49-upload-action {font-size: 14px !important;min-height: 40px !important;min-width: 168px !important;padding: 9px 20px !important;}
+#app-view .sm49-temporary-note {font-size: 12px !important;line-height: 1.55 !important;margin-top: 10px !important;}
+/* Recent projects, jobs and messages */
+#app-view #dashboard-view .sm49-recent-card .project-row {min-height: 57px !important;padding: 10px 3px !important;gap: 11px !important;}
+#app-view .sm49-recent-card .project-square {width: 57px !important;height: 45px !important;}
+#app-view .sm49-recent-card .project-description b {font-size: 14px !important;}
+#app-view .sm49-recent-card .project-description small {font-size: 12px !important;}
+#app-view .sm49-recent-card .project-row-actions .small-btn {min-height: 32px !important;font-size: 12px !important;padding: 5px 7px !important;}
+#app-view .sm49-processing-line {padding: 11px 2px !important;gap: 12px !important;}
+#app-view .sm49-processing-line>span {width: 45px !important;height: 42px !important;font-size: 24px !important;}
+#app-view .sm49-processing-line b {font-size: 14px !important;}
+#app-view .sm49-processing-line small {font-size: 12px !important;}
+#app-view .sm49-prog-track {height: 7px !important;margin-top: 9px !important;}
+#app-view .sm49-message-row {min-height: 60px !important;padding: 12px 0 !important;gap: 12px !important;}
+#app-view .sm49-message-avatar {height: 39px !important;width: 39px !important;font-size: 15px !important;}
+#app-view .sm49-message-row strong {font-size: 14px !important;}
+#app-view .sm49-message-row small {font-size: 12px !important;}
+#app-view .sm49-msg-status {font-size: 11px !important;padding: 5px 9px !important;}
+/* Creator tips and quick actions */
+#app-view .sm49-tip-list {gap: 8px !important;}
+#app-view .sm49-tip-list button {min-height: 52px !important;padding: 8px 11px !important;gap: 12px !important;}
+#app-view .sm49-tip-list button>span:first-child {width: 32px !important;font-size: 23px !important;}
+#app-view .sm49-tip-list button b {font-size: 13px !important;}
+#app-view .sm49-tip-list button small {font-size: 11px !important;}
+#app-view .sm49-action-grid {gap: 10px !important;}
+#app-view .sm49-action-grid button {height: 67px !important;font-size: 12px !important;gap: 4px !important;}
+#app-view .sm49-action-grid button span {font-size: 25px !important;}
+/* Generated Shorts */
+#app-view .sm49-generated-card {min-height: 262px !important;padding-bottom: 22px !important;}
+#app-view .sm49-shorts-gallery {gap: 15px !important;}
+#app-view .sm49-short-image {height: 136px !important;}
+#app-view .sm49-short-tile>strong {font-size: 14px !important;padding: 10px 12px 2px !important;}
+#app-view .sm49-short-tile>small {font-size: 12px !important;padding: 2px 12px 12px !important;}
+/* Create Shorts editor */
+#app-view .sm49-studio-hero {min-height: 205px !important;padding: 26px 40px !important;}
+#app-view #editor-view .studio>.steps {padding: 15px 19px !important;margin-bottom: 16px !important;}
+#app-view #editor-view .studio .steps .step {font-size: 15px !important;}
+#app-view #editor-view #upload-panel {padding: 22px !important;gap: 14px 18px !important;}
+#app-view #editor-view #upload-panel>.upload-header {min-height: 62px !important;}
+#app-view #editor-view #upload-panel>.upload-header h3 {font-size: 20px !important;}
+#app-view #editor-view #upload-panel>.upload-header p {font-size: 14px !important;}
+#app-view #editor-view #upload-panel #dropzone {min-height: 265px !important;padding: 30px 16px !important;}
+#app-view #editor-view #upload-panel #dropzone h4 {font-size: 20px !important;}
+#app-view #editor-view #upload-panel #dropzone p {font-size: 15px !important;}
+#app-view #editor-view #upload-panel #dropzone small {font-size: 13px !important;}
+#app-view #editor-view #upload-panel>.sm-supported-file-types {font-size: 12px !important;}
+#app-view #editor-view #upload-panel>.sm49-preflight-settings {padding: 22px !important;gap: 7px !important;}
+#app-view .sm49-panel-heading {font-size: 21px !important;}
+#app-view .sm49-panel-heading small {font-size: 13px !important;}
+#app-view .sm49-preflight-settings>label {min-height: 52px !important;font-size: 14px !important;}
+#app-view .sm49-preflight-settings select {font-size: 14px !important;min-height: 40px !important;padding: 9px 12px !important;}
+#app-view .sm49-preflight-settings>p {font-size: 12px !important;}
+#app-view .sm49-preflight-settings>.sm49-btn {min-height: 48px !important;}
+/* Matching orders, settings, admin and credits text size */
+#app-view #orders-view .sm44-hero h1,
+#app-view #settings-view .sm30-page-heading :is(h1,h2) {font-size: clamp(29px, 2.8vw, 40px) !important;}
+#app-view #orders-view .sm44-hero p,
+#app-view #settings-view .sm30-page-heading p {font-size: 16px !important;}
+#app-view #settings-view .sm30-settings-cards {gap: 17px !important;}
+#app-view #settings-view .sm30-panel {padding: 23px 26px !important;border-radius: 16px !important;}
+#app-view #settings-view .sm30-panel h2 {font-size: 21px !important;}
+#app-view #settings-view .sm30-panel :is(p,small,label,button,select,input,textarea) {font-size: 14px !important;}
+#app-view #settings-view .sm30-panel .sm30-theme-choice {min-height: 72px !important;}
+#app-view #settings-view .sm30-settings-footer {font-size: 12px !important;}
+#app-view #orders-view .sm44-layout {gap: 17px !important;}
+#app-view #orders-view :is(.sm44-panel,.sm44-order-card,.sm44-thread-list,.sm44-chat-panel) {border-radius: 15px !important;}
+#app-view #orders-view :is(input,textarea,select,button) {font-size: 14px !important;}
+#app-view :is(#credits-view,#buy-view,#admin-view) :is(input,select,textarea,button) {font-size: 14px !important;}
+/* Tablet and phone: increase legibility without horizontal scroll. */
+@media (max-width: 1320px) {
+  #app-view .sm49-three-columns {grid-template-columns: repeat(2,minmax(0,1fr)) !important;}
+  #app-view .sm49-bottom-grid>.sm49-quick-card {grid-column: 1 / -1 !important;}
+  #app-view .sm49-metrics {grid-template-columns: repeat(2,minmax(0,1fr)) !important;}
+  #app-view .sm49-shorts-gallery {grid-template-columns: repeat(2,minmax(0,1fr)) !important;}
+}
+@media (max-width: 1090px) {
+  #app-view .sm-sidebar {width: 216px !important;min-width: 216px !important;}
+  #app-view .sm-command-launch {display: none !important;}
+  #app-view .main-shell {width: calc(100% - 32px) !important;}
+}
+@media (max-width: 860px) {
+  #app-view .sm-sidebar {width: min(310px,86vw) !important;min-width: 0 !important;}
+  #app-view .site-header,
+  #app-view .header-inner {height: 62px !important;min-height: 62px !important;}
+  #app-view .header-inner {padding: 0 12px !important;}
+  #app-view .sm-location {min-width: 0 !important;}
+  #app-view .sm49-three-columns {grid-template-columns: 1fr !important;}
+  #app-view .sm49-top-grid>.sm49-card,
+  #app-view .sm49-bottom-grid>.sm49-card {min-height: 0 !important;}
+  #app-view .sm49-hero,
+  #app-view .sm48-hero,
+  #app-view #orders-view .sm44-hero,
+  #app-view #settings-view .sm30-page-heading {padding: 23px 22px !important;}
+  #app-view #editor-view #upload-panel {grid-template-columns: 1fr !important;}
+  #app-view .sm49-generated-card {min-height: 0 !important;}
+}
+@media (max-width: 520px) {
+  #app-view .main-shell {width: calc(100% - 24px) !important;padding-top: 14px !important;}
+  #app-view .sm49-hero h1 {font-size: 29px !important;}
+  #app-view .sm49-hero p {font-size: 14px !important;}
+  #app-view .sm49-hero-actions {flex-wrap: wrap;}
+  #app-view .sm49-card {padding: 17px 16px !important;}
+  #app-view .sm49-card-title h2 {font-size: 19px !important;}
+  #app-view .sm49-metric {min-height: 104px !important;padding: 12px 13px !important;gap: 10px !important;}
+  #app-view .sm49-metric-icon {width: 42px !important;height: 42px !important;font-size: 25px !important;}
+  #app-view .sm49-metric small {font-size: 12px !important;}
+  #app-view .sm49-metric strong {font-size: 26px !important;}
+  #app-view .sm49-metric div>span {font-size: 11px !important;}
+  #app-view .sm49-shorts-gallery {grid-template-columns: 1fr 1fr !important;}
+  #app-view .sm49-short-image {height: 110px !important;}
+  #app-view .sm49-action-grid {grid-template-columns: repeat(2,minmax(0,1fr)) !important;}
+  #app-view .sm49-action-grid button {font-size: 12px !important;min-height: 66px !important;}
+  #app-view .sm49-preflight-settings>label {flex-wrap: wrap;}
+  #app-view #settings-view .sm30-panel {padding: 18px !important;}
+}
+/* Keep the illustration entirely secondary to the headline at narrower widths. */
+@media (min-width: 861px) {
+  #app-view .sm49-hero-copy {max-width: 54% !important;}
+  #app-view .sm49-hero-copy p {max-width: 96% !important;}
+  #app-view .sm49-hero h1 {font-size: clamp(30px, 2.55vw, 40px) !important;}
+  #app-view .sm49-hero-dashboard:after,
+  #app-view .sm49-studio-hero:after {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 25%);
+    mask-image: linear-gradient(90deg, transparent, #000 25%);
+  }
+}
+@media (min-width: 861px) and (max-width: 1360px) {
+  #app-view .sm49-hero-copy {max-width: 70% !important;}
+  #app-view .sm49-hero-dashboard:after,
+  #app-view .sm49-studio-hero:after {opacity: .32 !important;}
+}
+@media (max-width: 860px) {
+  #app-view .sm49-hero-copy {max-width: 100% !important;}
+}
+#app-view .sm49-create-card .sm49-temporary-note {
+  display: block !important;
+  max-height: none !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  margin-bottom: 0 !important;
+}
+/* Prevent narrow mobile columns inherited from the desktop mockup CSS. */
+@media (max-width: 860px) {
+  #app-view #orders-view .sm44-layout {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 16px !important;
+  }
+  #app-view #editor-view .studio>.steps {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    padding: 11px 8px !important;
+    min-width: 0 !important;
+  }
+  #app-view #editor-view .studio>.steps .step-line {display: none !important;}
+  #app-view #editor-view .studio>.steps .step {
+    min-width: 0 !important;
+    width: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    padding: 5px 3px !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+    text-align: center !important;
+    white-space: normal !important;
+  }
+}
